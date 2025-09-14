@@ -83,7 +83,11 @@ if (strpos($sql, '?') !== false) {
                 <div class="col-md-12">
 
                     <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
+
+                    <a href="\admin-dashboard.php" class="settings-btn"><i class="bi bi-database"></i>back</a>
                         <h2 class="pull-left">Beehive Monitoring Records</h2>
+
+
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -130,6 +134,7 @@ if (strpos($sql, '?') !== false) {
                                     echo "<th>Humidity (%)</th>";
                                     echo "<th>Weight (kg)</th>";
                                     echo "<th>Fan Status</th>";
+                                    echo "<th>Status</th>";
                                     echo "<th>Options</th>";
                                 echo "</tr>";
                             echo "</thead>";
@@ -142,6 +147,7 @@ if (strpos($sql, '?') !== false) {
                                     echo "<td>" . $row['humidity'] . "</td>";
                                     echo "<td>" . $row['weight'] . "</td>";
                                     echo "<td>" . $row['fan_status'] . "</td>";
+                                    echo "<td>" . $row['status'] . "</td>";
                                     echo "<td>";
                                         echo '<a href="read.php?reading_id='. $row['reading_id'] .'" class="btn btn-info btn-sm mr-1" title="Read"><i class="fa fa-eye"></i></a>';
                                         echo '<a href="update.php?reading_id='. $row['reading_id'] .'" class="btn btn-warning btn-sm mr-1" title="Update"><i class="fa fa-pencil"></i></a>';

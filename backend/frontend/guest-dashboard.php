@@ -1,11 +1,38 @@
 <?php
-$temperature = 40.3;
-$humidity = 58.4;
-$weight = 23.3;
+require_once "../config.php"; // make sure this defines $link as your mysqli connection
 
-$temperature_history = [38, 39, 40, 40.3, 39.5, 41, 40];
-$humidity_history = [55, 57, 60, 58.4, 56, 59, 58];
-$weight_history = [22, 22.5, 23, 23.3, 23.1, 23.5, 23.3];
+// Query data from your table (change table name/columns if different)
+$sql = "SELECT `timestamp`, `temperature`, `humidity`, `weight`
+        FROM beehive_readings
+        ORDER BY `timestamp` ASC";
+$result = mysqli_query($link, $sql);
+
+$timestamps = [];
+$temperatures = [];
+$humidities = [];
+$weights = [];
+
+if ($result && mysqli_num_rows($result) > 0) {
+    while ($row = mysqli_fetch_assoc($result)) {
+        $timestamps[] = $row['timestamp'];
+        $temperatures[] = floatval($row['temperature']);
+        $humidities[] = floatval($row['humidity']);
+        $weights[] = floatval($row['weight']);
+    }
+}
+
+
+
+$latestTemp   = round(end($temperatures), 1);
+$latestHum    = round(end($humidities), 1);
+$latestWeight = round(end($weights), 2);
+
+// pass arrays to JS
+$temperature_history = $temperatures;
+$humidity_history    = $humidities;
+$weight_history      = $weights;
+
+mysqli_close($link);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -158,31 +185,31 @@ canvas {
     <img src="bee.png" alt="HiveCare Logo">
     <span>HiveCare - Guest Dashboard</span>
   </div>
-  <a href="index.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  <a href="frontindex.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
 </div>
 
 <div class="container">
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
-    <div class="value"><?php echo $temperature; ?> °C</div>
-    <div class="<?php echo ($temperature>32||$temperature<20)?'status-bad':'status-good';?>">
-      <?php echo ($temperature>32||$temperature<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    <div class="value"><?php echo $latestTemp; ?> °C</div>
+    <div class="<?php echo ($latestTemp>32||$latestTemp<20)?'status-bad':'status-good';?>">
+      <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
     </div>
     <canvas id="tempChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
-    <div class="value"><?php echo $humidity; ?> %</div>
-    <div class="<?php echo ($humidity>=40&&$humidity<=70)?'status-good':'status-bad';?>">
-      <?php echo ($humidity>=40&&$humidity<=70)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div class="value"><?php echo $latestHum; ?> %</div>
+    <div class="<?php echo ($latestHum>=40&&$latestHum<=70)?'status-good':'status-bad';?>">
+      <?php echo ($latestHum>=40&& $latestHum<=70)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#FFD93D;"></i> Weight</h5>
-    <div class="value"><?php echo $weight; ?> kg</div>
-    <div class="<?php echo ($weight>=20)?'status-good':'status-bad';?>">
-      <?php echo ($weight>=20)?'Weight is Good ✔':'Weight is Low ✖';?>
+    <div class="value"><?php echo $latestWeight ; ?> kg</div>
+    <div class="<?php echo ($latestWeight>=20)?'status-good':'status-bad';?>">
+      <?php echo ($latestWeight>=20)?'Weight is Good ✔':'Weight is Low ✖';?>
     </div>
     <canvas id="weightChart"></canvas>
   </div>
