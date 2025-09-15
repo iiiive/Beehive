@@ -212,7 +212,7 @@ th { background: #FFD93D; color: #4B2E1E; }
     <span>HiveCare - Admin Dashboard</span>
   </div>
   <div>
-    <a href="../index.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
+    <a href="database.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
     <a href="manage_users.php" class="settings-btn"><i class="bi bi-gear-fill"></i> Manage Users</a>
     <a href="frontindex.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
   </div>
