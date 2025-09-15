@@ -22,25 +22,33 @@
     }
 
     .header {
-      text-align: center;
-    }
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-    .header img {
-      width: 150px;
-      height: 150px;
-    }
+.header img {
+  width: 150px;
+  height: 150px;
+  margin: 0; /* no space around the logo */
+  padding: 0;
+}
 
-    h1 {
-      font-family: 'Cursive', 'Brush Script MT', sans-serif;
-      font-size: 5rem;
-      margin: 10px 0;
-      color: #333;
-    }
+h1 {
+  font-family: 'Cursive', 'Brush Script MT', sans-serif;
+  font-weight: 100;
+  font-size: clamp(3rem, 10vw, 12rem);
+  color: #333;
+  margin: -10px 0 0 0; /* pull text closer to logo */
+  padding: 0;
+}
+
 
     h2 {
       font-size: 1.5rem;
       color: #333;
-      margin: 20px 0;
+      margin: 10px 0; /* tighten spacing */
       text-align: center;
     }
 
@@ -49,7 +57,7 @@
       justify-content: center;
       gap: 20px;
       flex-wrap: wrap;
-      margin-top: 20px;
+      margin: 10px 0; /* reduce spacing above cards */
     }
 
     .card {
@@ -79,32 +87,34 @@
       height: 80px;
       margin-bottom: 10px;
     }
-    .back-btn {
-  display: inline-block;
-  padding: 12px 25px;
-  font-size: 1rem;
-  font-weight: bold;
-  color: #fff;
-  background: #74512d;
-  border-radius: 25px;
-  text-decoration: none;
-  box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
-  transition: background 0.3s ease, transform 0.2s ease;
-}
-
-.back-btn:hover {
-  background: #feba17;
-  color: #333;
-  transform: scale(1.05);
-}
-
 
     .label {
       font-weight: bold;
       font-size: 1.2rem;
       color: #333;
     }
-        @media (max-width: 600px) {
+
+    .back-btn {
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      background: #74512d;
+      border-radius: 25px;
+      text-decoration: none;
+      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-top: 15px; /* tighter spacing */
+    }
+
+    .back-btn:hover {
+      background: #feba17;
+      color: #333;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 600px) {
       h1 {
         font-size: 3rem;
       }
@@ -116,7 +126,6 @@
         width: 60px;
         height: 60px;
       }
-      
     }
   </style>
 </head>
@@ -124,7 +133,7 @@
 
   <div class="header">
     <img src="images/bee.png" alt="Bee Logo"/>
-    <h1>hivecare</h1>
+    <h1>HiveCare</h1>
   </div>
 
   <h2>Select your role to continue</h2>
@@ -145,9 +154,8 @@
       <div class="label">ADMIN</div>
     </a>
   </div>
-  <div style="margin-top: 30px; text-align: center;">
-    <a href="frontindex.php" class="back-btn">⬅ Back</a>
-  </div>
+
+  <a href="frontindex.php" class="back-btn">⬅ Back</a>
 
 </body>
 </html>

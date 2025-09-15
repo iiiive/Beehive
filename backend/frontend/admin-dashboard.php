@@ -214,7 +214,7 @@ th { background: #FFD93D; color: #4B2E1E; }
   <div>
     <a href="database.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
     <a href="manage_users.php" class="settings-btn"><i class="bi bi-gear-fill"></i> Manage Users</a>
-    <a href="frontindex.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+    <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
   </div>
 </div>
 

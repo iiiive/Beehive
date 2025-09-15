@@ -90,7 +90,7 @@
 </head>
 <body>
     <div class="wrapper">
-        <h2>Beehive Monitoring Records</h2>
+        <h2>HiveCare Monitoring Records</h2>
 
         <div class="container-cards">
             <a href="../index.php" class="card-link">
