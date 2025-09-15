@@ -33,6 +33,9 @@ if ($result && mysqli_num_rows($result) > 0) {
     if ($humidity > 80) {
         $alerts[] = "💧 Humidity too high! Humidity: {$humidity}% at {$timestamp}";
     }
+    if ($weight > 5) {
+        $alerts[] = "Beehive is too Heavy! Check for Potential Swarming/Harvest. Weight: {$weight}Kg at {$timestamp}";
+    }
 
     // Optional weight alert
     // $prev_sql = "SELECT weight FROM beehive_readings ORDER BY timestamp DESC LIMIT 1,1";
