@@ -11,7 +11,7 @@
       font-family: 'Verdana', sans-serif;
       margin: 0;
       padding: 0;
-      background-image: url('image/background.png');
+      background-image: url('images/background.png');
       background-attachment: fixed;
       background-size: cover;
       display: flex;
