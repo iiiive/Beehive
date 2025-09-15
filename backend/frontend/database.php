@@ -4,69 +4,112 @@
     <meta charset="UTF-8">
     <title>Beehive Monitoring Databases</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .wrapper {
-            width: 1100px;
-            margin: 30px auto;
-        }
-        .table-custom thead th {
-            background-color: #4F200D !important;
-            color: #ffffff !important;
-            text-align: center;
-        }
-        .table-custom tbody tr {
-            background-color: #F6F1E9 !important;
-        }
         body {
             background-image: url("https://t3.ftcdn.net/jpg/06/31/48/06/360_F_631480602_mStNuYekDgq1eU9qbAKCtk0V6LxBZxBw.jpg");
             background-repeat: no-repeat;
             background-size: cover;
             background-attachment: fixed;
+            font-family: 'Verdana', sans-serif;
         }
-        .btn-cl {
-            background-color: #FF9A00;
-            border-color: #FF9A00;
+
+        .wrapper {
+            margin: 50px auto;
+            text-align: center;
         }
-        .btn-cl:hover {
-            opacity: 0.7;
-            background-color: #FF9A00;
-            border-color: #FF9A00;
+
+        h2 {
+            font-family: 'Cursive', 'Brush Script MT', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 50px;
+            color: #1f1111ff;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+        }
+
+        .container-cards {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card-link {
+            border-radius: 20px;
+            padding: 20px;
+            width: 180px;
+            height: 200px;
+            background: linear-gradient(145deg, #dfdccb, #fffff1);
+            box-shadow: 10px 10px 20px #74512d,
+                        -10px -10px 20px #74512d;
+            transition: transform 0.3s ease, background 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-decoration: none;
+        }
+
+        .card-link:hover {
+            transform: scale(1.05);
+            background: linear-gradient(145deg, #fff7d1, #feba17);
+        }
+
+        .card-link img {
+            width: 90px;
+            height: 90px;
+            margin-bottom: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: #74512d;
+            border-radius: 25px;
+            text-decoration: none;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #feba17;
+            color: #333;
+            transform: scale(1.05);
         }
     </style>
 </head>
-
 <body>
     <div class="wrapper">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
+        <h2>Beehive Monitoring Records</h2>
 
-                    <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
+        <div class="container-cards">
+            <a href="../index.php" class="card-link">
+                <img src="images/bee.png" alt="Beehive Icon">
+                <div class="label">Beehive Readings</div>
+            </a>
 
-                    <a href="admin-dashboard.php" class="settings-btn"><i class="bi bi-database"></i>back</a>
-                        <h2 class="pull-left">Beehive Monitoring Records</h2>
+            <a href="../userindex.php" class="card-link">
+                <img src="images/user.png" alt="User Icon">
+                <div class="label">User Information</div>
+            </a>
 
-
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                      <form class="form-inline" method="get" action="">
-                        <a href="../index.php" class="settings-btn"><i class="bi bi-database"></i>BeeHive Readings</a>
-                        <a href="../userindex.php" class="settings-btn"><i class="bi bi-database"></i>User Information</a>
-                        <a href="../adminindex.php" class="settings-btn"><i class="bi bi-database"></i>Admin Information</a>
-
-                        </form>
-
-      
-                          
-
-                    
-                </div>
-            </div>        
+            <a href="../adminindex.php" class="card-link">
+                <img src="images/admin.png" alt="Admin Icon">
+                <div class="label">Admin Information</div>
+            </a>
         </div>
+
+        <a href="admin-dashboard.php" class="back-btn">⬅ Back</a>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

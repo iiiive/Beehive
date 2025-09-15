@@ -179,10 +179,10 @@ canvas {
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="image/bee.png" alt="HiveCare Logo">
+    <img src="images/bee.png" alt="HiveCare Logo">
     <span>HiveCare - Guest Dashboard</span>
   </div>
-  <a href="frontindex.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
 </div>
 
 <div class="container">

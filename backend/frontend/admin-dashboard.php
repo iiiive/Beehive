@@ -208,7 +208,7 @@ th { background: #FFD93D; color: #4B2E1E; }
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="image/bee.png" alt="HiveCare Logo"> 
+    <img src="images/bee.png" alt="HiveCare Logo"> 
     <span>HiveCare - Admin Dashboard</span>
   </div>
   <div>
