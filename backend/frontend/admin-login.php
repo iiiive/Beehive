@@ -1,4 +1,22 @@
 <?php
+// Default admin credentials
+$default_admin_username = "admin";
+$default_admin_password = "admin123"; // In production, hash this and use DB
+
+session_start();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
+
+    if ($username === $default_admin_username && $password === $default_admin_password) {
+        $_SESSION['admin_logged_in'] = true;
+        header("Location: admin-dashboard.php");
+        exit;
+    } else {
+        $error = "Invalid admin username or password!";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -171,6 +189,13 @@ body::before {
 .forgot-password:hover {
   color: #fff;
 }
+
+.error {
+  color: #ff5c5c;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
 </style>
 </head>
 <body>
@@ -181,17 +206,17 @@ body::before {
       
       <div class="login-header">
         <img src="images/bee.png" alt="Bee Logo">
-        <h1>HiveCare </h1>
+        <h1>HiveCare Admin</h1>
       </div>
 
-      <form class="login" method="POST" action="admin-dashboard.php">
+      <form class="login" method="POST">
         <div class="login__field">
           <i class="login__icon fas fa-user-shield"></i>
-          <input type="text" name="username" class="login__input" placeholder="Admin Username">
+          <input type="text" name="username" class="login__input" placeholder="Admin Username" required>
         </div>
         <div class="login__field">
           <i class="login__icon fas fa-lock"></i>
-          <input type="password" name="password" class="login__input" placeholder="Password">
+          <input type="password" name="password" class="login__input" placeholder="Password" required>
         </div>
         <button type="submit" class="button login__submit">
           <span class="button__text">Log In</span>
@@ -199,6 +224,11 @@ body::before {
         </button>
         <a href="forgot-password.php" class="forgot-password">Forgot Password?</a>
       </form>
+
+      <?php if (!empty($error)): ?>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
+      <?php endif; ?>
+
     </div>
   </div>
 </div>

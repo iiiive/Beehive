@@ -55,6 +55,8 @@
                       <form class="form-inline" method="get" action="">
                         <a href="../index.php" class="settings-btn"><i class="bi bi-database"></i>BeeHive Readings</a>
                         <a href="../userindex.php" class="settings-btn"><i class="bi bi-database"></i>User Information</a>
+                        <a href="../adminindex.php" class="settings-btn"><i class="bi bi-database"></i>Admin Information</a>
+
                         </form>
 
       
