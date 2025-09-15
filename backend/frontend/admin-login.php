@@ -180,7 +180,7 @@ body::before {
     <div class="screen__content">
       
       <div class="login-header">
-        <img src="bee.png" alt="Bee Logo">
+        <img src="images/bee.png" alt="Bee Logo">
         <h1>HiveCare </h1>
       </div>
 
