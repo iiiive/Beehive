@@ -52,7 +52,7 @@ mysqli_close($link);
 
 body {
     min-height: 100vh;
-    background: url('image/honey.jpeg') no-repeat center/cover;
+    background: url('images/honey.jpeg') no-repeat center/cover;
     position: relative;
     color: #212121;
 }

@@ -84,7 +84,7 @@ if (strpos($sql, '?') !== false) {
 
                     <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
 
-                    <a href="frontend/database.php" class="settings-btn"><i class="bi bi-database"></i>back</a>
+                    <a href="\admin-dashboard.php" class="settings-btn"><i class="bi bi-database"></i>back</a>
                         <h2 class="pull-left">Beehive Monitoring Records</h2>
 
 

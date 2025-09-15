@@ -123,7 +123,7 @@
 <body>
 
   <div class="header">
-    <img src="bee.png" alt="Bee Logo"/>
+    <img src="images/bee.png" alt="Bee Logo"/>
     <h1>hivecare</h1>
   </div>
 
@@ -131,17 +131,17 @@
 
   <div class="container">
     <a href="guest-dashboard.php" class="card">
-      <img src="image/guest.png" alt="Guest Icon"/>
+      <img src="images/guest.png" alt="Guest Icon"/>
       <div class="label">GUEST</div>
     </a>
 
     <a href="user-login.php" class="card">
-      <img src="image/user.png" alt="User Icon"/>
+      <img src="images/user.png" alt="User Icon"/>
       <div class="label">USER</div>
     </a>
 
     <a href="admin-login.php" class="card">
-      <img src="image/admin.png" alt="Admin Icon"/>
+      <img src="images/admin.png" alt="Admin Icon"/>
       <div class="label">ADMIN</div>
     </a>
   </div>

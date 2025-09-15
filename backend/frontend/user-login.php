@@ -34,7 +34,7 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('image/beehive.jpeg') no-repeat center center/cover;
+  background: url('images/beehive.jpeg') no-repeat center center/cover;
   filter: brightness(20%); 
   z-index: -1;
 }

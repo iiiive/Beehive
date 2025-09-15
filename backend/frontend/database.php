@@ -45,13 +45,19 @@
 
                     <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
 
-                    <a href="\admin-dashboard.php" class="settings-btn"><i class="bi bi-database"></i>back</a>
+                    <a href="admin-dashboard.php" class="settings-btn"><i class="bi bi-database"></i>back</a>
                         <h2 class="pull-left">Beehive Monitoring Records</h2>
 
 
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center mb-3">
+                      <form class="form-inline" method="get" action="">
+                        <a href="../index.php" class="settings-btn"><i class="bi bi-database"></i>BeeHive Readings</a>
+                        <a href="../userindex.php" class="settings-btn"><i class="bi bi-database"></i>User Information</a>
+                        </form>
+
+      
                           
 
                     

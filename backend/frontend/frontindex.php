@@ -25,7 +25,7 @@ $randomTrivia = $trivia[array_rand($trivia)];
 
     header {
       position: relative;
-      background-image: url('homepage.jpeg');
+      background-image: url('images/homepage.jpeg');
       background-size: cover;
       background-position: center;
       height: 80vh;
