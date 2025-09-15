@@ -44,7 +44,7 @@ mysqli_close($link);
 * { box-sizing:border-box; margin:0; padding:0; font-family:Raleway,sans-serif; }
 body {
   min-height: 100vh;
-  background: url('honey.jpeg') no-repeat center center/cover;
+  background: url('image/honey.jpeg') no-repeat center center/cover;
   position: relative;
   padding: 20px 0;
   color: #212121;
@@ -172,7 +172,7 @@ canvas { margin-top:20px; height:120px !important; }
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="bee.png" alt="HiveCare Logo">
+    <img src="image/bee.png" alt="HiveCare Logo">
     <span>HiveCare - User Dashboard</span>
   </div>
   <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>

@@ -34,7 +34,7 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: url('beehive.jpeg') no-repeat center center/cover;
+  background: url('image/beehive.jpeg') no-repeat center center/cover;
   filter: brightness(20%); 
   z-index: -1;
 }
@@ -180,7 +180,7 @@ font-size: 3rem;
     <div class="screen__content">
       
       <div class="login-header">
-        <img src="bee.png" alt="Bee Logo">
+        <img src="image/bee.png" alt="Bee Logo">
         <h1>HiveCare</h1>
       </div>
 

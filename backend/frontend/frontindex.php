@@ -159,7 +159,7 @@ $randomTrivia = $trivia[array_rand($trivia)];
     <a href="homepage.php" class="btn btn-custom top-right-btn">Get Started</a>
 
     <div class="content">
-      <img src="bee.png" alt="Bee Logo" class="logo">
+      <img src="image/bee.png" alt="Bee Logo" class="logo">
       <h1>HiveCare</h1>
       <p>Learn about stingless bees in the Philippines!</p>
       <a href="#info" class="btn btn-custom btn-lg">Read More</a>

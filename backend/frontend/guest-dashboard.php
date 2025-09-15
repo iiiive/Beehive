@@ -51,7 +51,7 @@ mysqli_close($link);
 }
 body {
   min-height: 100vh;
-  background: url('honey.jpeg') no-repeat center center/cover;
+  background: url('image/honey.jpeg') no-repeat center center/cover;
   position: relative;
   padding: 20px 0;
   color: #212121;
@@ -179,7 +179,7 @@ canvas {
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="bee.png" alt="HiveCare Logo">
+    <img src="image/bee.png" alt="HiveCare Logo">
     <span>HiveCare - Guest Dashboard</span>
   </div>
   <a href="frontindex.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>

@@ -11,7 +11,7 @@
       font-family: 'Verdana', sans-serif;
       margin: 0;
       padding: 0;
-      background-image: url('background.png');
+      background-image: url('image/background.png');
       background-attachment: fixed;
       background-size: cover;
       display: flex;
@@ -131,17 +131,17 @@
 
   <div class="container">
     <a href="guest-dashboard.php" class="card">
-      <img src="guest.png" alt="Guest Icon"/>
+      <img src="image/guest.png" alt="Guest Icon"/>
       <div class="label">GUEST</div>
     </a>
 
     <a href="user-login.php" class="card">
-      <img src="user.png" alt="User Icon"/>
+      <img src="image/user.png" alt="User Icon"/>
       <div class="label">USER</div>
     </a>
 
     <a href="admin-login.php" class="card">
-      <img src="admin.png" alt="Admin Icon"/>
+      <img src="image/admin.png" alt="Admin Icon"/>
       <div class="label">ADMIN</div>
     </a>
   </div>

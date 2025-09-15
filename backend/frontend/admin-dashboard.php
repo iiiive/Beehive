@@ -52,7 +52,7 @@ mysqli_close($link);
 
 body {
     min-height: 100vh;
-    background: url('honey.jpeg') no-repeat center/cover;
+    background: url('image/honey.jpeg') no-repeat center/cover;
     position: relative;
     color: #212121;
 }
@@ -208,7 +208,7 @@ th { background: #FFD93D; color: #4B2E1E; }
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="bee.png" alt="HiveCare Logo"> 
+    <img src="image/bee.png" alt="HiveCare Logo"> 
     <span>HiveCare - Admin Dashboard</span>
   </div>
   <div>
