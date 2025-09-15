@@ -79,6 +79,25 @@
       height: 80px;
       margin-bottom: 10px;
     }
+    .back-btn {
+  display: inline-block;
+  padding: 12px 25px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background: #74512d;
+  border-radius: 25px;
+  text-decoration: none;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+  transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.back-btn:hover {
+  background: #feba17;
+  color: #333;
+  transform: scale(1.05);
+}
+
 
     .label {
       font-weight: bold;
@@ -97,6 +116,7 @@
         width: 60px;
         height: 60px;
       }
+      
     }
   </style>
 </head>
@@ -124,6 +144,9 @@
       <img src="admin.png" alt="Admin Icon"/>
       <div class="label">ADMIN</div>
     </a>
+  </div>
+  <div style="margin-top: 30px; text-align: center;">
+    <a href="frontindex.php" class="back-btn">⬅ Back</a>
   </div>
 
 </body>

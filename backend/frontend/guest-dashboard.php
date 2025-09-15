@@ -129,10 +129,7 @@ body::before {
   box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.card:hover { 
-  transform: translateY(-5px) scale(1.05); 
-  box-shadow: 12px 12px 25px rgba(0,0,0,0.35), -8px -8px 20px rgba(255,255,255,0.5);
-}
+
 .card-title { 
   font-weight:700; 
   font-size:1.5rem; 
