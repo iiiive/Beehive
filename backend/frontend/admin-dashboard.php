@@ -1,20 +1,18 @@
 <?php
 require_once "../config.php";
 
-
-
-// Query data from your table
-$sql = "SELECT timestamp, temperature, humidity, weight 
-        FROM beehive_readings 
-        ORDER BY timestamp ASC";
-$result = mysqli_query($link, $sql);
+// Query 1: Get ALL readings for charts and latest values
+$sql_all = "SELECT timestamp, temperature, humidity, weight 
+            FROM beehive_readings 
+            ORDER BY timestamp ASC";
+$result_all = mysqli_query($link, $sql_all);
 
 $timestamps   = [];
 $temperatures = [];
 $humidities   = [];
 $weights      = [];
 
-while ($row = mysqli_fetch_assoc($result)) {
+while ($row = mysqli_fetch_assoc($result_all)) {
     $timestamps[]   = $row['timestamp'];
     $temperatures[] = $row['temperature'];
     $humidities[]   = $row['humidity'];
@@ -30,8 +28,24 @@ $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
 
+// Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight 
+              FROM beehive_readings 
+              ORDER BY timestamp DESC 
+              LIMIT 6";  // get 6: latest + 5 previous
+$result_last5 = mysqli_query($link, $sql_last5);
+
+$history_rows = [];
+while ($row = mysqli_fetch_assoc($result_last5)) {
+    $history_rows[] = $row;
+}
+
+// Remove the very latest row (first row in DESC order)
+array_shift($history_rows);
+
 mysqli_close($link);
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -265,6 +279,35 @@ th { background: #FFD93D; color: #4B2E1E; }
     </div>
   </div>
 </div>
+
+<!-- History Log Section -->
+<div class="card p-4 mt-4">
+  <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log </h4>
+  <div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover mt-3">
+      <thead class="table-warning">
+        <tr>
+          <th>Timestamp</th>
+          <th>Temperature (°C)</th>
+          <th>Humidity (%)</th>
+          <th>Weight (kg)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($history_rows as $row): ?>
+          <tr>
+            <td><?= $row['timestamp'] ?></td>
+            <td><?= $row['temperature'] ?></td>
+            <td><?= $row['humidity'] ?></td>
+            <td><?= $row['weight'] ?></td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
 
 <script>
 const tempData = <?php echo json_encode(array_reverse($temperature_history)); ?>;
