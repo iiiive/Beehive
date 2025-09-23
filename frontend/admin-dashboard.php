@@ -280,6 +280,8 @@ th { background: #FFD93D; color: #4B2E1E; }
   </div>
 </div>
 
+
+
 <!-- History Log Section -->
 <div class="card p-4 mt-4">
   <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log </h4>
