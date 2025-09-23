@@ -190,6 +190,20 @@ body::before {
   color: #fff;
 }
 
+.back-link {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+.back-link a {
+  color: #FFD93D;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.back-link a:hover {
+  color: #fff;
+}
+
 .error {
   color: #ff5c5c;
   text-align: center;
@@ -222,12 +236,17 @@ body::before {
           <span class="button__text">Log In</span>
           <i class="button__icon fas fa-chevron-right"></i>
         </button>
-        <a href="forgot-password.php" class="forgot-password">Forgot Password?</a>
+        <a href="admin-forgotpassword.php" class="forgot-password">Forgot Password?</a>
       </form>
 
       <?php if (!empty($error)): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
+
+      <!-- Back to Homepage link -->
+      <div class="back-link">
+        <a href="homepage.php"><i class="fas fa-arrow-left"></i> Back to Homepage</a>
+      </div>
 
     </div>
   </div>
