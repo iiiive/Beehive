@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-s
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
