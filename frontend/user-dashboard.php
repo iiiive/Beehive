@@ -189,6 +189,7 @@ canvas { margin-top:20px; height:120px !important; }
     <img src="images/bee.png" alt="HiveCare Logo">
     <span>HiveCare - User Dashboard</span>
   </div>
+  <a href="user-profile.php" class="settings-btn"><i class="bi bi-gear-fill"></i> Edit Profile</a>
   <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
 </div>
 
