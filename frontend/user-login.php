@@ -222,9 +222,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       margin-top: 15px;
       text-align: center;
     }
+
+    .back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background: #74512d;
+  border-radius: 20px;
+  text-decoration: none;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+  transition: background 0.3s ease, transform 0.2s ease;
+  z-index: 1000;
+}
+.back-btn:hover {
+  background: #feba17;
+  color: #333;
+  transform: scale(1.05);
+}
   </style>
 </head>
 <body>
+  <a href="homepage.php" class="back-btn">⬅ Back</a>
+
 <div class="container">
   <div class="screen">
     <div class="screen__content">
@@ -250,7 +273,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
       <div class="extra-links">
         <a href="user-forgotpassword.php">Forgot Password?</a>
-        <a href="homepage.php"> ← Back to Homepage</a>
       </div>
 
       <?php if (!empty($error)) { ?>

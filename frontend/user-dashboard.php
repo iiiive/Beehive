@@ -69,7 +69,9 @@ body::before {
   background-color: rgba(0,0,0,0.4);
   z-index: 0;
 }
-.container, .dashboard-header, .card, .fan-card { position: relative; z-index: 1; }
+.container, .dashboard-header, .card, .fan-card { 
+position: relative; 
+z-index: 1; }
 
 /* Header */
 .dashboard-header {
