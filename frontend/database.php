@@ -20,8 +20,9 @@
 
         h2 {
             font-family: 'Cursive', 'Brush Script MT', sans-serif;
-            font-size: 3rem;
-            margin-bottom: 50px;
+            font-size: 4rem;
+            margin-top: 100px;
+            margin-bottom: 80px;
             color: #1f1111ff;
             text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
         }
