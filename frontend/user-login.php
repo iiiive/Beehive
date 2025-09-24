@@ -1,5 +1,3 @@
-
-
 <?php
 session_start();
 include("../config.php");
@@ -202,6 +200,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       transform: scale(0.8);
     }
 
+    .extra-links {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .extra-links a {
+      display: block;
+      color: #e7d25bff;
+      text-decoration: underline;
+      margin: 8px 0;
+      transition: color 0.3s ease;
+    }
+
+    .extra-links a:hover {
+      color: #fff;
+    }
+
     .error {
       color: red;
       margin-top: 15px;
@@ -232,6 +247,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <i class="button__icon fas fa-chevron-right"></i>
         </button>        
       </form>
+
+      <div class="extra-links">
+        <a href="user-forgotpassword.php">Forgot Password?</a>
+        <a href="homepage.php"> ← Back to Homepage</a>
+      </div>
 
       <?php if (!empty($error)) { ?>
         <p class="error"><?php echo $error; ?></p>

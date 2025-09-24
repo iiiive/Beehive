@@ -1,20 +1,17 @@
 <?php
-// Default admin credentials
-$default_admin_username = "admin";
-$default_admin_password = "admin123"; // In production, hash this and use DB
-
 session_start();
+include("../config.php");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $email = trim($_POST['email'] ?? '');
 
-    if ($username === $default_admin_username && $password === $default_admin_password) {
-        $_SESSION['admin_logged_in'] = true;
-        header("Location: admin-dashboard.php");
+    if (!empty($email)) {
+        // Example only: In production, generate token and send via email
+        $_SESSION['reset_notice'] = "If this email exists in our system, a reset link has been sent.";
+        header("Location: forgot-password.php");
         exit;
     } else {
-        $error = "Invalid admin username or password!";
+        $error = "Please enter your email address.";
     }
 }
 ?>
@@ -24,15 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HiveCare Admin Login</title>
+<title>HiveCare - Forgot Password</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
-
 <style>
 * {
   box-sizing: border-box;
   margin: 0;
-  padding: 0;  
+  padding: 0;
   font-family: Raleway, sans-serif;
 }
 
@@ -42,7 +38,6 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  margin: 0;
 }
 body::before {
   content: "";
@@ -60,10 +55,10 @@ body::before {
   min-height: 100vh;
 }
 
-.screen {   
-  position: relative;  
-  height: 550px;
-  width: 360px;  
+.screen {
+  position: relative;
+  height: 480px;
+  width: 360px;
   box-shadow: 0px 0px 24px #ceae1fff;
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.1);
@@ -74,7 +69,7 @@ body::before {
 
 .screen__content {
   z-index: 1;
-  position: relative;  
+  position: relative;
   height: 100%;
   padding: 40px 20px;
   display: flex;
@@ -89,13 +84,13 @@ body::before {
 .login-header img {
   width: 100px;
   height: auto;
-  display: block;
   margin: 0 auto 10px;
+  display: block;
 }
 .login-header h1 {
   color: #e7d25bff;
   font-family: 'Cursive', 'Brush Script MT', sans-serif;
-  font-size: 3rem;
+  font-size: 2.2rem;
   font-weight: 100;
 }
 
@@ -104,8 +99,8 @@ body::before {
 }
 
 .login__field {
-  padding: 20px 0px;  
-  position: relative;  
+  padding: 20px 0;
+  position: relative;
 }
 
 .login__icon {
@@ -124,7 +119,6 @@ body::before {
   transition: .2s;
   color: #fff;
 }
-
 .login__input:active,
 .login__input:focus,
 .login__input:hover {
@@ -144,7 +138,7 @@ body::before {
   font-size: 17px;
   box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
   transition: all 250ms;
-  margin-left: 105px;
+  margin-left: 65px;
   margin-top: 20px;
   overflow: hidden;
   display: flex;
@@ -154,10 +148,8 @@ body::before {
 .login__submit::before {
   content: "";
   position: absolute;
-  top: 50%;
-  left: 50%;
-  height: 0;
-  width: 0;
+  top: 50%; left: 50%;
+  height: 0; width: 0;
   border-radius: 15px;
   background-color: #e7d25bff;
   z-index: -1;
@@ -168,27 +160,23 @@ body::before {
   color: #e8e8e8;
 }
 .login__submit:hover::before {
-  width: 100%;
-  top: 0;
-  left: 0;
-  height: 100%;
+  width: 100%; top: 0; left: 0; height: 100%;
 }
 .login__submit:active {
   transform: scale(0.8);
 }
 
-/* Extra links style */
 .extra-links {
-  margin-top: 15px;
+  margin-top: 20px;
   text-align: center;
 }
 .extra-links a {
   display: block;
-  font-size: 0.9rem;
   color: #FFD93D;
   text-decoration: underline;
-  margin: 5px 0;
-  cursor: pointer;
+  font-weight: bold;
+  margin: 8px 0;
+  transition: color 0.3s ease;
 }
 .extra-links a:hover {
   color: #fff;
@@ -200,47 +188,49 @@ body::before {
   margin-top: 10px;
   font-size: 0.9rem;
 }
+.success {
+  color: #66ff99;
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.9rem;
+}
 </style>
 </head>
 <body>
-
 <div class="container">
   <div class="screen">
     <div class="screen__content">
-      
       <div class="login-header">
         <img src="images/bee.png" alt="Bee Logo">
-        <h1>HiveCare Admin</h1>
+        <h1>Reset Password</h1>
       </div>
 
       <form class="login" method="POST">
         <div class="login__field">
-          <i class="login__icon fas fa-user-shield"></i>
-          <input type="text" name="username" class="login__input" placeholder="Admin Username" required>
-        </div>
-        <div class="login__field">
-          <i class="login__icon fas fa-lock"></i>
-          <input type="password" name="password" class="login__input" placeholder="Password" required>
+          <i class="login__icon fas fa-envelope"></i>
+          <input type="email" name="email" class="login__input" placeholder="Enter your email" required>
         </div>
         <button type="submit" class="button login__submit">
-          <span class="button__text">Log In</span>
-          <i class="button__icon fas fa-chevron-right"></i>
+          <span class="button__text">Send Reset Link</span>
+          <i class="button__icon fas fa-paper-plane"></i>
         </button>
       </form>
 
-      <!-- Fixed extra links -->
       <div class="extra-links">
-        <a href="user-forgotpassword.php">Forgot Password?</a>
-        <a href="homepage.php">← Back to Homepage</a>
+        <a href="admin-login.php">Back to Login</a>
       </div>
 
       <?php if (!empty($error)): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
+      <?php if (!empty($_SESSION['reset_notice'])): ?>
+        <div class="success"><?= htmlspecialchars($_SESSION['reset_notice']) ?></div>
+        <?php unset($_SESSION['reset_notice']); ?>
+      <?php endif; ?>
     </div>
   </div>
 </div>
-
 </body>
 </html>
+
