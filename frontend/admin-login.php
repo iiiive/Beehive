@@ -1,21 +1,36 @@
 <?php
-// Default admin credentials
-$default_admin_username = "admin";
-$default_admin_password = "admin123"; // In production, hash this and use DB
-
 session_start();
+include("../config.php");
+
+$error = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
 
-    if ($username === $default_admin_username && $password === $default_admin_password) {
-        $_SESSION['admin_logged_in'] = true;
-        header("Location: admin-dashboard.php");
-        exit;
+    // Fetch admin from database
+    $sql = "SELECT admin_id, username, password_hash FROM admins WHERE username = ? LIMIT 1";
+    $stmt = $link->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($admin = $result->fetch_assoc()) {
+        // Verify password
+        if (password_verify($password, $admin['password_hash'])) {
+            $_SESSION['admin_logged_in'] = true;
+            $_SESSION['admin_id'] = $admin['admin_id'];
+            $_SESSION['username'] = $admin['username'];
+            header("Location: admin-dashboard.php");
+            exit;
+        } else {
+            $error = "Invalid username or password!";
+        }
     } else {
-        $error = "Invalid admin username or password!";
+        $error = "Invalid username or password!";
     }
+
+    if (isset($stmt)) $stmt->close();
 }
 ?>
 
@@ -27,7 +42,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>HiveCare Admin Login</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
-
 <style>
 * {
   box-sizing: border-box;
@@ -228,7 +242,7 @@ body::before {
         </button>
       </form>
 
-      <!-- Fixed extra links -->
+      <!-- Extra links -->
       <div class="extra-links">
         <a href="user-forgotpassword.php">Forgot Password?</a>
         <a href="homepage.php">← Back to Homepage</a>
