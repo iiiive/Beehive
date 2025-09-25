@@ -44,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         curl_exec($ch);
         curl_close($ch);
 
-        $message = "Reset link sent! <a href='$resetLink' target='_blank'>Click here to test</a>";
+        $message = "Reset link sent!";
         $messageClass = "success";
     } else {
         $message = "If this username exists, a reset link has been sent.";
