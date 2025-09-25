@@ -241,7 +241,6 @@ if (strpos($sql, '?') !== false) {
                                 echo "<th>Lastname</th>";
                                 echo "<th>Username</th>";
                                 echo "<th>Email</th>";
-                                echo "<th>Role</th>";
                                 echo "<th>Status</th>";
                                 echo "<th>Created At</th>";
                                 echo "<th>Options</th>";
@@ -255,18 +254,15 @@ if (strpos($sql, '?') !== false) {
                                 echo "<td>" . $row['lastname'] . "</td>";
                                 echo "<td>" . $row['username'] . "</td>";
                                 echo "<td>" . $row['email'] . "</td>";
-                                echo "<td>" . $row['role'] . "</td>";
                                 echo "<td>" . $row['status'] . "</td>";
                                 echo "<td>" . $row['created_at'] . "</td>";
                                 echo "<td>";
-                                    echo '<a href="read_admin.php?admin_id='. $row['admin_id'] .'" class="cta"><span>View</span>
+                                    echo '<a href="readadmin.php?admin_id='. $row['admin_id'] .'" class="cta"><span>View</span>
                                             <svg width="15px" height="10px" viewBox="0 0 13 10">
                                                 <path d="M1,5 L11,5"></path>
                                                 <polyline points="8 1 12 5 8 9"></polyline>
                                             </svg>
                                           </a> ';
-                                    echo '<a href="update_admin.php?admin_id='. $row['admin_id'] .'" class="btn btn-warning btn-sm">Update</a> ';
-                                    echo '<a href="delete_admin.php?admin_id='. $row['admin_id'] .'" class="btn btn-danger btn-sm">Delete</a>';
                                 echo "</td>";
                             echo "</tr>";
                         }

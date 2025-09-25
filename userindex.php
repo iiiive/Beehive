@@ -260,14 +260,12 @@ if (strpos($sql, '?') !== false) {
                                 echo "<td>" . $row['status'] . "</td>";
                                 echo "<td>" . $row['created_at'] . "</td>";
                                 echo "<td>";
-                                    echo '<a href="read_user.php?user_id='. $row['user_id'] .'" class="cta"><span>View</span>
+                                    echo '<a href="readuser.php?user_id='. $row['user_id'] .'" class="cta"><span>View</span>
                                             <svg width="15px" height="10px" viewBox="0 0 13 10">
                                                 <path d="M1,5 L11,5"></path>
                                                 <polyline points="8 1 12 5 8 9"></polyline>
                                             </svg>
                                           </a> ';
-                                    echo '<a href="update_user.php?user_id='. $row['user_id'] .'" class="btn btn-warning btn-sm">Update</a> ';
-                                    echo '<a href="delete_user.php?user_id='. $row['user_id'] .'" class="btn btn-danger btn-sm">Delete</a>';
                                 echo "</td>";
                             echo "</tr>";
                         }
