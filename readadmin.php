@@ -13,12 +13,12 @@ if (isset($_GET["admin_id"]) && !empty(trim($_GET["admin_id"]))) {
                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
                 // Assign values
-                $firstname = $row["firstname"];
-                $lastname  = $row["lastname"];
-                $username  = $row["username"];
-                $email     = $row["email"];
-                $status    = $row["status"];
-                $created_at= $row["created_at"];
+                $firstname  = $row["firstname"];
+                $lastname   = $row["lastname"];
+                $username   = $row["username"];
+                $email      = $row["email"];
+                $status     = $row["status"];
+                $created_at = $row["created_at"];
             } else {
                 header("location: error.php");
                 exit();
@@ -40,112 +40,175 @@ if (isset($_GET["admin_id"]) && !empty(trim($_GET["admin_id"]))) {
 <head>
     <meta charset="UTF-8">
     <title>View Admin Record</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<style>
-body {
-    font-family: 'Raleway', sans-serif;
-    min-height: 100vh;
-    background: #ebeac5ff; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    color: #212121;
-}
+    <style>
+        :root {
+            --white: hsl(0, 0%, 100%);
+            --black: hsl(240, 15%, 9%);
+            --paragraph: hsla(0, 0%, 9%, 1.00);
+            --line: hsl(240, 9%, 17%);
+            --primary: hsla(54, 93%, 61%, 1.00);
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow-y: auto;
+        }
+        body {
+            font-family: 'Raleway', sans-serif;
+            min-height: 100vh;
+            background: url("https://static.vecteezy.com/system/resources/previews/000/532/210/original/vector-bee-hive-background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
 
-.wrapper {
-    width: 600px;
-    background: #e0d356ff;
-    border-radius: 20px;
-    border: 2px solid #755536ff;
-    box-shadow: 0px 6px 15px rgba(0,0,0,0.2);
-    padding: 30px 40px;
-    text-align: center;
-}
+        .card {
+            position: relative;          
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            width: 28rem;
 
-h1 {
-    color: #42372bff;
-    margin-bottom: 25px;
-    font-size: 28px;
-    font-weight: 700;
-}
+            background-color: hsla(61, 84%, 57%, 1.00);
+            background-image: 
+                radial-gradient(at 88% 40%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 49% 30%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 14% 26%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 0% 64%, hsla(54, 99%, 26%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 41% 94%, hsla(56, 87%, 50%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 100% 99%, hsla(66, 88%, 53%, 1.00) 0px, transparent 85%);
+            
+            border-radius: 1rem;
+            box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.25) inset;
+        }
 
-.form-group {
-    margin-bottom: 18px;
-    text-align: left;
-}
+        .card .card__border {
+            overflow: hidden;
+            pointer-events: none;
+            position: absolute;
+            z-index: -10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 2px);
+            height: calc(100% + 2px);
+            background-image: linear-gradient(0deg, hsla(0, 0%, 1%, 1.00) -50%, hsl(0,0%,40%) 100%);
+            border-radius: 1rem;
+        }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
-    color: #4e3d27ff;
-    margin-bottom: 6px;
-}
+        .card .card__border::before {
+            content: "";
+            pointer-events: none;
+            position: fixed;
+            z-index: 200;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            transform-origin: left;
+            width: 200%;
+            height: 10rem;
+            background-image: linear-gradient(
+                0deg,
+                hsla(64, 82%, 56%, 1.00) 40%,
+                hsla(64, 82%, 56%, 1.00) 60%,
+                hsla(0, 0%, 100%, 0.00) 100%
+            );
+            animation: rotate 2s linear infinite;
+        }
 
-.form-group p {
-    background: #fff3c4;
-    color: #4B2E1E;
-    padding: 12px 15px;
-    border-radius: 10px;
-    font-weight: bold;
-}
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-.btn-cl {
-    width: 100%;
-    padding: 14px 0;
-    border-radius: 12px;
-    background: #755536ff;
-    color: #fff8dc;
-    font-weight: bold;
-    border: none;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
+        .card_title__container {
+            text-align: center;
+        }
 
-.btn-cl:hover {
-    background: #e7cc2fff;
-    color: #4B2E1E;
-    transform: translateY(-2px) scale(1.02);
-}
-</style>
+        .card_title__container .card_title {
+            font-size: 1.8rem;
+            color: var(--black);
+            font-weight: bold;
+        }
 
+        .card_title__container .card_paragraph {
+            margin-top: 0.25rem;
+            font-size: 1.0rem;
+            color: var(--paragraph);
+        }
+
+        .line {
+            width: 100%;
+            height: 0.2rem;
+            background-color: var(--line);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .card__list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .card__list_item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(99, 98, 98, 0.21);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            color: var(--black);
+            font-weight: bold;
+        }
+
+        .button {
+            cursor: pointer;
+            padding: 0.6rem;
+            width: 100%;
+            background-color: #74512D;
+            font-size: 1rem;
+            color: #fff;
+            font-weight: bold;
+            border: 0;
+            border-radius: 9999px;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        .button:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+    </style>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
-                    <h1 class="mt-5 mb-3">View Admin Record</h1>
-
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <p><b><?php echo htmlspecialchars($firstname); ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <p><b><?php echo htmlspecialchars($lastname); ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Username</label>
-                        <p><b><?php echo htmlspecialchars($username); ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Email</label>
-                        <p><b><?php echo htmlspecialchars($email); ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Status</label>
-                        <p><b><?php echo htmlspecialchars($status); ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Created At</label>
-                        <p><b><?php echo htmlspecialchars($created_at); ?></b></p>
-                    </div>
-
-                    <p><a href="adminindex.php" class="btn btn-primary btn-cl">Back</a></p>
-                </div>
-            </div>        
+    <div class="card">
+        <div class="card__border"></div>
+        <div class="card_title__container">
+            <span class="card_title">Admin Details</span>
+            <p class="card_paragraph">Administrator Account Information</p>
         </div>
+        <hr class="line" />
+
+        <ul class="card__list">
+            <li class="card__list_item"><span>First Name:</span><span><?php echo htmlspecialchars($firstname); ?></span></li>
+            <li class="card__list_item"><span>Last Name:</span><span><?php echo htmlspecialchars($lastname); ?></span></li>
+            <li class="card__list_item"><span>Username:</span><span><?php echo htmlspecialchars($username); ?></span></li>
+            <li class="card__list_item"><span>Email:</span><span><?php echo htmlspecialchars($email); ?></span></li>
+            <li class="card__list_item"><span>Status:</span><span><?php echo htmlspecialchars($status); ?></span></li>
+            <li class="card__list_item"><span>Created At:</span><span><?php echo htmlspecialchars($created_at); ?></span></li>
+        </ul>
+
+        <a href="adminindex.php" class="button">Back</a>
     </div>
 </body>
 </html>

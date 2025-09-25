@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bind_param("ssssssssi", $firstname, $lastname, $username, $email, $password, $birthday, $address, $contact_number, $admin_id);
         
         if ($stmt->execute()) {
-            $success = "✅ Worker account created successfully!";
+            $success = "Worker account created successfully!";
         } else {
-            $error = "❌ Error: " . $stmt->error;
+            $error = " Error: " . $stmt->error;
         }
         $stmt->close();
     }

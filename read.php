@@ -39,108 +39,188 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
 <head>
     <meta charset="UTF-8">
     <title>View Beehive Record</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<style>
-body {
-    font-family: 'Raleway', sans-serif;
-    min-height: 100vh;
-    background: #ebeac5ff; /* plain white background */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    color: #212121;
-}
+    <style>
+        /* Card Colors */
+        :root {
+            --white: hsl(0, 0%, 100%);
+            --black: hsl(240, 15%, 9%);
+            --paragraph: hsla(0, 0%, 9%, 1.00);
+            --line: hsl(240, 9%, 17%);
+            --primary: hsla(54, 93%, 61%, 1.00);
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* 🚫 disables scrolling */
+        }
+        body {
+            font-family: 'Raleway', sans-serif;
+            min-height: 100vh;
+            background: url("https://static.vecteezy.com/system/resources/previews/000/532/210/original/vector-bee-hive-background.jpg") no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+        }
 
-.wrapper {
-    width: 600px;
-    background: #e0d356ff; /* soft yellow tone */
-    border-radius: 20px;
-    border: 2px solid #755536ff; /* light brown border */
-    box-shadow: 0px 6px 15px rgba(0,0,0,0.2);
-    padding: 30px 40px;
-    text-align: center;
-}
+        .card {
+            position: relative;          
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1.5rem;
+            width: 25rem;
 
-h1 {
-    color: #42372bff; /* brownish header */
-    margin-bottom: 25px;
-    font-size: 28px;
-    font-weight: 700;
-}
+            background-color: hsla(61, 84%, 57%, 1.00);
+            background-image: 
+                radial-gradient(at 88% 40%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 49% 30%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 14% 26%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 0% 64%, hsla(54, 99%, 26%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 41% 94%, hsla(56, 87%, 50%, 1.00) 0px, transparent 85%),
+                radial-gradient(at 100% 99%, hsla(66, 88%, 53%, 1.00) 0px, transparent 85%);
+            
+            border-radius: 1rem;
+            box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.25) inset;
+        }
 
-.form-group {
-    margin-bottom: 18px;
-    text-align: left;
-}
+        .card .card__border {
+            overflow: hidden;
+            pointer-events: none;
+            position: absolute;
+            z-index: -10;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: calc(100% + 2px);
+            height: calc(100% + 2px);
+            background-image: linear-gradient(0deg, hsla(0, 0%, 1%, 1.00) -50%, hsl(0,0%,40%) 100%);
+            border-radius: 1rem;
+        }
 
-.form-group label {
-    display: block;
-    font-weight: bold;
-    color: #4e3d27ff; /* darker brown for labels */
-    margin-bottom: 6px;
-}
+        .card .card__border::before {
+            content: "";
+            pointer-events: none;
+            position: fixed;
+            z-index: 200;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            transform-origin: left;
+            width: 200%;
+            height: 10rem;
+            background-image: linear-gradient(
+                0deg,
+                hsla(64, 82%, 56%, 1.00) 40%,
+                hsla(64, 82%, 56%, 1.00) 60%,
+                hsla(0, 0%, 100%, 0.00) 100%
+            );
+            animation: rotate 2s linear infinite;
+        }
 
-.form-group p {
-    background: #fff3c4; /* soft yellow highlight */
-    color: #4B2E1E; /* dark brown text */
-    padding: 12px 15px;
-    border-radius: 10px;
-    font-weight: bold;
-}
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
-.btn-cl {
-    width: 100%;
-    padding: 14px 0;
-    border-radius: 12px;
-    background: #755536ff; /* brown button */
-    color: #fff8dc; /* light text */
-    font-weight: bold;
-    border: none;
-    text-decoration: none;
-    transition: all 0.3s ease;
-}
+        .card_title__container {
+            text-align: center;
+        }
 
-.btn-cl:hover {
-    background: #e7cc2fff; /* brighter yellow on hover */
-    color: #4B2E1E;
-    transform: translateY(-2px) scale(1.02);
-}
-</style>
+        .card_title__container .card_title {
+            font-size: 1.8rem;
+            color: var(--black);
+            font-weight: bold;
+        }
 
+        .card_title__container .card_paragraph {
+            margin-top: 0.25rem;
+            font-size: 1.0rem;
+            color: var(--paragraph);
+        }
+
+        .line {
+            width: 100%;
+            height: 0.2rem;
+            background-color: var(--line);
+            border: none;
+            margin-bottom: 20px;
+        }
+
+        .card__list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-left: 0px;
+        }
+
+        .card__list_item {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(99, 98, 98, 0.21);
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            color: var(--black);
+            font-weight: bold;
+            margin-right:25px;
+        }
+
+        .button {
+            cursor: pointer;
+            padding: 0.6rem;
+            width: 100%;
+            background-color: #74512D;
+            font-size: 1.00rem;
+            color: #ffff;
+            font-weight: bold;
+            border: 0;
+            border-radius: 9999px;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+
+        .button:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+    </style>
 </head>
 <body>
-    <div class="wrapper">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-12">
-                    <h1 class="mt-5 mb-3">View Beehive Record</h1>
-
-                    <div class="form-group">
-                        <label>Timestamp</label>
-                        <p><b><?php echo $timestamp; ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Temperature (°C)</label>
-                        <p><b><?php echo $temperature; ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Humidity (%)</label>
-                        <p><b><?php echo $humidity; ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Weight (kg)</label>
-                        <p><b><?php echo $weight; ?></b></p>
-                    </div>
-                    <div class="form-group">
-                        <label>Fan Status</label>
-                        <p><b><?php echo $fan_status; ?></b></p>
-                    </div>
-
-                    <p><a href="index.php" class="btn btn-primary btn-cl">Back</a></p>
-                </div>
-            </div>        
+    <div class="card">
+        <div class="card__border"></div>
+        <div class="card_title__container">
+            <span class="card_title">Beehive Reading Details</span>
+            <p class="card_paragraph">Real-time data for hive</p>
         </div>
+        <hr class="line" />
+
+        <ul class="card__list">
+            <li class="card__list_item">
+                <span>Timestamp:</span>
+                <span><?php echo $timestamp; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Temperature (°C):</span>
+                <span><?php echo $temperature; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Humidity (%):</span>
+                <span><?php echo $humidity; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Weight (kg):</span>
+                <span><?php echo $weight; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Fan Status:</span>
+                <span><?php echo $fan_status; ?></span>
+            </li>
+        </ul>
+
+        <a href="index.php" class="button">Back</a>
     </div>
 </body>
 </html>
