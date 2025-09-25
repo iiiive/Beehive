@@ -265,7 +265,7 @@ body::before {
 
       <!-- Extra links -->
       <div class="extra-links">
-        <a href="user-forgotpassword.php">Forgot Password?</a>
+        <a href="admin-forgotpassword.php">Forgot Password?</a>
       </div>
 
       <?php if (!empty($error)): ?>

@@ -1,17 +1,54 @@
 <?php
 session_start();
 include("../config.php");
+date_default_timezone_set('Asia/Manila');
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = trim($_POST['email'] ?? '');
+$message = "";
+$messageClass = "";
 
-    if (!empty($email)) {
-        // Example only: In production, generate token and send via email
-        $_SESSION['reset_notice'] = "If this email exists in our system, a reset link has been sent.";
-        header("Location: forgot-password.php");
-        exit;
+// Discord webhook & base URL
+$discordWebhook = "https://discord.com/api/webhooks/1420701412224139335/GiB-6EseDZMOO0aREmXCsZC37Koa0Vz5dxCV4TTxeMnJDlPqQsyZtizmhuFgfu6UM8ut";
+$baseUrl = "http://localhost/thesis/Beehive/frontend";
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    $username = trim($_POST['username']);
+
+    // Check if admin exists
+    $sql = "SELECT admin_id, email FROM admins WHERE username = ? LIMIT 1";
+    $stmt = $link->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if ($row = $result->fetch_assoc()) {
+        $token = bin2hex(random_bytes(16));
+        $expires = date("Y-m-d H:i:s", strtotime("+1 hour"));
+
+        // Save token & expiry
+        $update = "UPDATE admins SET reset_token = ?, reset_expires = ? WHERE admin_id = ?";
+        $updStmt = $link->prepare($update);
+        $updStmt->bind_param("ssi", $token, $expires, $row['admin_id']);
+        $updStmt->execute();
+
+        $resetLink = "$baseUrl/admin_resetpassword.php?token=$token";
+
+        // Send to Discord
+        $data = json_encode([
+            "content" => "**Admin Password Reset Request**\nUsername: $username\nReset Link: $resetLink"
+        ]);
+        $ch = curl_init($discordWebhook);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_exec($ch);
+        curl_close($ch);
+
+        $message = "Reset link sent! <a href='$resetLink' target='_blank'>Click here to test</a>";
+        $messageClass = "success";
     } else {
-        $error = "Please enter your email address.";
+        $message = "If this username exists, a reset link has been sent.";
+        $messageClass = "success";
     }
 }
 ?>
@@ -20,217 +57,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HiveCare - Forgot Password</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<title>Forgot Password - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 <style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Raleway, sans-serif;
-}
-
-body {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-body::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: url('images/beehive.jpeg') no-repeat center center/cover;
-  filter: brightness(20%);
-  z-index: -1;
-}
-
-.container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-}
-
-.screen {
-  position: relative;
-  height: 480px;
-  width: 360px;
-  box-shadow: 0px 0px 24px #ceae1fff;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,255,255,0.2);
-}
-
-.screen__content {
-  z-index: 1;
-  position: relative;
-  height: 100%;
-  padding: 40px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.login-header {
-  text-align: center;
-  margin-bottom: 30px;
-}
-.login-header img {
-  width: 100px;
-  height: auto;
-  margin: 0 auto 10px;
-  display: block;
-}
-.login-header h1 {
-  color: #e7d25bff;
-  font-family: 'Cursive', 'Brush Script MT', sans-serif;
-  font-size: 2.2rem;
-  font-weight: 100;
-}
-
-.login {
-  width: 100%;
-}
-
-.login__field {
-  padding: 20px 0;
-  position: relative;
-}
-
-.login__icon {
-  position: absolute;
-  top: 30px;
-  color: #e7d25bff;
-}
-
-.login__input {
-  border: none;
-  border-bottom: 2px solid #D1D1D4;
-  background: none;
-  padding: 10px 10px 10px 24px;
-  font-weight: 700;
-  width: 100%;
-  transition: .2s;
-  color: #fff;
-}
-.login__input:active,
-.login__input:focus,
-.login__input:hover {
-  outline: none;
-  border-bottom-color: #e7d25bff;
-}
-
-.login__submit {
-  padding: 15px 25px;
-  border: 0;
-  border-radius: 15px;
-  color: #6d611bff;
-  z-index: 1;
-  background: #e8e8e8;
-  position: relative;
-  font-weight: 1000;
-  font-size: 17px;
-  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
-  transition: all 250ms;
-  margin-left: 65px;
-  margin-top: 20px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.login__submit::before {
-  content: "";
-  position: absolute;
-  top: 50%; left: 50%;
-  height: 0; width: 0;
-  border-radius: 15px;
-  background-color: #e7d25bff;
-  z-index: -1;
-  box-shadow: 4px 8px 19px -3px rgba(0, 0, 0, 0.27);
-  transition: all 250ms;
-}
-.login__submit:hover {
-  color: #e8e8e8;
-}
-.login__submit:hover::before {
-  width: 100%; top: 0; left: 0; height: 100%;
-}
-.login__submit:active {
-  transform: scale(0.8);
-}
-
-.extra-links {
-  margin-top: 20px;
-  text-align: center;
-}
-.extra-links a {
-  display: block;
-  color: #FFD93D;
-  text-decoration: underline;
-  font-weight: bold;
-  margin: 8px 0;
-  transition: color 0.3s ease;
-}
-.extra-links a:hover {
-  color: #fff;
-}
-
-.error {
-  color: #ff5c5c;
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
-.success {
-  color: #66ff99;
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.9rem;
-}
+body { height: 100vh; display:flex; align-items:center; justify-content:center; font-family:Raleway, sans-serif; background: url('images/beehive.jpeg') no-repeat center center/cover; margin:0; position:relative; }
+body::before { content:""; position:absolute; inset:0; background: rgba(0,0,0,0.7); }
+.container { position:relative; z-index:1; background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius:20px; padding:40px; width:360px; box-shadow:0 0 24px #ceae1fff; text-align:center; }
+input { width:100%; padding:12px; margin:12px 0; border-radius:10px; border:none; background: rgba(255,255,255,0.2); color:#fff; }
+input::placeholder { color:#eee; }
+button { width:100%; padding:14px; border:none; border-radius:12px; background:#e7d25b; color:#6d611b; font-weight:bold; cursor:pointer; transition:0.3s; }
+button:hover { background:#cdbd49; color:#000; }
+.message { margin-top:15px; font-weight:bold; }
+.message.success { color: lightgreen; }
+.message.error { color:#ff8080; }
 </style>
 </head>
 <body>
 <div class="container">
-  <div class="screen">
-    <div class="screen__content">
-      <div class="login-header">
-        <img src="images/bee.png" alt="Bee Logo">
-        <h1>Reset Password</h1>
-      </div>
-
-      <form class="login" method="POST">
-        <div class="login__field">
-          <i class="login__icon fas fa-envelope"></i>
-          <input type="email" name="email" class="login__input" placeholder="Enter your email" required>
-        </div>
-        <button type="submit" class="button login__submit">
-          <span class="button__text">Send Reset Link</span>
-          <i class="button__icon fas fa-paper-plane"></i>
-        </button>
-      </form>
-
-      <div class="extra-links">
-        <a href="admin-login.php">Back to Login</a>
-      </div>
-
-      <?php if (!empty($error)): ?>
-        <div class="error"><?= htmlspecialchars($error) ?></div>
-      <?php endif; ?>
-
-      <?php if (!empty($_SESSION['reset_notice'])): ?>
-        <div class="success"><?= htmlspecialchars($_SESSION['reset_notice']) ?></div>
-        <?php unset($_SESSION['reset_notice']); ?>
-      <?php endif; ?>
-    </div>
-  </div>
+<h2>Forgot Password</h2>
+<form method="POST">
+  <input type="text" name="username" placeholder="Enter your username" required>
+  <button type="submit">Send Reset Link</button>
+</form>
+<?php if(!empty($message)) echo "<p class='message $messageClass'>$message</p>"; ?>
 </div>
 </body>
 </html>
-

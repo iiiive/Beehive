@@ -32,7 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $updStmt->bind_param("ssi", $token, $expires, $row['user_id']);
         $updStmt->execute();
 
-        $resetLink = "$baseUrl/reset_password.php?token=$token";
+        $resetLink = "$baseUrl/users_reset_password.php?token=$token";
 
         // Send to Discord
         $data = json_encode([

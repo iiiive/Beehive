@@ -272,7 +272,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       </form>
 
       <div class="extra-links">
-        <a href="user-forgotpassword.php">Forgot Password?</a>
+        <a href="users_forgot-password.php">Forgot Password?</a>
       </div>
 
       <?php if (!empty($error)) { ?>
