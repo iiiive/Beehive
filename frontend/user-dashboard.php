@@ -90,13 +90,35 @@ z-index: 1; }
 }
 .dashboard-header img { height:70px; width:70px; }
 .logout-btn {
-  padding:10px 20px; border-radius:15px; font-weight:700;
-  color:#fff; background:#4B2E1E; border:none;
-  text-decoration:none; box-shadow:0 5px 15px rgba(0,0,0,0.3);
-  transition:0.3s;
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: #4B2E1E;
+    border: none;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    margin-left: 5px;
 }
-.logout-btn:hover { background:#6B4226; transform: translateY(-2px) scale(1.03); }
 
+.settings-btn {
+    padding: 10px 20px;
+    border-radius: 15px;
+    font-weight: 700;
+    color: #fff;
+    background: #4B2E1E;
+    border: none;
+    text-decoration: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    transition: 0.3s;
+    margin-left: 550px;
+}
+
+.logout-btn:hover, .settings-btn:hover {
+    background: #6B4226;
+    transform: translateY(-2px) scale(1.03);
+}
 /* Layout */
 .container {
   max-width:1100px;
@@ -191,7 +213,7 @@ canvas { margin-top:20px; height:120px !important; }
     <img src="images/bee.png" alt="HiveCare Logo">
     <span>HiveCare - User Dashboard</span>
   </div>
-  <a href="user-profile.php" class="settings-btn"><i class="bi bi-gear-fill"></i> Edit Profile</a>
+    <a href="user-profile.php" class="settings-btn"><i class="bi bi-person-fill"></i> Edit Profile</a>
   <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
 </div>
 

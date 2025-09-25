@@ -40,28 +40,74 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
     <meta charset="UTF-8">
     <title>View Beehive Record</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .wrapper {
-            width: 600px;
-            margin: 0 auto;
-        }
-        body {
-            background-image: url("https://png.pngtree.com/background/20210716/original/pngtree-white-abstract-vector-web-background-design-picture-image_1354906.jpg");
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
-        .btn-cl {
-            background-color: #134074;
-            border-color: #134074;
-        }
-        .btn-cl:hover {
-            background-color: #134074;
-            border-color: #134074;
-            opacity: 0.9;
-        }
-    </style>
+<style>
+body {
+    font-family: 'Raleway', sans-serif;
+    min-height: 100vh;
+    background: #ebeac5ff; /* plain white background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: #212121;
+}
+
+.wrapper {
+    width: 600px;
+    background: #e0d356ff; /* soft yellow tone */
+    border-radius: 20px;
+    border: 2px solid #755536ff; /* light brown border */
+    box-shadow: 0px 6px 15px rgba(0,0,0,0.2);
+    padding: 30px 40px;
+    text-align: center;
+}
+
+h1 {
+    color: #42372bff; /* brownish header */
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.form-group {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-weight: bold;
+    color: #4e3d27ff; /* darker brown for labels */
+    margin-bottom: 6px;
+}
+
+.form-group p {
+    background: #fff3c4; /* soft yellow highlight */
+    color: #4B2E1E; /* dark brown text */
+    padding: 12px 15px;
+    border-radius: 10px;
+    font-weight: bold;
+}
+
+.btn-cl {
+    width: 100%;
+    padding: 14px 0;
+    border-radius: 12px;
+    background: #755536ff; /* brown button */
+    color: #fff8dc; /* light text */
+    font-weight: bold;
+    border: none;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-cl:hover {
+    background: #e7cc2fff; /* brighter yellow on hover */
+    color: #4B2E1E;
+    transform: translateY(-2px) scale(1.02);
+}
+</style>
+
 </head>
 <body>
     <div class="wrapper">

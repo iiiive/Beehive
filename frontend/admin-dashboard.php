@@ -215,7 +215,9 @@ table {
 th, td { padding: 10px; text-align: center; }
 th { background: #FFD93D; color: #4B2E1E; }
 
-.sticky-sidebar { position: sticky; top: 20px; }
+.sticky-sidebar { 
+  position: sticky; 
+  top: 20px; }
 </style>
 </head>
 <body>
@@ -227,8 +229,8 @@ th { background: #FFD93D; color: #4B2E1E; }
   </div>
   <div>
     <a href="database.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
-    <a href="manage_users.php" class="settings-btn"><i class="bi bi-gear-fill"></i> Manage Users</a>
-    <a href="admin-profile.php" class="settings-btn"><i class="bi bi-gear-fill"></i> Edit Profile</a>
+    <a href="manage_users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Add Users</a>
+    <a href="admin-profile.php" class="settings-btn"><i class="bi bi-person-fill"></i> Edit Profile</a>
 
     <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
   </div>
