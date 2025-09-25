@@ -2,8 +2,10 @@
 session_start();
 include("../config.php");
 
+// Set PHP timezone
+date_default_timezone_set('Asia/Manila'); // Replace with your timezone
+
 $token = $_GET['token'] ?? '';
-$hashedToken = $token ? hash('sha256', $token) : '';
 $message = "";
 $messageClass = "";
 
@@ -15,26 +17,40 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message = "Passwords do not match.";
         $messageClass = "error";
     } else {
-        $newPass = password_hash($password, PASSWORD_DEFAULT);
+        // Check if token exists and is not expired (PHP time check)
+        $check = $link->prepare("SELECT reset_expires FROM users WHERE reset_token = ?");
+        $check->bind_param("s", $token);
+        $check->execute();
+        $res = $check->get_result();
+        $row = $res->fetch_assoc();
 
-        $sql = "UPDATE users 
-                SET password_hash = ?, reset_token = NULL, reset_expires = NULL 
-                WHERE reset_token = ? AND reset_expires > NOW()";
-        $stmt = $link->prepare($sql);
-        $stmt->bind_param("ss", $newPass, $hashedToken);
-        $stmt->execute();
-
-        if ($stmt->affected_rows > 0) {
-            $message = "Password has been reset successfully! Redirecting to login...";
-            $messageClass = "success";
-            echo "<script>setTimeout(() => window.location='user-login.php', 3000);</script>";
-        } else {
-            $message = "Invalid or expired token.";
+        if (!$row) {
+            $message = "Invalid token.";
             $messageClass = "error";
+        } else {
+            $expires = strtotime($row['reset_expires']);
+            if ($expires < time()) {
+                $message = "Token has expired.";
+                $messageClass = "error";
+            } else {
+                // Token is valid → update password
+                $newPass = password_hash($password, PASSWORD_DEFAULT);
+                $update = "UPDATE users 
+                           SET password_hash = ?, reset_token = NULL, reset_expires = NULL 
+                           WHERE reset_token = ?";
+                $updStmt = $link->prepare($update);
+                $updStmt->bind_param("ss", $newPass, $token);
+                $updStmt->execute();
+
+                $message = "Password has been reset successfully! Redirecting to login...";
+                $messageClass = "success";
+                echo "<script>setTimeout(() => window.location='user-login.php', 3000);</script>";
+            }
         }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
