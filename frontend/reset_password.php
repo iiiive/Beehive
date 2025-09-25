@@ -3,13 +3,30 @@ session_start();
 include("../config.php");
 
 // Set PHP timezone
-date_default_timezone_set('Asia/Manila'); // Replace with your timezone
+date_default_timezone_set('Asia/Manila');
 
 $token = $_GET['token'] ?? '';
 $message = "";
 $messageClass = "";
+$showForm = false;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
+// Check if token exists and is not expired
+if (!empty($token)) {
+    $check = $link->prepare("SELECT user_id FROM users WHERE reset_token = ? AND reset_expires > NOW()");
+    $check->bind_param("s", $token);
+    $check->execute();
+    $res = $check->get_result();
+    if ($row = $res->fetch_assoc()) {
+        $showForm = true;
+        $userId = $row['user_id'];
+    } else {
+        $message = "Invalid or expired token.";
+        $messageClass = "error";
+    }
+}
+
+// Handle form submission
+if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
     $password = $_POST['password'] ?? '';
     $confirm  = $_POST['confirm_password'] ?? '';
 
@@ -17,36 +34,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $message = "Passwords do not match.";
         $messageClass = "error";
     } else {
-        // Check if token exists and is not expired (PHP time check)
-        $check = $link->prepare("SELECT reset_expires FROM users WHERE reset_token = ?");
-        $check->bind_param("s", $token);
-        $check->execute();
-        $res = $check->get_result();
-        $row = $res->fetch_assoc();
+        $newPass = password_hash($password, PASSWORD_DEFAULT);
+        $update = $link->prepare("UPDATE users SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE user_id = ?");
+        $update->bind_param("si", $newPass, $userId);
+        $update->execute();
 
-        if (!$row) {
-            $message = "Invalid token.";
-            $messageClass = "error";
-        } else {
-            $expires = strtotime($row['reset_expires']);
-            if ($expires < time()) {
-                $message = "Token has expired.";
-                $messageClass = "error";
-            } else {
-                // Token is valid → update password
-                $newPass = password_hash($password, PASSWORD_DEFAULT);
-                $update = "UPDATE users 
-                           SET password_hash = ?, reset_token = NULL, reset_expires = NULL 
-                           WHERE reset_token = ?";
-                $updStmt = $link->prepare($update);
-                $updStmt->bind_param("ss", $newPass, $token);
-                $updStmt->execute();
-
-                $message = "Password has been reset successfully! Redirecting to login...";
-                $messageClass = "success";
-                echo "<script>setTimeout(() => window.location='user-login.php', 3000);</script>";
-            }
-        }
+        $message = "Password has been reset successfully! Redirecting to login...";
+        $messageClass = "success";
+        $showForm = false;
+        echo "<script>setTimeout(() => window.location='user-login.php', 3000);</script>";
     }
 }
 ?>
@@ -56,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
 <meta charset="UTF-8">
 <title>Reset Password - HiveCare</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 <style>
 body {
@@ -86,7 +81,7 @@ button:hover { background: #cdbd49; color: #000; }
 <body>
 <div class="container">
   <h2>Reset Password</h2>
-  <?php if (empty($message)) { ?>
+  <?php if ($showForm) { ?>
   <form method="POST">
     <input type="password" name="password" placeholder="Enter new password" minlength="8" required>
     <input type="password" name="confirm_password" placeholder="Confirm new password" minlength="8" required>
