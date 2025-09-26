@@ -130,7 +130,7 @@ $randomTrivia = $trivia[array_rand($trivia)];
       font-size: 1.2rem;
     }
     body{
-      background-image: url('https://media.istockphoto.com/id/1449860431/photo/adult-female-stingless-bee.jpg?s=612x612&w=0&k=20&c=enK22sHAQk_wBKHrM0yk3gHohcn43o40qBOJ55igzEs=');
+      background-image: url('images/frontindex.jpg');
       background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;
