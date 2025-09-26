@@ -62,7 +62,7 @@ mysqli_close($link);
 }
 body {
   min-height: 100vh;
-  background: url('images/honey.jpeg') no-repeat center center/cover;
+  background: url('https://a-z-animals.com/media/2025/08/shutterstock-2374833763-huge-licensed-scaled.jpg') no-repeat center center/cover;
   position: relative;
   padding: 20px 0;
   color: #212121;

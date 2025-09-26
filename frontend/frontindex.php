@@ -130,7 +130,7 @@ $randomTrivia = $trivia[array_rand($trivia)];
       font-size: 1.2rem;
     }
     body{
-      background-image: url('https://media.npr.org/assets/img/2018/10/30/bee1_wide-1dead2b859ef689811a962ce7aa6ace8a2a733d7.jpg');
+      background-image: url('https://media.istockphoto.com/id/1449860431/photo/adult-female-stingless-bee.jpg?s=612x612&w=0&k=20&c=enK22sHAQk_wBKHrM0yk3gHohcn43o40qBOJ55igzEs=');
       background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;

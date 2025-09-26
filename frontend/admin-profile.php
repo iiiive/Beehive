@@ -70,7 +70,7 @@ body::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: url('images/beehive.jpeg') no-repeat center center/cover;
+  background: url('https://environment.uq.edu.au/files/47986/Bee-leaving-with-propolis-on-hind-legs.jpeg') no-repeat center center/cover;
   filter: brightness(25%);
   z-index: -1;
 }
@@ -126,7 +126,7 @@ button {
   border: none;
   border-radius: 12px;
   background: #e7d25bff;
-  color: #6d611bff;
+  color: #333;
   font-weight: bold;
   font-size: 16px;
   cursor: pointer;
@@ -162,8 +162,8 @@ button:active {
   padding: 10px 20px;
   font-size: 1rem;
   font-weight: bold;
-  color: #fff;
-  background: #74512d;
+  color: #333;
+  background: #e7d25bff;
   border-radius: 20px;
   text-decoration: none;
   box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
@@ -171,7 +171,7 @@ button:active {
   z-index: 1000;
 }
 .back-btn:hover {
-  background: #feba17;
+  background: #e7d25bff;
   color: #333;
   transform: scale(1.05);
 }
