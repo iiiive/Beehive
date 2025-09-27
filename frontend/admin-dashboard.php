@@ -206,18 +206,35 @@ canvas {
     font-size: 1.2rem;
     color: #4B2E1E;
 }
+/* History Table */
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 5;
+  margin-top: 20px;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #fff8dc8c !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
 
-table {
-    width: 100%;
-    margin-top: 15px;
 }
+.history-table thead {
+  background: linear-gradient(135deg, #FFD93D, #E8C547) !important;
+  color: #4B2E1E !important;
+}
+.history-table th, .history-table td {
+  padding: 14px 12px !important;
+  text-align: center;
+  font-weight: bold;
+    border-right: 2px solid #4B2E1E; /* coffee tone for vertical lines */
 
-th, td { padding: 10px; text-align: center; }
-th { background: #FFD93D; color: #4B2E1E; }
-
-.sticky-sidebar { 
-  position: sticky; 
-  top: 20px; }
+  
+}
+.history-table tbody tr:nth-child(even) { background: #FFF2A3 !important; }
+.history-table tbody tr:hover {
+  background: #FEDE16 !important;
+  transform: scale(1.01);
+}
 </style>
 </head>
 <body>
@@ -290,7 +307,7 @@ th { background: #FFD93D; color: #4B2E1E; }
 <div class="card p-4 mt-4">
   <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log </h4>
   <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover mt-3">
+<table class="history-table">
       <thead class="table-warning">
         <tr>
           <th>Timestamp</th>

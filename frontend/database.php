@@ -4,90 +4,106 @@
     <meta charset="UTF-8">
     <title>Beehive Monitoring Databases</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        body {
-            background-image: url('images/database.jpg');
-            background-repeat: no-repeat;
-            background-size: cover;
-            background-attachment: fixed;
-            font-family: 'Verdana', sans-serif;
-        }
+   <style>
+    body {
+    position: relative;
+    font-family: 'Verdana', sans-serif;
+    min-height: 100vh;
+    margin: 0;
+}
 
-        .wrapper {
-            margin: 50px auto;
-            text-align: center;
-        }
+/* Background with overlay for 50% opacity */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('images/database.jpg') no-repeat center center fixed;
+    background-size: cover;
+    filter: brightness(50%); /* darker background */
+    z-index: -1; /* push it behind content */
+}
 
-        h2 {
-            font-family: 'Cursive', 'Brush Script MT', sans-serif;
-            font-size: 4rem;
-            margin-top: 100px;
-            margin-bottom: 80px;
-            color: #1f1111ff;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
-        }
+/* Wrapper */
+.wrapper {
+    margin: 50px auto;
+    text-align: center;
+}
 
-        .container-cards {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
+/* Title */
+h2 {
+    font-family: 'Cursive', 'Brush Script MT', sans-serif;
+    font-size: 4rem;
+    margin-top: 100px;
+    margin-bottom: 80px;
+    color: #FEDE16; /* School Bus Yellow */
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+}
 
-        .card-link {
-            border-radius: 20px;
-            padding: 20px;
-            width: 180px;
-            height: 200px;
-            background: linear-gradient(145deg, #dfdccb, #fffff1);
-            box-shadow: 10px 10px 20px #74512d,
-                        -10px -10px 20px #74512d;
-            transition: transform 0.3s ease, background 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-decoration: none;
-        }
+/* Cards container */
+.container-cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
 
-        .card-link:hover {
-            transform: scale(1.05);
-            background: linear-gradient(145deg, #fff7d1, #feba17);
-        }
+/* Card style */
+.card-link {
+    border-radius: 20px;
+    padding: 20px;
+    width: 180px;
+    height: 200px;
+    background: linear-gradient(145deg, #FFF2A3, #E9E7D8); /* Vanilla + Eggshell */
+    box-shadow: 6px 6px 15px rgba(116, 81, 45, 0.6); /* Coffee shadow */
+    transition: transform 0.3s ease, background 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+}
 
-        .card-link img {
-            width: 90px;
-            height: 90px;
-            margin-bottom: 10px;
-        }
+.card-link:hover {
+    transform: scale(1.05);
+    background: linear-gradient(145deg, #FEDE16, #FFF2A3); /* Brighter hover */
+}
 
-        .label {
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: #333;
-        }
+.card-link img {
+    width: 90px;
+    height: 90px;
+    margin-bottom: 10px;
+}
 
-        .back-btn {
-            display: inline-block;
-            margin-top: 40px;
-            padding: 12px 25px;
-            font-size: 1rem;
-            font-weight: bold;
-            color: #fff;
-            background: #74512d;
-            border-radius: 25px;
-            text-decoration: none;
-            box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
-            transition: background 0.3s ease, transform 0.2s ease;
-        }
+.label {
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #0B0806; /* Smoky Black for text */
+}
 
-        .back-btn:hover {
-            background: #feba17;
-            color: #333;
-            transform: scale(1.05);
-        }
-    </style>
+/* Back Button */
+.back-btn {
+    display: inline-block;
+    margin-top: 40px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #ffffffff;
+    background: #6b5e4fff; /* Coffee */
+    border-radius: 25px;
+    text-decoration: none;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.back-btn:hover {
+    background: #FEDE16; /* Yellow */
+    color: #0B0806;
+    transform: scale(1.05);
+}
+
+</style>
 </head>
 <body>
     <div class="wrapper">

@@ -75,8 +75,11 @@ z-index: 1; }
 
 /* Header */
 .dashboard-header {
-  width:100%; padding:15px 25px;
-  display:flex; justify-content:space-between; align-items:center;
+  width:100%; 
+  padding:15px 25px;
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center;
   background: linear-gradient(145deg, #eef104ff, #D4A373);
   border-radius:0 0 20px 20px;
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
@@ -88,36 +91,31 @@ z-index: 1; }
   font-family: 'Cursive','Brush Script MT',sans-serif;
   font-size: 2.5rem; color:#212121;
 }
-.dashboard-header img { height:70px; width:70px; }
-.logout-btn {
-    padding: 10px 20px;
-    border-radius: 15px;
-    font-weight: 700;
-    color: #fff;
-    background: #4B2E1E;
-    border: none;
-    text-decoration: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transition: 0.3s;
-    margin-left: 5px;
+.dashboard-header img { 
+  height:70px; 
+  width:70px; }
+/* Group buttons to the right */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between edit & logout */
 }
 
-.settings-btn {
-    padding: 10px 20px;
-    border-radius: 15px;
-    font-weight: 700;
-    color: #fff;
-    background: #4B2E1E;
-    border: none;
-    text-decoration: none;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transition: 0.3s;
-    margin-left: 550px;
+.settings-btn, .logout-btn {
+  padding: 10px 20px;
+  border-radius: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: #4B2E1E;
+  border: none;
+  text-decoration: none;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  transition: 0.3s;
 }
 
-.logout-btn:hover, .settings-btn:hover {
-    background: #6B4226;
-    transform: translateY(-2px) scale(1.03);
+.settings-btn:hover, .logout-btn:hover {
+  background: #6B4226;
+  transform: translateY(-2px) scale(1.03);
 }
 /* Layout */
 .container {
@@ -204,6 +202,35 @@ canvas { margin-top:20px; height:120px !important; }
   font-size: 1.1rem;
   color: #4B2E1E;
 }
+/* History Table */
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 5;
+  margin-top: 20px;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #fff8dc8c !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+
+}
+.history-table thead {
+  background: linear-gradient(135deg, #FFD93D, #E8C547) !important;
+  color: #4B2E1E !important;
+}
+.history-table th, .history-table td {
+  padding: 14px 12px !important;
+  text-align: center;
+  font-weight: bold;
+    border-right: 2px solid #4B2E1E; /* coffee tone for vertical lines */
+
+  
+}
+.history-table tbody tr:nth-child(even) { background: #FFF2A3 !important; }
+.history-table tbody tr:hover {
+  background: #FEDE16 !important;
+  transform: scale(1.01);
+}
 </style>
 </head>
 <body>
@@ -213,9 +240,18 @@ canvas { margin-top:20px; height:120px !important; }
     <img src="images/bee.png" alt="HiveCare Logo">
     <span>HiveCare - User Dashboard</span>
   </div>
-    <a href="user-profile.php" class="settings-btn"><i class="bi bi-person-fill"></i> Edit Profile</a>
-  <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+
+  <!-- Actions aligned to the right -->
+  <div class="header-actions">
+    <a href="user-profile.php" class="settings-btn">
+      <i class="bi bi-person-fill"></i> Edit Profile
+    </a>
+    <a href="homepage.php" class="logout-btn">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
+  </div>
 </div>
+
 
 <div class="container">
   <!-- Temperature -->
@@ -272,7 +308,7 @@ canvas { margin-top:20px; height:120px !important; }
 <div class="card p-4 mt-4">
   <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log </h4>
   <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover mt-3">
+<table class="history-table">
       <thead class="table-warning">
         <tr>
           <th>Timestamp</th>
