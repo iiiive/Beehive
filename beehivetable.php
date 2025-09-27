@@ -12,7 +12,7 @@ if (!empty($filter)) {
     } elseif ($filter == "statusBad") {
         $sql = "SELECT * FROM beehive_readings WHERE status = 'Bad' ORDER BY timestamp DESC";
     } elseif ($filter == "highTemp") {
-        $sql = "SELECT * FROM beehive_readings WHERE temperature >= 35 ORDER BY timestamp DESC";
+        $sql = "SELECT * FROM beehive_readings WHERE temperature > 32 ORDER BY timestamp DESC";
     } elseif ($filter == "normalTemp") {
         $sql = "SELECT * FROM beehive_readings WHERE temperature BETWEEN 28 AND 32 ORDER BY timestamp DESC";
     } elseif ($filter == "lowHumidity") {
