@@ -180,16 +180,14 @@ button:active {
 .info-card-wrapper {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* safer than 30ch */
   gap: 1.5rem;
-  max-width: 100vw;
-  width: 150ch;
+  max-width: 1200px; /* keeps them centered and prevents stretching too much */
   padding-left: 1rem;
   padding-right: 1rem;
 }
-
 
 
 
