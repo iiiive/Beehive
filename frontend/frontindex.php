@@ -8,11 +8,13 @@
   <title>HiveCare</title>
   <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
   <style>
     body, html {
       margin: 0;
       padding: 0;
-      font-family: 'Roboto', sans-serif;
       scroll-behavior: smooth; 
     }
 
@@ -21,7 +23,7 @@
       background-image: url('images/homepage.jpeg');
       background-size: cover;
       background-position: center;
-      height: 80vh;
+      height: 90vh;
       color: white;
       text-align: center;
       display: flex;
@@ -35,6 +37,7 @@
       position: absolute;
       top:0; left:0; right:0; bottom:0;
       background: rgba(0,0,0,0.5);
+   
     }
 
     header .content {
@@ -67,25 +70,64 @@
     }
 
     header p {
-      font-family: 'Roboto', sans-serif; /* clean sans-serif font */
       font-size: 1.5rem;
       margin-bottom: 60px;
     }
 
-    .btn-custom {
-      background-color: #ffb300;
-      color: white;
-      font-weight: bold;
-      border-radius: 50px;
-      padding: 12px 30px;
-            margin-bottom: 80px;
+    button {
+  font-size: 17px;
+  padding: 1em 1.7em;
+  font-weight: 500;
+  background: #ffb300;
+  color: white;
+  border: none;
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.6em;
+  cursor: pointer;
+}
 
-    }
+.gradient {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  border-radius: 0.6em;
+  margin-top: -0.25em;
+}
 
-    .btn-custom:hover {
-      background-color: #e6a500;
-      color: white;
-    }
+.label {
+  position: relative;
+  top: -1px;
+  color: black;
+  font-weight: bold;
+}
+
+.transition {
+  transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  transition-duration: 500ms;
+  background-color: #645530ff;
+  border-radius: 9999px;
+  width: 0;
+  height: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+button:hover .transition {
+  width: 14em;
+  height: 14em;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+
+
 
     .info-section {
       padding: 80px 20px;
@@ -152,11 +194,12 @@
 
 
     .trivia-section {
+
       padding: 60px 20px;
       text-align: center;
       background-color: #fff3cd;
       border-left: 8px solid #ffb300;
-      max-width: 800px;
+      max-width: 1000px;
       margin: 40px auto;
       border-radius: 12px;
       font-size: 1.2rem;
@@ -225,6 +268,8 @@ body{
 
 .cards{
   --img-w: 200px;
+      margin-bottom: 60px; /* adds space below DID YOU KNOW cards */
+ --img-w: 200px; 
   --duration: 300ms;
   --img-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
   width: min(100% - 4rem, 800px);
@@ -232,6 +277,13 @@ body{
   display: grid;
   
   counter-reset: my-counter;
+
+     padding: 60px 20px; /* top/bottom 60px, left/right 20px */
+    background-color: #fff3cd; /* optional: make the background visible */
+    border-left: 8px solid #ffb300; /* keep your accent border */
+    border-radius: 12px; /* optional: rounded corners */
+    max-width: 1200px; /* optional: limits width */
+    margin: 0 auto 60px; /* center it and add bottom spacing */
 }
 
 .card{
@@ -447,7 +499,7 @@ input:checked +.card > .card-img{
   width: 100%;
   height: 0;
   border-radius: 50%;
-  background-color: #1369ce;
+  background-color: #feba17;
   position: absolute;
   bottom: 135%;
   right: 0;
@@ -466,7 +518,7 @@ input:checked +.card > .card-img{
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background-color: #1369ce;
+  background-color: #feba17;
   position: absolute;
   top: 0;
   left: 0;
@@ -493,16 +545,7 @@ input:checked +.card > .card-img{
   text-transform: capitalize;
 }
 
-.our-team .social {
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  background-color: #1369ce;
-  position: absolute;
-  bottom: -100px;
-  left: 0;
-  transition: all 0.5s ease 0s;
-}
+
 
 
 
@@ -513,13 +556,26 @@ input:checked +.card > .card-img{
 <body>
 
   <header>
-    <a href="homepage.php" class="btn btn-custom top-right-btn">Get Started</a>
+   <!-- Styled like Learn More -->
+<button class="top-right-btn" onclick="location.href='homepage.php'">
+  <span class="transition"></span>
+  <span class="gradient"></span>
+  <span class="label">
+    Get Started <i class="bi bi-arrow-right-circle-fill"></i>
+  </span>
+</button>
 
     <div class="content">
         
       <h1>HiveCare</h1>
-      <p>Learn about stingless bees in the Philippines!</p>
-      <a href="#info" class="btn btn-custom btn-lg">Read More</a>
+      <p>Uncover the mystery of stingless bees in the Philippines</p>
+<!-- From Uiverse.io by cssbuttons-io --> 
+<button onclick="location.href='#info'">
+  <span class="transition"></span>
+  <span class="gradient"></span>
+  <span class="label">
+    Learn More <i class="bi bi-book"></i></span>
+</button>
     </div>
   </header>
 
@@ -553,13 +609,13 @@ input:checked +.card > .card-img{
 
   <input type="radio" id="radio-1" name="radio-card" checked>
   <article class="card" style="--angle:4deg">
-    <img class="card-img" src="https://www.rosepestcontrol.com/wp-content/uploads/2019/07/Honey_bee_hero.jpg">
+    <img class="card-img" src="https://beautifulbees.org/wp-content/uploads/2023/04/Do-Bumble-Bees-Make-Honey.jpg">
    <div class="card-data">
-      <span class="card-num">1/7</span>
+      <span class="card-num">1/6</span>
       <h2>Honey Collection</h3>
       <p>Let honey drip naturally from pots overnight instead of pressing, to preserve brood and pot integrity..</p>
       <footer>
-        <label for="radio-7" aria-label="Previous">&#10094;</label>
+        <label for="radio-6" aria-label="Previous">&#10094;</label>
         <label for="radio-2" aria-label="Next">&#10095;</label>
       </footer>
     </div>
@@ -568,9 +624,9 @@ input:checked +.card > .card-img{
   <!-- card 2 -->
   <input type="radio" id="radio-2" name="radio-card">
   <article class="card" style="--angle:-8deg">
-    <img class="card-img" src="https://picsum.photos/id/30/200/300">
+    <img class="card-img" src="https://custom-images.strikinglycdn.com/res/hrscywv4p/image/upload/c_limit,fl_lossy,h_9000,w_1200,f_auto,q_auto/906129/610235_844224.jpg">
     <div class="card-data">
-      <span class="card-num">2/7</span>
+      <span class="card-num">2/6</span>
       <h2>Colony Transfer</h3>
       <p>Move stingless bee colonies into new hive boxes at night when they are calmer, reducing stress and bee loss.</p>
       <footer>
@@ -583,9 +639,9 @@ input:checked +.card > .card-img{
   <!-- card 3 -->
     <input type="radio" id="radio-3" name="radio-card">
   <article class="card" style="--angle:-7deg">
-    <img class="card-img" src="https://picsum.photos/id/39/200/300">
+    <img class="card-img" src="https://cdn.britannica.com/05/256405-050-17B9BCB9/Stingless-Bee-hive-Tribona-genus.jpg">
     <div class="card-data">
-      <span class="card-num">3/7</span>
+      <span class="card-num">3/6</span>
       <h2>Harvest Timing</h3>
       <p>Avoid harvesting during cloudy or rainy days to protect honey quality and prevent colony disruption.</p>
       <footer>
@@ -598,9 +654,9 @@ input:checked +.card > .card-img{
   <!-- card 4 -->
     <input type="radio" id="radio-4" name="radio-card">
   <article class="card" style="--angle:11deg">
-    <img class="card-img" src="https://picsum.photos/id/103/200/300">
+    <img class="card-img" src="https://i.pinimg.com/originals/8d/ac/1e/8dac1e3d8de76386c32387057b583088.jpg">
     <div class="card-data">
-      <span class="card-num">4/7</span>
+      <span class="card-num">4/6</span>
       <h2>Low Maintenance</h3>
       <p>Unlike honey bees (Apis), Tetragonula biroi require fewer parasite checks, making them ideal for small beekeepers.</p>
         <footer>
@@ -613,9 +669,9 @@ input:checked +.card > .card-img{
   <!-- card 5 -->
     <input type="radio" id="radio-5" name="radio-card" >
   <article class="card" style="--angle:13deg">
-    <img class="card-img" src="https://picsum.photos/id/175/200/300">
+    <img class="card-img" src="https://www.verywellhealth.com/thmb/xeoD4d6z0Z6YM8yT19BpQnRNPog=/2121x1414/filters:no_upscale():max_bytes(150000):strip_icc()/GettyImages-655168362-5afe47346bf06900365b311d.jpg">
     <div class="card-data">
-      <span class="card-num">5/7</span>
+      <span class="card-num">5/6</span>
       <h2>Medicinal Value</h3>
       <p>Their honey and propolis show antimicrobial properties, including activity against drug-resistant bacteria.</p>
         <footer>
@@ -625,31 +681,18 @@ input:checked +.card > .card-img{
     </div>
   </article>
 
-  <!-- card 6 -->
-    <input type="radio" id="radio-6" name="radio-card">
-  <article class="card" style="--angle:-17deg">
-    <img class="card-img" src="https://picsum.photos/id/349/200/300" >
-    <div class="card-data">
-      <span class="card-num">6/7</span>
-      <h2>Honey Characteristics</h3>
-      <p>The honey's color and composition vary by region, ranging from extra light amber to dark amber with differing acidity and mineral content.</p>
-      <footer>
-        <label for="radio-5" aria-label="Previous">&#10094;</label>
-        <label for="radio-7" aria-label="Next">&#10095;</label>
-      </footer>
-    </div>
-  </article>
+  
 
-  <!-- card 7 -->
-  <input type="radio" id="radio-7" name="radio-card" >
+  <!-- card 6 -->
+  <input type="radio" id="radio-6" name="radio-card" >
   <article class="card" style="--angle:20deg">
-    <img class="card-img"src="https://picsum.photos/id/401/200/300">
+    <img class="card-img"src="https://wildharvester.com/wp-content/uploads/2024/12/foraging_bees_speed_dynamics.jpg">
     <div class="card-data">
-      <span class="card-num">7/7</span>
+      <span class="card-num">6/6</span>
       <h2>Foraging Flexibility</h3>
       <p>T. biroi accept many flower types, improving honey flavor and ensuring year-round food supply and colony health.</p>
         <footer>
-        <label for="radio-6" aria-label="Previous">&#10094;</label>
+        <label for="radio-5" aria-label="Previous">&#10094;</label>
         <label for="radio-1" aria-label="Next">&#10095;</label>
       </footer>
     </div>
@@ -664,7 +707,7 @@ input:checked +.card > .card-img{
     <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="https://picsum.photos/130/130?image=1027">
+          <img class="img-fluid" src="https://d16ulvhu93kpvn.cloudfront.net/750x0/uploads/site/1757/medias/images/image2020062315265761948.jpg">
         </div>
        <div class="team-content">
   <h3 class="name">Hans Staden</h3>
@@ -677,11 +720,11 @@ One of the earliest Europeans to record stingless bees and their honey in Brazil
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="https://picsum.photos/130/130?image=839">
+          <img class="img-fluid" src="https://thephilippineentomologist.org/wp-content/uploads/2022/07/dr-cervancia.jpg">
         </div>
                <div class="team-content">
-  <h3 class="name">Hans Staden</h3>
-  <h4 class="title">German Mercenary/Naturalist</h4>
+  <h3 class="name">Dr. Cleofas R. Cervancia</h3>
+  <h4 class="title">Entomologist</h4>
   <p class="description">
 Professor Emeritus at UPLB and a pioneer of stingless bee research in the Philippines. Her studies from 2021–2023 shaped best practices for honey quality and sustainable meliponiculture.  </p>
 </div>
@@ -691,11 +734,11 @@ Professor Emeritus at UPLB and a pioneer of stingless bee research in the Philip
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="https://picsum.photos/130/130?image=856">
+          <img class="img-fluid" src="">
         </div>
                <div class="team-content">
-  <h3 class="name">Hans Staden</h3>
-  <h4 class="title">German Mercenary/Naturalist</h4>
+  <h3 class="name">Dr. Alvin F. L. Suarez </h3>
+  <h4 class="title">Biomedical Researcher</h4>
   <p class="description">
 A researcher who studied the biomedical value of Philippine stingless bee honey. In 2021, his work showed its strong antibiotic potential against multidrug-resistant bacteria.  </p>
 </div>
@@ -705,11 +748,11 @@ A researcher who studied the biomedical value of Philippine stingless bee honey.
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="https://picsum.photos/130/130?image=836">
+          <img class="img-fluid" src="">
         </div>
                <div class="team-content">
-  <h3 class="name">Hans Staden</h3>
-  <h4 class="title">German Mercenary/Naturalist</h4>
+  <h3 class="name">Mohd Farid Ramli</h3>
+  <h4 class="title">AI/Beekeeping Technology Specialist</h4>
   <p class="description">
 Introduced a compact deep-learning model (Apis-Prime) for automated hive weight monitoring. His innovation improved the accuracy of remote data collection for beekeeping management.  </p>
 </div>
