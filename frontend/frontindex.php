@@ -1,11 +1,4 @@
 <?php
-$trivia = [
-    "Stingless bees are important pollinators in the Philippines.",
-    "They produce 'Meliponine honey', prized for its medicinal properties.",
-    "Stingless bees are gentle and do not sting, perfect for urban beekeeping."
-];
-
-$randomTrivia = $trivia[array_rand($trivia)];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,25 +92,64 @@ $randomTrivia = $trivia[array_rand($trivia)];
       background-color: #fffbee;
     }
 
-    .info-card {
-      border-radius: 12px;
-      background-color: #fff;
-      padding: 30px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-      transition: transform 0.3s;
-      text-align: center;
-    }
+   .info-card {
+ --card-gradient: rgba(0, 0, 0, 0.8);
+  --card-blend-mode: overlay;
+  background-color: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0.1rem 0.1rem 0.3rem -0.03rem rgba(0, 0, 0, 0.45);
+  padding-bottom: 1rem;
+  background-image: linear-gradient(
+    var(--card-gradient),
+    white max(9.5rem, 27vh)
+  );
+  overflow: cover;
+}
+.info-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.25);
+}
+.info-card img {
+    border-radius: 0.5rem 0.5rem 0 0;
+    width: 100%;
+    object-fit: cover;
+    // height: max(10rem, 25vh);
+    max-height: max(10rem, 30vh);
+    aspect-ratio: 4/3;
+    mix-blend-mode: var(--card-blend-mode);
+    // filter: grayscale(100);
 
-    .info-card:hover {
-      transform: translateY(-10px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    ~ * {
+      margin-left: 1rem;
+      margin-right: 1rem;
     }
+  }
 
-    .info-card h5 {
-      color: #ffb300;
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
+
+.info-card h3 {
+  margin-top: 1rem;
+  font-size: 1.25rem;
+}
+
+.info-card a {
+  color: inherit;
+}
+
+.info-card-wrapper {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
+  gap: 1.5rem;
+  max-width: 100vw;
+  width: 150ch;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+
+
 
     .trivia-section {
       padding: 60px 20px;
@@ -474,6 +506,8 @@ input:checked +.card > .card-img{
 
 
 
+
+
   </style>
 </head>
 <body>
@@ -491,29 +525,30 @@ input:checked +.card > .card-img{
 
   <section id="info" class="info-section">
     <div class="container">
-      <h2 class="text-center mb-5">Stingless Bees Facts</h2>
-      <div class="row g-4 justify-content-center ">
-        <div class="col-md-4">
-          <div class="info-card">
-            <h5>Pollinators</h5>
-            <p>Stingless bees are essential pollinators in the Philippines, supporting biodiversity.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="info-card">
-            <h5>Honey Production</h5>
-            <p>They produce 'Meliponine honey', which has medicinal properties and is highly prized.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="info-card">
-            <h5>Gentle Bees</h5>
-            <p>These bees are small and do not sting, making them perfect for urban beekeeping.</p>
-          </div>
-        </div>
+      <h2 class="text-center mb-5">STINGLESS BEES FACTS</h2>
+  <ul class="info-card-wrapper">
+  <li class="info-card">
+    <img src="https://www.goodnet.org/photos/620x0/37405_hd.jpg" alt="Pollination">
+    <h3>POLLINATION ROLE</h3>
+    <p>Stingless bees (Tetragonula biroi) in the Philippines are promoted for boosting pollination of high-value crops like mango, coconut, and bitter gourd.</p>
+  </li>
+  <li class="info-card">
+    <img src="https://static.vecteezy.com/system/resources/previews/023/701/789/large_2x/honey-on-black-background-illustration-ai-generative-free-photo.jpg" alt="Medicinal Honey">
+    <h3>MEDICINAL HONEY</h3>
+    <p>Their honey has strong antibacterial and antioxidant properties, effective even against drug-resistant bacteria, making it valuable as a nutraceutical.</p>
+  </li>
+  <li class="info-card">
+    <img src="https://i.pinimg.com/originals/e5/bc/4c/e5bc4cd5aca3ee38eed95305baf45fe6.jpg" alt="Beekeeping">
+    <h3>EASY BEEKEEPING</h3>
+    <p>Stingless beekeeping is low-maintenance since the bees are native, adaptable to many flowers, and can live in simple hive setups.</p>
+  </li>
+</ul>
+
+
+
         <div class="col-12 text-center mt-4">
-        <h2>Did You Know?</h2>
-    <p><?php echo $randomTrivia; ?></p>
+        <h2>DID YOU KNOW?</h2>
+    
         <div class="cards">
 
   <input type="radio" id="radio-1" name="radio-card" checked>
@@ -521,8 +556,8 @@ input:checked +.card > .card-img{
     <img class="card-img" src="https://www.rosepestcontrol.com/wp-content/uploads/2019/07/Honey_bee_hero.jpg">
    <div class="card-data">
       <span class="card-num">1/7</span>
-      <h2>Stingless Bee - Melipona beecheii</h3>
-      <p>Tropical bees with no stinger, make medicinal honey in wax pots.</p>
+      <h2>Honey Collection</h3>
+      <p>Let honey drip naturally from pots overnight instead of pressing, to preserve brood and pot integrity..</p>
       <footer>
         <label for="radio-7" aria-label="Previous">&#10094;</label>
         <label for="radio-2" aria-label="Next">&#10095;</label>
@@ -536,8 +571,8 @@ input:checked +.card > .card-img{
     <img class="card-img" src="https://picsum.photos/id/30/200/300">
     <div class="card-data">
       <span class="card-num">2/7</span>
-      <h2>Shyamanta Baruah</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus maiores accusantium cumque atque? Ex voluptatem quisquam temporibus. Provident rerum quae nemo eligendi fugiat!</p>
+      <h2>Colony Transfer</h3>
+      <p>Move stingless bee colonies into new hive boxes at night when they are calmer, reducing stress and bee loss.</p>
       <footer>
         <label for="radio-1" aria-label="Previous">&#10094;</label>
         <label for="radio-3" aria-label="Next">&#10095;</label>
@@ -551,8 +586,8 @@ input:checked +.card > .card-img{
     <img class="card-img" src="https://picsum.photos/id/39/200/300">
     <div class="card-data">
       <span class="card-num">3/7</span>
-      <h2>Luke Chesser</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus maiores accusantium cumque atque? Ex voluptatem quisquam temporibus. Provident rerum quae nemo eligendi fugiat!</p>
+      <h2>Harvest Timing</h3>
+      <p>Avoid harvesting during cloudy or rainy days to protect honey quality and prevent colony disruption.</p>
       <footer>
         <label for="radio-2" aria-label="Previous">&#10094;</label>
         <label for="radio-4" aria-label="Next">&#10095;</label>
@@ -566,9 +601,9 @@ input:checked +.card > .card-img{
     <img class="card-img" src="https://picsum.photos/id/103/200/300">
     <div class="card-data">
       <span class="card-num">4/7</span>
-      <h2>Ilham Rahmansyah</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus maiores accusantium cumque atque? Ex voluptatem quisquam temporibus. Provident rerum quae nemo eligendi fugiat!</p>
-      <footer>
+      <h2>Low Maintenance</h3>
+      <p>Unlike honey bees (Apis), Tetragonula biroi require fewer parasite checks, making them ideal for small beekeepers.</p>
+        <footer>
         <label for="radio-3" aria-label="Previous">&#10094;</label>
         <label for="radio-5" aria-label="Next">&#10095;</label>
       </footer>
@@ -581,9 +616,9 @@ input:checked +.card > .card-img{
     <img class="card-img" src="https://picsum.photos/id/175/200/300">
     <div class="card-data">
       <span class="card-num">5/7</span>
-      <h2>petradr</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus maiores accusantium cumque atque? Ex voluptatem quisquam temporibus. Provident rerum quae nemo eligendi fugiat!</p>
-      <footer>
+      <h2>Medicinal Value</h3>
+      <p>Their honey and propolis show antimicrobial properties, including activity against drug-resistant bacteria.</p>
+        <footer>
         <label for="radio-4" aria-label="Previous">&#10094;</label>
         <label for="radio-6" aria-label="Next">&#10095;</label>
       </footer>
@@ -596,8 +631,8 @@ input:checked +.card > .card-img{
     <img class="card-img" src="https://picsum.photos/id/349/200/300" >
     <div class="card-data">
       <span class="card-num">6/7</span>
-      <h2>Caleb George</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus maiores accusantium cumque atque? Ex voluptatem quisquam temporibus. Provident rerum quae nemo eligendi fugiat!</p>
+      <h2>Honey Characteristics</h3>
+      <p>The honey's color and composition vary by region, ranging from extra light amber to dark amber with differing acidity and mineral content.</p>
       <footer>
         <label for="radio-5" aria-label="Previous">&#10094;</label>
         <label for="radio-7" aria-label="Next">&#10095;</label>
@@ -611,9 +646,9 @@ input:checked +.card > .card-img{
     <img class="card-img"src="https://picsum.photos/id/401/200/300">
     <div class="card-data">
       <span class="card-num">7/7</span>
-      <h2>Austin Ban</h3>
-      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus maiores accusantium cumque atque? Ex voluptatem quisquam temporibus. Provident rerum quae nemo eligendi fugiat!</p>
-      <footer>
+      <h2>Foraging Flexibility</h3>
+      <p>T. biroi accept many flower types, improving honey flavor and ensuring year-round food supply and colony health.</p>
+        <footer>
         <label for="radio-6" aria-label="Previous">&#10094;</label>
         <label for="radio-1" aria-label="Next">&#10095;</label>
       </footer>
@@ -635,9 +670,7 @@ input:checked +.card > .card-img{
   <h3 class="name">Hans Staden</h3>
   <h4 class="title">German Mercenary/Naturalist</h4>
   <p class="description">
-    He was one of the first to record stingless bees in Brazil in 1557, describing their honey and nesting habits.
-  </p>
-</div>
+One of the earliest Europeans to record stingless bees and their honey in Brazil. He documented how Amerindians used “pot honey” long before modern beekeeping practices.</div>
        
       </div>
     </div>
@@ -650,8 +683,7 @@ input:checked +.card > .card-img{
   <h3 class="name">Hans Staden</h3>
   <h4 class="title">German Mercenary/Naturalist</h4>
   <p class="description">
-    He was one of the first to record stingless bees in Brazil in 1557, describing their honey and nesting habits.
-  </p>
+Professor Emeritus at UPLB and a pioneer of stingless bee research in the Philippines. Her studies from 2021–2023 shaped best practices for honey quality and sustainable meliponiculture.  </p>
 </div>
        
       </div>
@@ -665,8 +697,7 @@ input:checked +.card > .card-img{
   <h3 class="name">Hans Staden</h3>
   <h4 class="title">German Mercenary/Naturalist</h4>
   <p class="description">
-    He was one of the first to record stingless bees in Brazil in 1557, describing their honey and nesting habits.
-  </p>
+A researcher who studied the biomedical value of Philippine stingless bee honey. In 2021, his work showed its strong antibiotic potential against multidrug-resistant bacteria.  </p>
 </div>
         
       </div>
@@ -680,8 +711,7 @@ input:checked +.card > .card-img{
   <h3 class="name">Hans Staden</h3>
   <h4 class="title">German Mercenary/Naturalist</h4>
   <p class="description">
-    He was one of the first to record stingless bees in Brazil in 1557, describing their honey and nesting habits.
-  </p>
+Introduced a compact deep-learning model (Apis-Prime) for automated hive weight monitoring. His innovation improved the accuracy of remote data collection for beekeeping management.  </p>
 </div>
         
       </div>
