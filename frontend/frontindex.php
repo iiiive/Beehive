@@ -275,7 +275,6 @@ body{
   width: min(100% - 4rem, 800px);
   margin-inline: auto;
   display: grid;
-  
   counter-reset: my-counter;
 
      padding: 60px 20px; /* top/bottom 60px, left/right 20px */
@@ -452,7 +451,7 @@ input:checked + .card{
 input:checked:focus-visible + .card > .card-data > footer label,
 .card-data > footer label:hover{
   --label-clr-txt: #FFF;
-  --label-clr-bg: steelblue;
+  --label-clr-bg: #feba17;
 }
 
 input:checked + .card{
