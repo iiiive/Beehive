@@ -720,8 +720,8 @@ One of the earliest Europeans to record stingless bees and their honey in Brazil
           <img src="images/omar.webp">
         </div>
                <div class="team-content">
-  <h3 class="name"> Omar Anwar </h3>
-  <h4 class="title">Research Fellow (Engr.) at ICRAR.</h4>
+  <h3 class="name"> Engr. Omar Anwar </h3>
+  <h4 class="title">Engineer/Researcher</h4>
   <p class="description">
 first to build a low-power, long-range AI-enabled remote beehive monitoring system for remote/low-connectivity regions.</div>
        
