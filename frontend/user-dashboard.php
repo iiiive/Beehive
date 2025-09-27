@@ -257,7 +257,7 @@ canvas { margin-top:20px; height:120px !important; }
   <!-- Temperature -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
-    <div class="value"><?php echo $latestTemp; ?> °C</div>
+    <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
     <div class="<?php echo ($latestTemp>32||$latestTemp<20)?'status-bad':'status-good';?>">
       <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
     </div>
@@ -267,7 +267,7 @@ canvas { margin-top:20px; height:120px !important; }
   <!-- Humidity -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
-    <div class="value"><?php echo $latestHum; ?> %</div>
+    <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
     <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
       <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
@@ -277,7 +277,7 @@ canvas { margin-top:20px; height:120px !important; }
   <!-- Weight -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
-    <div class="value"><?php echo $latestWeight; ?> kg</div>
+    <div id="weight-value" class="value"><?php echo $latestWeight; ?> kg</div>
     <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
       <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
     </div>
@@ -318,7 +318,7 @@ canvas { margin-top:20px; height:120px !important; }
           <th>Status</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="history-body">
         <?php foreach ($history_rows as $row): ?>
           <tr>
             <td><?= $row['timestamp'] ?></td>
@@ -367,6 +367,86 @@ function controlFan(action, btn) {
     'Fan mode: ' + (action==='auto'?'Automatic':(action==='on'?'On':'Off'));
   console.log('Fan set to:', action);
 }
+
+
+<!-- ✅ Auto-refresh script -->
+
+async function reloadValues() {
+  try {
+    const response = await fetch("get_latest.php"); // small API
+    const data = await response.json();
+
+    // Update numbers
+    document.getElementById("temp-value").innerText   = data.temperature + " °C";
+    document.getElementById("hum-value").innerText    = data.humidity + " %";
+    document.getElementById("weight-value").innerText = data.weight + " kg";
+
+    // Update statuses
+    updateStatus("temp-status",
+      (data.temperature >= 28 && data.temperature <= 32) ?
+      {text:"Temperature is Good ✔", cls:"status-good"} :
+      {text:"Temperature is Bad ✖", cls:"status-bad"}
+    );
+
+    updateStatus("hum-status",
+      (data.humidity >= 65 && data.humidity <= 80) ?
+      {text:"Humidity is Good ✔", cls:"status-good"} :
+      {text:"Humidity is Bad ✖", cls:"status-bad"}
+    );
+
+    updateStatus("weight-status",
+      (data.weight >= 5) ?
+      {text:"The Hive is Heavy!", cls:"status-good"} :
+      {text:"The Hive is still Light", cls:"status-bad"}
+    );
+
+  } catch (err) {
+    console.error("Error fetching latest data:", err);
+  }
+}
+
+function updateStatus(id, obj) {
+  const el = document.getElementById(id);
+  el.className = obj.cls;
+  el.innerText = obj.text;
+}
+
+// run immediately + every 5 seconds
+reloadValues();
+setInterval(reloadValues, 5000);
+
+
+
+async function reloadHistory() {
+  try {
+    const res = await fetch("get_history.php");
+    const data = await res.json();
+
+    const tbody = document.getElementById("history-body");
+    tbody.innerHTML = ""; // clear old rows
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.timestamp}</td>
+        <td>${row.temperature} °C</td>
+        <td>${row.humidity} %</td>
+        <td>${row.weight} kg</td>
+        <td>${row.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("History fetch error:", err);
+  }
+}
+
+// Run immediately + every 5s
+reloadHistory();
+setInterval(reloadHistory, 5000);
+
+
+
 </script>
 
 </body>

@@ -55,11 +55,7 @@ mysqli_close($link);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-* { 
-  box-sizing:border-box; 
-  margin:0; padding:0; 
-  font-family:Raleway,sans-serif; 
-}
+* { box-sizing:border-box; margin:0; padding:0; font-family:Raleway,sans-serif; }
 body {
   min-height: 100vh;
   background: url('https://a-z-animals.com/media/2025/08/shutterstock-2374833763-huge-licensed-scaled.jpg') no-repeat center center/cover;
@@ -67,123 +63,55 @@ body {
   padding: 20px 0;
   color: #212121;
 }
-
 body::before {
   content: "";
   position: absolute;
-  top:0; 
-  left:0; 
-  right:0; 
-  bottom:0;
+  top:0; left:0; right:0; bottom:0;
   background-color: rgba(0,0,0,0.4); 
   z-index: 0;
 }
-
-.container, .dashboard-header, .card {
-  position: relative; 
-  z-index: 1; 
-}
+.container, .dashboard-header, .card { position: relative; z-index: 1; }
 .dashboard-header {
-  width:100%; 
-  padding:15px 25px; 
-  display:flex; 
-  justify-content:space-between; 
-  align-items:center;
+  width:100%; padding:15px 25px; display:flex; justify-content:space-between; align-items:center;
   background: linear-gradient(145deg, #eef104ff, #D4A373);
   border-radius:0 0 20px 20px;
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
 }
-.dashboard-header .title { 
-  display:flex; 
-  align-items:center; 
-  gap:15px; 
-}
+.dashboard-header .title { display:flex; align-items:center; gap:15px; }
 .dashboard-header .title span {
   font-family: 'Cursive', 'Brush Script MT', sans-serif;
   font-size: 2.5rem;
   color: #212121;
 }
-.dashboard-header img { 
-  height:70px; 
-  width: 70px; 
-}
+.dashboard-header img { height:70px; width: 70px; }
 .logout-btn {
-  padding:10px 20px; 
-  border-radius:15px; 
-  font-weight:700; 
-  color:#fff;
-  background: #4B2E1E; 
-  border:none; 
-  text-decoration:none; 
+  padding:10px 20px; border-radius:15px; font-weight:700; color:#fff;
+  background: #4B2E1E; border:none; text-decoration:none; 
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   transition:0.3s;
 }
-.logout-btn:hover { 
-  background:#6B4226; 
-  transform: translateY(-2px) scale(1.03); }
+.logout-btn:hover { background:#6B4226; transform: translateY(-2px) scale(1.03); }
 
-.container { 
-  max-width:1100px; 
-  margin:40px auto; 
-  display:flex; 
-  flex-wrap:wrap; 
-  justify-content:center; gap:20px; }
+.container { max-width:1100px; margin:40px auto; display:flex; flex-wrap:wrap; justify-content:center; gap:20px; }
 
 .card {
-  flex:1 1 300px; 
-  min-width:280px;
+  flex:1 1 300px; min-width:280px;
   background: linear-gradient(145deg, #FFF8DC, #9b8c51ff);
-  border-radius:25px; 
-  border:none;
-  padding:25px; 
-  text-align:center;
+  border-radius:25px; border:none;
+  padding:25px; text-align:center;
   box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
-.card-title { 
-  font-weight:700; 
-  font-size:1.5rem; 
-  margin-bottom:15px; 
-  display:flex; 
-  justify-content:center; 
-  align-items:center; 
-  gap:10px; 
-  color: #4b2e1e;; 
-  text-shadow:1px 1px 2px rgba(0,0,0,0.3);
-}
-.card-title i { 
-  font-size:1.5rem; 
-}
-.value { 
-  font-size:2rem; 
-  font-weight:bold; 
-  margin-bottom:10px; 
-  color:#4B2E1E; 
-  text-shadow:1px 1px 3px rgba(0,0,0,0.3);
-}
+.card-title { font-weight:700; font-size:1.5rem; margin-bottom:15px; display:flex; justify-content:center; align-items:center; gap:10px; color: #4b2e1e;; text-shadow:1px 1px 2px rgba(0,0,0,0.3);}
+.card-title i { font-size:1.5rem; }
+.value { font-size:2rem; font-weight:bold; margin-bottom:10px; color:#4B2E1E; text-shadow:1px 1px 3px rgba(0,0,0,0.3);}
 .status-good, .status-bad {
-  border-radius:15px; 
-  padding:10px 20px; 
-  font-size:1rem; 
-  font-weight:700; 
-  margin-top:10px; 
-  display:inline-block;
+  border-radius:15px; padding:10px 20px; font-size:1rem; font-weight:700; margin-top:10px; display:inline-block;
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
-.status-good { 
-  background: #ffd83dd8; 
-  color: #4b2e1e; 
-}
-.status-bad { 
-  background: #d2691ed2; 
-  color:#FFF; 
-}
-
-canvas { 
-  margin-top:20px; 
-  height:120px !important; 
-  }
+.status-good { background: #ffd83dd8; color: #4b2e1e; }
+.status-bad { background: #d2691ed2; color:#FFF; }
+canvas { margin-top:20px; height:120px !important; }
 </style>
 </head>
 <body>
@@ -196,27 +124,28 @@ canvas {
   <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
 </div>
 
-<div class="container">
+<div id="history-log" class="container">
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
-    <div class="value"><?php echo $latestTemp; ?> °C</div>
-    <div class="<?php echo ($latestTemp>32||$latestTemp<28)?'status-bad':'status-good';?>">
+    <!-- ✅ Added IDs -->
+    <div class="value" id="temp-value"><?php echo $latestTemp; ?> °C</div>
+    <div class="<?php echo ($latestTemp>32||$latestTemp<28)?'status-bad':'status-good';?>" id="temp-status">
       <?php echo ($latestTemp>32||$latestTemp<28)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
     </div>
     <canvas id="tempChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
-    <div class="value"><?php echo $latestHum; ?> %</div>
-    <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
+    <div class="value" id="hum-value"><?php echo $latestHum; ?> %</div>
+    <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>" id="hum-status">
       <?php echo ($latestHum>=65&& $latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#FFD93D;"></i> Weight</h5>
-    <div class="value"><?php echo $latestWeight ; ?> kg</div>
-    <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
+    <div class="value" id="weight-value"><?php echo $latestWeight ; ?> kg</div>
+    <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>" id="weight-status">
       <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
     </div>
     <canvas id="weightChart"></canvas>
@@ -237,7 +166,7 @@ canvas {
           <th>Status</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody id="history-body">
         <?php foreach ($history_rows as $row): ?>
           <tr>
             <td><?= $row['timestamp'] ?></td>
@@ -245,7 +174,6 @@ canvas {
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
             <td><?= $row['status'] ?></td>
-
           </tr>
         <?php endforeach; ?>
       </tbody>
@@ -287,6 +215,85 @@ function create3DChart(id, data, color) {
 create3DChart('tempChart', tempData, '#D2691E');
 create3DChart('humChart', humData, '#4B2E1E');
 create3DChart('weightChart', weightData, '#4B2E1E'); 
+</script>
+
+<!-- ✅ Auto-refresh script -->
+<script>
+async function reloadValues() {
+  try {
+    const response = await fetch("get_latest.php"); // small API
+    const data = await response.json();
+
+    // Update numbers
+    document.getElementById("temp-value").innerText   = data.temperature + " °C";
+    document.getElementById("hum-value").innerText    = data.humidity + " %";
+    document.getElementById("weight-value").innerText = data.weight + " kg";
+
+    // Update statuses
+    updateStatus("temp-status",
+      (data.temperature >= 28 && data.temperature <= 32) ?
+      {text:"Temperature is Good ✔", cls:"status-good"} :
+      {text:"Temperature is Bad ✖", cls:"status-bad"}
+    );
+
+    updateStatus("hum-status",
+      (data.humidity >= 65 && data.humidity <= 80) ?
+      {text:"Humidity is Good ✔", cls:"status-good"} :
+      {text:"Humidity is Bad ✖", cls:"status-bad"}
+    );
+
+    updateStatus("weight-status",
+      (data.weight >= 5) ?
+      {text:"The Hive is Heavy!", cls:"status-good"} :
+      {text:"The Hive is still Light", cls:"status-bad"}
+    );
+
+  } catch (err) {
+    console.error("Error fetching latest data:", err);
+  }
+}
+
+function updateStatus(id, obj) {
+  const el = document.getElementById(id);
+  el.className = obj.cls;
+  el.innerText = obj.text;
+}
+
+// run immediately + every 5 seconds
+reloadValues();
+setInterval(reloadValues, 5000);
+
+
+
+async function reloadHistory() {
+  try {
+    const res = await fetch("get_history.php");
+    const data = await res.json();
+
+    const tbody = document.getElementById("history-body");
+    tbody.innerHTML = ""; // clear old rows
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.timestamp}</td>
+        <td>${row.temperature} °C</td>
+        <td>${row.humidity} %</td>
+        <td>${row.weight} kg</td>
+        <td>${row.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("History fetch error:", err);
+  }
+}
+
+// Run immediately + every 5s
+reloadHistory();
+setInterval(reloadHistory, 5000);
+
+
 </script>
 
 </body>

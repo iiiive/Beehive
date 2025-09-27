@@ -43,20 +43,22 @@ if ($result && mysqli_num_rows($result) > 0) {
     // Prepare alert messages
     $alerts = [];
 
-    if ($temperature > 35) {
-        $alerts[] = "🔥 Hive too hot! Fan turned On! Temperature: {$temperature}°C at {$timestamp}";
-    } elseif ($temperature < 20) {
+    if ($temperature > 32) {
+        $alerts[] = "🔥 Hive too hot! Fan turned On! Please put the hive on a shade. Temperature: {$temperature}°C at {$timestamp}";
+    } elseif ($temperature < 28) {
         $alerts[] = "❄️ Hive too cold! Temperature: {$temperature}°C at {$timestamp}";
     }
 
     if ($humidity > 80) {
         $alerts[] = "💧 Humidity too high! Humidity: {$humidity}% at {$timestamp}";
+    }elseif ($humidity < 28) {
+        $alerts[] = "💧 Humidity too low! Please provide water source for the Bees! Humidity: {$humidity}% at {$timestamp}";
     }
 
     if ($weight > 5) {
-        $alerts[] = "Beehive is too Heavy! Check for Potential Swarming/Harvest. Weight: {$weight}Kg at {$timestamp}";
-    } elseif ($weight < 3) {
-        $alerts[] = "⚠️ Beehive weight is critically low! Weight: {$weight}Kg at {$timestamp}";
+        $alerts[] = "⚠️ Beehive is too Heavy! Check for Potential Swarming/Harvest. Weight: {$weight}Kg at {$timestamp}";
+    } elseif ($weight < 2) {
+        $alerts[] = "⚠️ Beehive weight is critically low! Please check for potential hive loss. Weight: {$weight}Kg at {$timestamp}";
     }
 
     // Optional weight alert

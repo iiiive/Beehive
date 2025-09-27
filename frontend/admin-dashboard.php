@@ -260,7 +260,7 @@ canvas {
     <div class="col-lg-3 col-md-6">
       <div class="card p-3">
         <h5 class="card-title"><i class="bi bi-thermometer-half"></i> Temperature</h5>
-        <div class="value"><?php echo $latestTemp; ?> °C</div>
+        <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
         <div class="<?php echo ($latestTemp>32||$latestTemp<28)?'status-bad':'status-good';?>">
           <?php echo ($latestTemp>32||$latestTemp<28)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
         </div>  
@@ -271,7 +271,7 @@ canvas {
     <div class="col-lg-3 col-md-6">
       <div class="card p-3">
         <h5 class="card-title"><i class="bi bi-droplet"></i> Humidity</h5>
-        <div class="value"><?php echo $latestHum; ?> %</div>
+        <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
         <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
           <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
         </div>
@@ -282,7 +282,7 @@ canvas {
     <div class="col-lg-3 col-md-6">
       <div class="card p-3">
         <h5 class="card-title"><i class="bi bi-box-seam"></i> Weight</h5>
-        <div class="value"><?php echo $latestWeight; ?> kg</div>
+        <div id="weight-value" class="value"><?php echo $latestWeight; ?> kg</div>
         <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
           <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light ✖';?>
         </div>
@@ -320,7 +320,7 @@ canvas {
           
         </tr>
       </thead>
-      <tbody>
+      <tbody id="history-body">
         <?php foreach ($history_rows as $row): ?>
           <tr>
             <td><?= $row['timestamp'] ?></td>
@@ -342,7 +342,6 @@ const tempData = <?php echo json_encode(array_reverse($temperature_history)); ?>
 const humData = <?php echo json_encode(array_reverse($humidity_history)); ?>;
 const weightData = <?php echo json_encode(array_reverse($weight_history)); ?>;
 
-
 function create3DChart(id,data,color){
   new Chart(document.getElementById(id),{
     type:'line',
@@ -358,6 +357,68 @@ function controlFan(action){
   document.getElementById('fan-status').innerText = "Fan mode: "+(action==='auto'?'Automatic':action==='on'?'On':'Off');
   console.log("Fan set to:", action);
 }
+
+// ✅ Auto-refresh latest values
+async function reloadValues() {
+  try {
+    const response = await fetch("get_latest.php");
+    const data = await response.json();
+
+    document.getElementById("temp-value").innerText   = data.temperature + " °C";
+    document.getElementById("hum-value").innerText    = data.humidity + " %";
+    document.getElementById("weight-value").innerText = data.weight + " kg";
+
+    updateStatus("temp-value", data.temperature >= 28 && data.temperature <= 32, "Temperature is Good ✔", "Temperature is Bad ✖");
+    updateStatus("hum-value", data.humidity >= 65 && data.humidity <= 80, "Humidity is Good ✔", "Humidity is Bad ✖");
+    updateStatus("weight-value", data.weight >= 5, "The Hive is Heavy!", "The Hive is still Light ✖");
+
+  } catch (err) {
+    console.error("Error fetching latest data:", err);
+  }
+}
+
+function updateStatus(id, condition, goodText, badText) {
+  const el = document.getElementById(id).nextElementSibling; // status div is right after value div
+  if (condition) {
+    el.className = "status-good";
+    el.innerText = goodText;
+  } else {
+    el.className = "status-bad";
+    el.innerText = badText;
+  }
+}
+
+// ✅ Auto-refresh history log
+async function reloadHistory() {
+  try {
+    const res = await fetch("get_history.php");
+    const data = await res.json();
+
+    const tbody = document.getElementById("history-body");
+    tbody.innerHTML = "";
+
+    data.forEach(row => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.timestamp}</td>
+        <td>${row.temperature} °C</td>
+        <td>${row.humidity} %</td>
+        <td>${row.weight} kg</td>
+        <td>${row.status}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch (err) {
+    console.error("History fetch error:", err);
+  }
+}
+
+// Run both immediately + every 5s
+reloadValues();
+reloadHistory();
+setInterval(reloadValues, 5000);
+setInterval(reloadHistory, 5000);
 </script>
+
 </body>
 </html>
