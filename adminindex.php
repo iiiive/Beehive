@@ -44,6 +44,8 @@ if (strpos($sql, '?') !== false) {
     <title>Admin Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+
+        /* dd */
   body {
     background-image: url("https://static.vecteezy.com/system/resources/previews/000/532/210/original/vector-bee-hive-background.jpg");
     background-repeat: no-repeat;

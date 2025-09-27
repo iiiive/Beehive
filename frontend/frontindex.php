@@ -687,7 +687,7 @@ input:checked +.card > .card-img{
     <div class="card-data">
       <span class="card-num">6/6</span>
       <h2>Foraging Flexibility</h3>
-      <p>T. biroi accept many flower types, improving honey flavor and ensuring year-round food supply and colony health.</p>
+      <p>Tetragonula biroi accept many flower types, improving honey flavor and ensuring year-round food supply and colony health.</p>
         <footer>
         <label for="radio-5" aria-label="Previous">&#10094;</label>
         <label for="radio-1" aria-label="Next">&#10095;</label>
