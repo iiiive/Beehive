@@ -200,24 +200,24 @@ canvas {
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div class="value"><?php echo $latestTemp; ?> °C</div>
-    <div class="<?php echo ($latestTemp>32||$latestTemp<20)?'status-bad':'status-good';?>">
-      <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    <div class="<?php echo ($latestTemp>32||$latestTemp<28)?'status-bad':'status-good';?>">
+      <?php echo ($latestTemp>32||$latestTemp<28)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
     </div>
     <canvas id="tempChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div class="value"><?php echo $latestHum; ?> %</div>
-    <div class="<?php echo ($latestHum>=40&&$latestHum<=70)?'status-good':'status-bad';?>">
-      <?php echo ($latestHum>=40&& $latestHum<=70)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
+      <?php echo ($latestHum>=65&& $latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#FFD93D;"></i> Weight</h5>
     <div class="value"><?php echo $latestWeight ; ?> kg</div>
-    <div class="<?php echo ($latestWeight>=20)?'status-good':'status-bad';?>">
-      <?php echo ($latestWeight>=20)?'Weight is Good ✔':'Weight is Low ✖';?>
+    <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
+      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
     </div>
     <canvas id="weightChart"></canvas>
   </div>
@@ -234,6 +234,7 @@ canvas {
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -243,6 +244,8 @@ canvas {
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
+            <td><?= $row['status'] ?></td>
+
           </tr>
         <?php endforeach; ?>
       </tbody>

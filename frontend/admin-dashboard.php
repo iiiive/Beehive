@@ -2,7 +2,7 @@
 require_once "../config.php";
 
 // Query 1: Get ALL readings for charts and latest values
-$sql_all = "SELECT timestamp, temperature, humidity, weight 
+$sql_all = "SELECT timestamp, temperature, humidity, weight
             FROM beehive_readings 
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
@@ -11,12 +11,14 @@ $timestamps   = [];
 $temperatures = [];
 $humidities   = [];
 $weights      = [];
+$status = [];
 
 while ($row = mysqli_fetch_assoc($result_all)) {
     $timestamps[]   = $row['timestamp'];
     $temperatures[] = $row['temperature'];
     $humidities[]   = $row['humidity'];
     $weights[]      = $row['weight'];
+    $status[] = $row['status'];
 }
 
 $latestTemp   = end($temperatures);
@@ -27,9 +29,10 @@ $latestWeight = end($weights);
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
+$status_history      = $status;
 
 // Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight 
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, status 
               FROM beehive_readings 
               ORDER BY timestamp DESC 
               LIMIT 6";  // get 6: latest + 5 previous
@@ -242,8 +245,8 @@ th { background: #FFD93D; color: #4B2E1E; }
       <div class="card p-3">
         <h5 class="card-title"><i class="bi bi-thermometer-half"></i> Temperature</h5>
         <div class="value"><?php echo $latestTemp; ?> °C</div>
-        <div class="<?php echo ($latestTemp>32||$latestTemp<20)?'status-bad':'status-good';?>">
-          <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+        <div class="<?php echo ($latestTemp>32||$latestTemp<28)?'status-bad':'status-good';?>">
+          <?php echo ($latestTemp>32||$latestTemp<28)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
         </div>  
         <canvas id="tempChart"></canvas>
       </div>
@@ -253,8 +256,8 @@ th { background: #FFD93D; color: #4B2E1E; }
       <div class="card p-3">
         <h5 class="card-title"><i class="bi bi-droplet"></i> Humidity</h5>
         <div class="value"><?php echo $latestHum; ?> %</div>
-        <div class="<?php echo ($latestHum>=40&&$latestHum<=70)?'status-good':'status-bad';?>">
-          <?php echo ($latestHum>=40&&$latestHum<=70)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+        <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
+          <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
         </div>
         <canvas id="humChart"></canvas>
       </div>
@@ -264,8 +267,8 @@ th { background: #FFD93D; color: #4B2E1E; }
       <div class="card p-3">
         <h5 class="card-title"><i class="bi bi-box-seam"></i> Weight</h5>
         <div class="value"><?php echo $latestWeight; ?> kg</div>
-        <div class="<?php echo ($latestWeight>=3)?'status-good':'status-bad';?>">
-          <?php echo ($latestWeight>=3)?'The hive is Full ✔':'The hive is Light ✖';?>
+        <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
+          <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is Light ✖';?>
         </div>
         <canvas id="weightChart"></canvas>
       </div>
@@ -297,6 +300,8 @@ th { background: #FFD93D; color: #4B2E1E; }
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
+          <th>Status</th>
+          
         </tr>
       </thead>
       <tbody>
@@ -306,6 +311,7 @@ th { background: #FFD93D; color: #4B2E1E; }
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
+            <td><?= $row['status'] ?></td>
           </tr>
         <?php endforeach; ?>
       </tbody>
@@ -319,6 +325,7 @@ th { background: #FFD93D; color: #4B2E1E; }
 const tempData = <?php echo json_encode(array_reverse($temperature_history)); ?>;
 const humData = <?php echo json_encode(array_reverse($humidity_history)); ?>;
 const weightData = <?php echo json_encode(array_reverse($weight_history)); ?>;
+
 
 function create3DChart(id,data,color){
   new Chart(document.getElementById(id),{

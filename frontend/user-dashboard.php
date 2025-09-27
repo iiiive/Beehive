@@ -232,8 +232,8 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div class="value"><?php echo $latestHum; ?> %</div>
-    <div class="<?php echo ($latestHum>=40&&$latestHum<=70)?'status-good':'status-bad';?>">
-      <?php echo ($latestHum>=40&&$latestHum<=70)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
+      <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
@@ -242,8 +242,8 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
     <div class="value"><?php echo $latestWeight; ?> kg</div>
-    <div class="<?php echo ($latestWeight>=20)?'status-good':'status-bad';?>">
-      <?php echo ($latestWeight>=20)?'Hive is Full ✔':'Hive is Low ✖';?>
+    <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
+      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is Light';?>
     </div>
     <canvas id="weightChart"></canvas>
   </div>
@@ -279,6 +279,7 @@ canvas { margin-top:20px; height:120px !important; }
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -288,6 +289,8 @@ canvas { margin-top:20px; height:120px !important; }
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
+            <td><?= $row['status'] ?></td>
+
           </tr>
         <?php endforeach; ?>
       </tbody>
