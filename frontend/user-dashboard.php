@@ -29,7 +29,7 @@ $humidity_history    = $humidities;
 $weight_history      = $weights;
 
 // Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight 
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, status
               FROM beehive_readings 
               ORDER BY timestamp DESC 
               LIMIT 6";  // get 6: latest + 5 previous
@@ -279,7 +279,7 @@ canvas { margin-top:20px; height:120px !important; }
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
     <div class="value"><?php echo $latestWeight; ?> kg</div>
     <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
-      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is Light';?>
+      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
     </div>
     <canvas id="weightChart"></canvas>
   </div>

@@ -18,7 +18,6 @@ while ($row = mysqli_fetch_assoc($result_all)) {
     $temperatures[] = $row['temperature'];
     $humidities[]   = $row['humidity'];
     $weights[]      = $row['weight'];
-    $status[] = $row['status'];
 }
 
 $latestTemp   = end($temperatures);
@@ -285,7 +284,7 @@ canvas {
         <h5 class="card-title"><i class="bi bi-box-seam"></i> Weight</h5>
         <div class="value"><?php echo $latestWeight; ?> kg</div>
         <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
-          <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is Light ✖';?>
+          <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light ✖';?>
         </div>
         <canvas id="weightChart"></canvas>
       </div>

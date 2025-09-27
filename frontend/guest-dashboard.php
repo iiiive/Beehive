@@ -29,7 +29,7 @@ $humidity_history    = $humidities;
 $weight_history      = $weights;
 
 // Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight 
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, status 
               FROM beehive_readings 
               ORDER BY timestamp DESC 
               LIMIT 6";  // get 6: latest + 5 previous
