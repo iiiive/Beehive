@@ -11,7 +11,7 @@
       font-family: 'Verdana', sans-serif;
       margin: 0;
       padding: 0;
-      background-image: url('https://www.krg.nsw.gov.au/files/assets/public/v/1/images/environment/sustainable-living/native-bees-tetragonula-carbonaria.jpg?w=1080');
+      background-image: url('images/background.jpg');
       background-attachment: fixed;
       background-size: cover;
       display: flex;
