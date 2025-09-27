@@ -112,6 +112,37 @@ body::before {
 .status-good { background: #ffd83dd8; color: #4b2e1e; }
 .status-bad { background: #d2691ed2; color:#FFF; }
 canvas { margin-top:20px; height:120px !important; }
+
+/* History Table */
+.history-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 5;
+  margin-top: 20px;
+  border-radius: 30px;
+  overflow: hidden;
+  background: #fff8dc8c !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+
+}
+.history-table thead {
+  background: linear-gradient(135deg, #FFD93D, #E8C547) !important;
+  color: #4B2E1E !important;
+}
+.history-table th, .history-table td {
+  padding: 14px 12px !important;
+  text-align: center;
+  font-weight: bold;
+    border-right: 2px solid #4B2E1E; /* coffee tone for vertical lines */
+
+  
+}
+.history-table tbody tr:nth-child(even) { background: #FFF2A3 !important; }
+.history-table tbody tr:hover {
+  background: #FEDE16 !important;
+  transform: scale(1.01);
+}
+
 </style>
 </head>
 <body>
@@ -152,12 +183,13 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 </div>
 
+
 <!-- History Log Section -->
 <div class="card p-4 mt-4">
   <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log </h4>
   <div class="table-responsive">
-    <table class="table table-bordered table-striped table-hover mt-3">
-      <thead class="table-warning">
+    <table class="history-table">
+      <thead>
         <tr>
           <th>Timestamp</th>
           <th>Temperature (°C)</th>
@@ -173,13 +205,17 @@ canvas { margin-top:20px; height:120px !important; }
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
-            <td><?= $row['status'] ?></td>
+            <td class="<?= strtolower($row['status']) == 'good' ? 'status-good' : 'status-bad' ?>">
+              <?= $row['status'] ?>
+            </td>
           </tr>
         <?php endforeach; ?>
       </tbody>
     </table>
   </div>
 </div>
+
+
 
 <script>
 const tempData = <?php echo json_encode($temperature_history); ?>;
