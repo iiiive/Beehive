@@ -717,27 +717,26 @@ One of the earliest Europeans to record stingless bees and their honey in Brazil
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="https://thephilippineentomologist.org/wp-content/uploads/2022/07/dr-cervancia.jpg">
+          <img src="images/omar.webp">
         </div>
                <div class="team-content">
-  <h3 class="name">Dr. Cleofas R. Cervancia</h3>
-  <h4 class="title">Entomologist</h4>
+  <h3 class="name"> Omar Anwar </h3>
+  <h4 class="title">Research Fellow (Engr.) at ICRAR.</h4>
   <p class="description">
-Professor Emeritus at UPLB and a pioneer of stingless bee research in the Philippines. Her studies from 2021–2023 shaped best practices for honey quality and sustainable meliponiculture.  </p>
-</div>
+first to build a low-power, long-range AI-enabled remote beehive monitoring system for remote/low-connectivity regions.</div>
        
       </div>
     </div>
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="">
+          <img class="img-fluid" src="https://thephilippineentomologist.org/wp-content/uploads/2022/07/dr-cervancia.jpg">
         </div>
                <div class="team-content">
-  <h3 class="name">Dr. Alvin F. L. Suarez </h3>
-  <h4 class="title">Biomedical Researcher</h4>
+  <h3 class="name">Dr. Cleofas R. Cervancia </h3>
+  <h4 class="title">Entomologist</h4>
   <p class="description">
-A researcher who studied the biomedical value of Philippine stingless bee honey. In 2021, his work showed its strong antibiotic potential against multidrug-resistant bacteria.  </p>
+Professor Emeritus at UPLB and a pioneer of stingless bee research in the Philippines. Her studies from 2021–2023 shaped best practices for honey quality and sustainable meliponiculture.  </p>
 </div>
         
       </div>
@@ -745,13 +744,14 @@ A researcher who studied the biomedical value of Philippine stingless bee honey.
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img class="img-fluid" src="">
+          <img class="img-fluid" src="http://i1.rgstatic.net/ii/profile.image/997485329788928-1614830443148_Q512/Ma-Desiree-Aldemita.jpg">
         </div>
                <div class="team-content">
-  <h3 class="name">Mohd Farid Ramli</h3>
-  <h4 class="title">AI/Beekeeping Technology Specialist</h4>
+  <h3 class="name">Ma. Desiree Belina-Aldemita 
+</h3>
+  <h4 class="title">Associate Professor</h4>
   <p class="description">
-Introduced a compact deep-learning model (Apis-Prime) for automated hive weight monitoring. His innovation improved the accuracy of remote data collection for beekeeping management.  </p>
+She led a study on stingless bee honey across Philippine provinces, showing how botanical origin and location influence its quality to guide local beekeepers.
 </div>
         
       </div>
