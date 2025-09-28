@@ -90,6 +90,8 @@
                   <li><a class="dropdown-item" href="?filter=orderDesc">Order: Latest First</a></li>
                 </ul>
               </div>
+              <a href="BeehiveReadingsCSV.php" class="btn">Get a Copy</a>
+
             </form>
           </div>
 

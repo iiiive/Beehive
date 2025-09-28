@@ -216,20 +216,22 @@ h2 {
                         </div>
 
                         <button type="submit" class="btn">Search</button>
-                        <a href="admins.php" class="btn">Reset</a>
+                        <a href="adminindex.php" class="btn">Reset</a>
 
                         <div class="dropdown">
                             <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
                                 Filters
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="admins.php">Show All</a></li>
-                                <li><a class="dropdown-item" href="admins.php?filter=active">Active</a></li>
-                                <li><a class="dropdown-item" href="admins.php?filter=disabled">Disabled</a></li>
-                                <li><a class="dropdown-item" href="admins.php?filter=pending">Pending</a></li>
-                                <li><a class="dropdown-item" href="admins.php?filter=recent">Most Recent</a></li>
+                                <li><a class="dropdown-item" href="adminindex.php">Show All</a></li>
+                                <li><a class="dropdown-item" href="adminindex.php?filter=active">Active</a></li>
+                                <li><a class="dropdown-item" href="adminindex.php?filter=disabled">Disabled</a></li>
+                                <li><a class="dropdown-item" href="adminindex.php?filter=pending">Pending</a></li>
+                                <li><a class="dropdown-item" href="adminindex.php?filter=recent">Most Recent</a></li>
                             </ul>
                         </div>
+                        <a href="BeehiveReadingsCSV.php" class="btn">Get a Copy</a>
+
                     </form>
                 </div>
 
