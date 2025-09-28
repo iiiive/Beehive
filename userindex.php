@@ -233,6 +233,8 @@ if (strpos($sql, '?') !== false) {
                                 <li><a class="dropdown-item" href="users.php?filter=recent">Most Recent</a></li>
                             </ul>
                         </div>
+                        <a href="userinfoCSV.php" class="btn">Get a Copy</a>
+
                     </form>
                 </div>
 
