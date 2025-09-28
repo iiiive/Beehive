@@ -40,6 +40,38 @@
     .custom-table thead { background-color: #74512D; color: #fff; }
     .custom-table th, .custom-table td { padding: 0.9em 1em; border-bottom: 1px solid #E9E7D8; }
     .custom-table tbody tr:hover { background-color: #fae76a; transition: 0.3s ease; }
+    <style>
+  /* Pagination styling */
+  .pagination .page-item .page-link {
+    color: #0B0806;
+    background-color: #FFF2A3;
+    border: 2px solid #74512D;
+    font-weight: 600;
+    border-radius: 8px;
+    margin: 0 3px;
+    transition: all 0.3s ease;
+  }
+
+  .pagination .page-item .page-link:hover {
+    background-color: #fae76a;
+    box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
+    color: #0B0806;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: #74512D;
+    color: #fff;
+    border-color: #74512D;
+    box-shadow: 0px 3px 8px rgba(0,0,0,0.3);
+  }
+
+  .pagination .page-item.disabled .page-link {
+    background-color: #E9E7D8;
+    color: #999;
+    border-color: #ccc;
+  }
+</style>
+
   </style>
 </head>
 <body>
