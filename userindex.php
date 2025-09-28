@@ -4,40 +4,78 @@ require_once "config.php";
 $search = "";
 $filter = isset($_GET['filter']) ? $_GET['filter'] : "";
 
-$sql = "SELECT * FROM users";
+// Pagination setup
+$limit = 5; // rows per page
+$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int) $_GET['page'] : 1;
+$offset = ($page - 1) * $limit;
 
+// Base SQL
+$where = "";
+$order = " ORDER BY created_at DESC";
+
+// Build filters
 if (!empty($filter)) {
     if ($filter == "active") {
-        $sql = "SELECT * FROM users WHERE status = 'active'";
+        $where = " WHERE status = 'active'";
     } elseif ($filter == "disabled") {
-        $sql = "SELECT * FROM users WHERE status = 'disabled'";
+        $where = " WHERE status = 'disabled'";
     } elseif ($filter == "pending") {
-        $sql = "SELECT * FROM users WHERE status = 'pending'";
+        $where = " WHERE status = 'pending'";
     } elseif ($filter == "recent") {
-        $sql = "SELECT * FROM users ORDER BY created_at DESC";
+        $order = " ORDER BY created_at DESC";
     }
-} elseif (isset($_GET['search']) && !empty(trim($_GET['search']))) {
+}
+
+// Build search
+$params = [];
+$types = "";
+if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
     $search = trim($_GET['search']);
-    $sql = "SELECT * FROM users 
-            WHERE user_id LIKE ? 
+    $where = " WHERE user_id LIKE ? 
                OR firstname LIKE ? 
                OR lastname LIKE ? 
                OR username LIKE ? 
                OR email LIKE ? 
                OR contact_number LIKE ?";
+    $params = array_fill(0, 6, "%" . $search . "%");
+    $types = "ssssss";
 }
 
-if (strpos($sql, '?') !== false) {
-    if ($stmt = mysqli_prepare($link, $sql)) {
-        $param = "%" . $search . "%";
-        mysqli_stmt_bind_param($stmt, "ssssss", $param, $param, $param, $param, $param, $param);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-    }
+// Count total rows
+$count_sql = "SELECT COUNT(*) as total FROM users $where";
+if (!empty($params)) {
+    $stmt = mysqli_prepare($link, $count_sql);
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $count_res = mysqli_stmt_get_result($stmt);
+    $total_rows = mysqli_fetch_assoc($count_res)['total'];
+    mysqli_stmt_close($stmt);
 } else {
-    $result = mysqli_query($link, $sql);
+    $count_res = mysqli_query($link, $count_sql);
+    $total_rows = mysqli_fetch_assoc($count_res)['total'];
 }
+
+// Get data with pagination
+$sql = "SELECT * FROM users $where $order LIMIT ? OFFSET ?";
+if (!empty($params)) {
+    $stmt = mysqli_prepare($link, $sql);
+    $params[] = $limit;
+    $params[] = $offset;
+    $types .= "ii";
+    mysqli_stmt_bind_param($stmt, $types, ...$params);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+} else {
+    $stmt = mysqli_prepare($link, $sql);
+    mysqli_stmt_bind_param($stmt, "ii", $limit, $offset);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+}
+
+// Calculate total pages
+$total_pages = ceil($total_rows / $limit);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -269,6 +307,33 @@ if (strpos($sql, '?') !== false) {
                 }
 
                 mysqli_close($link);
+
+
+                 if ($total_pages > 1): ?>
+    <nav aria-label="Page navigation">
+      <ul class="pagination justify-content-center mt-4">
+        <!-- Prev -->
+        <li class="page-item <?php if ($page <= 1) echo 'disabled'; ?>">
+          <a class="page-link" href="?page=<?php echo $page - 1; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">Previous</a>
+        </li>
+
+        <!-- Page numbers -->
+        <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+          <li class="page-item <?php if ($i == $page) echo 'active'; ?>">
+            <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">
+              <?php echo $i; ?>
+            </a>
+          </li>
+        <?php endfor; ?>
+
+        <!-- Next -->
+        <li class="page-item <?php if ($page >= $total_pages) echo 'disabled'; ?>">
+          <a class="page-link" href="?page=<?php echo $page + 1; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">Next</a>
+        </li>
+      </ul>
+    </nav>
+<?php endif; 
+
                 ?>
             </div>
         </div>        

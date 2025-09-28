@@ -195,7 +195,7 @@ body::before {
 
 /* Extra links style */
 .extra-links {
-  margin-top: 15px;
+  margin-top: 1px;
   text-align: center;
 }
 .extra-links a {
@@ -263,6 +263,8 @@ body::before {
           <span class="button__text">Log In</span>
           <i class="button__icon fas fa-chevron-right"></i>
         </button>
+
+        
       </form>
 
       <!-- Extra links -->

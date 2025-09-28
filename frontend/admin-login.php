@@ -275,9 +275,7 @@ body::before {
       <?php endif; ?>
 
 
-      <?php
-echo password_hash("dbadmin123", PASSWORD_DEFAULT);
-?>
+      
     </div>
   </div>
 </div>
