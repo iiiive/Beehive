@@ -7,14 +7,14 @@ $message = "";
 $messageClass = "";
 
 // Discord webhook & base URL
-$discordWebhook = "https://discord.com/api/webhooks/1420701412224139335/GiB-6EseDZMOO0aREmXCsZC37Koa0Vz5dxCV4TTxeMnJDlPqQsyZtizmhuFgfu6UM8ut";
+$discordWebhook = "https://discord.com/api/webhooks/xxxxxxxxxxxxxxxx"; // replace with yours
 $baseUrl = "http://localhost/thesis/Beehive/frontend";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST['username']);
 
-    // Check if admin exists
-    $sql = "SELECT admin_id, email FROM admins WHERE username = ? LIMIT 1";
+    // Check if user exists in db_access
+    $sql = "SELECT db_id FROM db_access WHERE username = ? LIMIT 1";
     $stmt = $link->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -25,16 +25,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $expires = date("Y-m-d H:i:s", strtotime("+1 hour"));
 
         // Save token & expiry
-        $update = "UPDATE admins SET reset_token = ?, reset_expires = ? WHERE admin_id = ?";
+        $update = "UPDATE db_access SET reset_token = ?, reset_expires = ? WHERE db_id = ?";
         $updStmt = $link->prepare($update);
-        $updStmt->bind_param("ssi", $token, $expires, $row['admin_id']);
+        $updStmt->bind_param("ssi", $token, $expires, $row['db_id']);
         $updStmt->execute();
 
-        $resetLink = "$baseUrl/admin_resetpassword.php?token=$token";
+        $resetLink = "$baseUrl/db_resetpassword.php?token=$token";
 
         // Send to Discord
         $data = json_encode([
-            "content" => "**Admin Password Reset Request**\nUsername: $username\nReset Link: $resetLink"
+            "content" => "**DB Password Reset Request**\nUsername: $username\nReset Link: $resetLink"
         ]);
         $ch = curl_init($discordWebhook);
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
@@ -52,7 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>

@@ -12,13 +12,13 @@ $showForm = false;
 
 // Check if token exists and is not expired
 if (!empty($token)) {
-    $check = $link->prepare("SELECT admin_id FROM admins WHERE reset_token = ? AND reset_expires > NOW()");
+    $check = $link->prepare("SELECT db_id FROM db_access WHERE reset_token = ? AND reset_expires > NOW()");
     $check->bind_param("s", $token);
     $check->execute();
     $res = $check->get_result();
     if ($row = $res->fetch_assoc()) {
         $showForm = true;
-        $adminId = $row['admin_id'];
+        $dbId = $row['db_id'];
     } else {
         $message = "Invalid or expired token.";
         $messageClass = "error";
@@ -35,14 +35,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
         $messageClass = "error";
     } else {
         $newPass = password_hash($password, PASSWORD_DEFAULT);
-        $update = $link->prepare("UPDATE admins SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE admin_id = ?");
-        $update->bind_param("si", $newPass, $adminId);
+        $update = $link->prepare("UPDATE db_access SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE db_id = ?");
+        $update->bind_param("si", $newPass, $dbId);
         $update->execute();
 
         $message = "Password has been reset successfully! Redirecting to login...";
         $messageClass = "success";
         $showForm = false;
-        echo "<script>setTimeout(() => window.location='admin-login.php', 3000);</script>";
+        echo "<script>setTimeout(() => window.location='db-login.php', 3000);</script>";
     }
 }
 ?>
@@ -51,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Admin Reset Password - HiveCare</title>
+<title>DB User Reset Password - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 <style>
 body {
@@ -67,6 +67,7 @@ body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0
   border-radius: 20px; padding: 40px; width: 360px;
   box-shadow: 0 0 24px #ceae1fff; text-align: center;
 }
+h2 { color: #fff; margin-bottom: 20px; }
 input { width: 100%; padding: 12px; margin: 12px 0; border-radius: 10px;
   border: none; background: rgba(255,255,255,0.2); color: #fff; }
 input::placeholder { color: #eee; }
@@ -80,7 +81,7 @@ button:hover { background: #cdbd49; color: #000; }
 </head>
 <body>
 <div class="container">
-  <h2>Admin Reset Password</h2>
+  <h2>DB User Reset Password</h2>
   <?php if ($showForm) { ?>
   <form method="POST">
     <input type="password" name="password" placeholder="Enter new password" minlength="8" required>
