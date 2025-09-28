@@ -1,3 +1,12 @@
+<?php
+session_start();
+if (!isset($_SESSION['db_logged_in']) || $_SESSION['db_logged_in'] !== true) {
+    header("Location: db-login.php"); // redirect back to login if not logged in
+    exit;
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

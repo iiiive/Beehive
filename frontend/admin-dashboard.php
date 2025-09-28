@@ -247,7 +247,7 @@ canvas {
     <span>HiveCare - Admin Dashboard</span>
   </div>
   <div>
-    <a href="database.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
+    <a href="database_access.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
     <a href="manage_users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Add Users</a>
     <a href="admin-profile.php" class="settings-btn"><i class="bi bi-person-fill"></i> Edit Profile</a>
 

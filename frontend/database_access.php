@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
 
     // Fetch admin from database
-    $sql = "SELECT admin_id, username, password_hash FROM admins WHERE username = ? LIMIT 1";
+    $sql = "SELECT db_id, username, password_hash FROM db_access WHERE username = ? LIMIT 1";
     $stmt = $link->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
@@ -18,10 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($admin = $result->fetch_assoc()) {
         // Verify password
         if (password_verify($password, $admin['password_hash'])) {
-            $_SESSION['admin_logged_in'] = true;
-            $_SESSION['admin_id'] = $admin['admin_id'];
+            $_SESSION['db_logged_in'] = true;   // ✅ match database.php
+            $_SESSION['db_id'] = $admin['db_id'];
             $_SESSION['username'] = $admin['username'];
-            header("Location: admin-dashboard.php");
+            header("Location: database.php");
             exit;
         } else {
             $error = "Invalid username or password!";
@@ -32,9 +32,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($stmt)) $stmt->close();
 }
-
-
 ?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">
