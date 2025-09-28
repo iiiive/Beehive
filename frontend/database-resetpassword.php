@@ -42,7 +42,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
         $message = "Password has been reset successfully! Redirecting to login...";
         $messageClass = "success";
         $showForm = false;
-        echo "<script>setTimeout(() => window.location='db-login.php', 3000);</script>";
+        echo "<script>setTimeout(() => window.location='database_access.php', 3000);</script>";
     }
 }
 ?>

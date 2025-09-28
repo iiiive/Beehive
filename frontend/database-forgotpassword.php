@@ -7,7 +7,7 @@ $message = "";
 $messageClass = "";
 
 // Discord webhook & base URL
-$discordWebhook = "https://discord.com/api/webhooks/xxxxxxxxxxxxxxxx"; // replace with yours
+$discordWebhook = "https://discord.com/api/webhooks/1421839109936382005/ZGobInk-UJAzyu1-5Ei05PzB2YzdBXoqDOXdnvEwBZsDLOXU6ZOrDwCZSFJTPtl27L4B"; // replace with yours
 $baseUrl = "http://localhost/thesis/Beehive/frontend";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $updStmt->bind_param("ssi", $token, $expires, $row['db_id']);
         $updStmt->execute();
 
-        $resetLink = "$baseUrl/db_resetpassword.php?token=$token";
+        $resetLink = "$baseUrl/database-resetpassword.php?token=$token";
 
         // Send to Discord
         $data = json_encode([
