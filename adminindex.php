@@ -245,7 +245,6 @@ h2 {
                                 echo "<th>Lastname</th>";
                                 echo "<th>Username</th>";
                                 echo "<th>Email Address</th>";
-                                echo "<th>Status</th>";
                                 echo "<th>Created At</th>";
                                 echo "<th>Options</th>";
                             echo "</tr>";
@@ -258,7 +257,6 @@ h2 {
                                 echo "<td>" . $row['lastname'] . "</td>";
                                 echo "<td>" . $row['username'] . "</td>";
                                 echo "<td>" . $row['email'] . "</td>";
-                                echo "<td>" . $row['status'] . "</td>";
                                 echo "<td>" . $row['created_at'] . "</td>";
                                 echo "<td>";
                                     echo '<a href="readadmin.php?admin_id='. $row['admin_id'] .'" class="cta"><span>View</span>

@@ -15,7 +15,7 @@ $output = fopen('php://output', 'w');
 
 
 
-fputcsv($output, ['Admin ID', 'First Name', 'Last Name', 'Username', 'Email Address', 'Status', 'Created At']);
+fputcsv($output, ['Admin ID', 'First Name', 'Last Name', 'Username', 'Email Address', 'Created At']);
 
 
 if ($result && mysqli_num_rows($result) > 0) {
@@ -26,7 +26,6 @@ if ($result && mysqli_num_rows($result) > 0) {
                                     $row['lastname'],
                                     $row['username'],
                                     $row['email'],
-                                    $row['status'],
                                     $row['created_at']
                                     ]);}
                                     

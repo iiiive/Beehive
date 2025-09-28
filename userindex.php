@@ -219,20 +219,7 @@ if (strpos($sql, '?') !== false) {
                         </div>
 
                         <button type="submit" class="btn">Search</button>
-                        <a href="users.php" class="btn">Reset</a>
-
-                        <div class="dropdown">
-                            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Filters
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="users.php">Show All</a></li>
-                                <li><a class="dropdown-item" href="users.php?filter=active">Active</a></li>
-                                <li><a class="dropdown-item" href="users.php?filter=disabled">Disabled</a></li>
-                                <li><a class="dropdown-item" href="users.php?filter=pending">Pending</a></li>
-                                <li><a class="dropdown-item" href="users.php?filter=recent">Most Recent</a></li>
-                            </ul>
-                        </div>
+                        <a href="userindex.php" class="btn">Reset</a>
                         <a href="userinfoCSV.php" class="btn">Get a Copy</a>
 
                     </form>
@@ -244,12 +231,11 @@ if (strpos($sql, '?') !== false) {
                         echo "<thead>";
                             echo "<tr>";
                                 echo "<th>ID</th>";
-                                echo "<th>Firstname</th>";
-                                echo "<th>Lastname</th>";
+                                echo "<th>First Name</th>";
+                                echo "<th>Last Name</th>";
                                 echo "<th>Username</th>";
                                 echo "<th>Email Address</th>";
                                 echo "<th>Contact</th>";
-                                echo "<th>Status</th>";
                                 echo "<th>Created At</th>";
                                 echo "<th>Options</th>";
                             echo "</tr>";
@@ -263,7 +249,6 @@ if (strpos($sql, '?') !== false) {
                                 echo "<td>" . $row['username'] . "</td>";
                                 echo "<td>" . $row['email'] . "</td>";
                                 echo "<td>" . $row['contact_number'] . "</td>";
-                                echo "<td>" . $row['status'] . "</td>";
                                 echo "<td>" . $row['created_at'] . "</td>";
                                 echo "<td>";
                                     echo '<a href="readuser.php?user_id='. $row['user_id'] .'" class="cta"><span>View</span>
