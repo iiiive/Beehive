@@ -230,7 +230,7 @@ h2 {
                                 <li><a class="dropdown-item" href="adminindex.php?filter=recent">Most Recent</a></li>
                             </ul>
                         </div>
-                        <a href="BeehiveReadingsCSV.php" class="btn">Get a Copy</a>
+                        <a href="admininfoCSV.php" class="btn">Get a Copy</a>
 
                     </form>
                 </div>
