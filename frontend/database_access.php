@@ -247,13 +247,13 @@ body::before {
       
       <div class="login-header">
         <img src="images/bee.png" alt="Bee Logo">
-        <h1>HiveCare Admin</h1>
+        <h1>HiveCare Database Login</h1>
       </div>
 
       <form class="login" method="POST">
         <div class="login__field">
           <i class="login__icon fas fa-user-shield"></i>
-          <input type="text" name="username" class="login__input" placeholder="Admin Username" required>
+          <input type="text" name="username" class="login__input" placeholder="DB Username" required>
         </div>
         <div class="login__field">
           <i class="login__icon fas fa-lock"></i>
@@ -275,9 +275,7 @@ body::before {
       <?php endif; ?>
 
 
-      <?php
-echo password_hash("dbadmin123", PASSWORD_DEFAULT);
-?>
+    
     </div>
   </div>
 </div>
