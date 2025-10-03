@@ -2,7 +2,7 @@
 require_once "../config.php";
 
 // Query 1: Get ALL readings for charts and latest values
-$sql_all = "SELECT timestamp, temperature, humidity, weight
+$sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status, status
             FROM beehive_readings 
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
@@ -11,27 +11,30 @@ $timestamps   = [];
 $temperatures = [];
 $humidities   = [];
 $weights      = [];
-$status = [];
+$fan_statuses = [];
+$statuses     = [];
 
 while ($row = mysqli_fetch_assoc($result_all)) {
     $timestamps[]   = $row['timestamp'];
     $temperatures[] = $row['temperature'];
     $humidities[]   = $row['humidity'];
     $weights[]      = $row['weight'];
+    $fan_statuses[] = $row['fan_status'];
+    $statuses[]     = $row['status'];
 }
 
 $latestTemp   = end($temperatures);
 $latestHum    = end($humidities);
 $latestWeight = end($weights);
+$latestFan    = end($fan_statuses);
 
 // For charts
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
-$status_history      = $status;
 
 // Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight, status 
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, status 
               FROM beehive_readings 
               ORDER BY timestamp DESC 
               LIMIT 6";  // get 6: latest + 5 previous
@@ -290,18 +293,18 @@ canvas {
       </div>
     </div>
 
-
-    <div class="col-lg-3 col-md-6">
-      <div class="card p-3">
-        <h5 class="card-title"><i class="bi bi-lightning-charge"></i> Fan Control</h5>
-        <button class="fan-btn fan-auto" onclick="controlFan('auto')">Automatic</button>
-        <button class="fan-btn fan-on" onclick="controlFan('on')">Turn On</button>
-        <button class="fan-btn fan-off" onclick="controlFan('off')">Turn Off</button>
-        <div id="fan-status">Fan mode: Automatic</div>
-      </div>
+    <div class="card">
+    <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
+    <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
+    <div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
+      <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
     </div>
-  </div>
-</div>
+
+
+
+
+
+    
 
 
 
@@ -359,15 +362,29 @@ function controlFan(action){
 }
 
 // ✅ Auto-refresh latest values
+// ✅ Auto-refresh latest values
 async function reloadValues() {
   try {
     const response = await fetch("get_latest.php");
     const data = await response.json();
 
+    // Update main values
     document.getElementById("temp-value").innerText   = data.temperature + " °C";
     document.getElementById("hum-value").innerText    = data.humidity + " %";
     document.getElementById("weight-value").innerText = data.weight + " kg";
 
+    // ✅ Fan real-time update
+    document.getElementById("fan-value").innerText = (data.fan_status == 1) ? "ON" : "OFF";
+    const fanStatus = document.getElementById("fan-status");
+    if (data.fan_status == 1) {
+      fanStatus.className = "status-good";
+      fanStatus.innerText = "The Fan is Running ✔";
+    } else {
+      fanStatus.className = "status-bad";
+      fanStatus.innerText = "The Fan is Off ✖";
+    }
+
+    // Update status conditions
     updateStatus("temp-value", data.temperature >= 28 && data.temperature <= 32, "Temperature is Good ✔", "Temperature is Bad ✖");
     updateStatus("hum-value", data.humidity >= 65 && data.humidity <= 80, "Humidity is Good ✔", "Humidity is Bad ✖");
     updateStatus("weight-value", data.weight >= 5, "The Hive is Heavy!", "The Hive is still Light ✖");
@@ -376,6 +393,7 @@ async function reloadValues() {
     console.error("Error fetching latest data:", err);
   }
 }
+
 
 function updateStatus(id, condition, goodText, badText) {
   const el = document.getElementById(id).nextElementSibling; // status div is right after value div
