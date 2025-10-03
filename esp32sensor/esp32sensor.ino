@@ -65,7 +65,7 @@ void loop() {
   }
 
   // LED logic: turn on if temp > 25°C
-  if (t > 25) {
+  if (t > 32) {
     digitalWrite(LED_PIN, HIGH);
     fan_status = 1;
   } else {
