@@ -544,40 +544,34 @@ async function reloadFan() {
   }
 }
 
-// Fetch saved feeding time from JSON
-let nextFeedingDate = new Date();
+const nextFeedingBtn = document.getElementById("feeding-btn");
+const schedulerStatus = document.getElementById("scheduler-status");
+
+let nextFeedingDate = null;
+
+// Fetch next feeding from JSON
 fetch('next_feeding.json')
-  .then(res => res.json())
-  .then(data => {
-      let days = parseInt(data.days || 3);
-      let hours = parseInt(data.hours || 0);
-      let minutes = parseInt(data.minutes || 0);
+.then(res => res.json())
+.then(data => {
+    if (data.next_feeding) {
+        nextFeedingDate = new Date(data.next_feeding);
+        startCountdown(nextFeedingDate);
+    } else {
+        schedulerStatus.innerText = "Feeding is due now!";
+        schedulerStatus.style.color = "red";
+    }
+});
 
-      nextFeedingDate.setTime(
-          nextFeedingDate.getTime() 
-          + days*24*60*60*1000 
-          + hours*60*60*1000 
-          + minutes*60*1000
-      );
-
-      startCountdown(nextFeedingDate);
-  });
-
-// Countdown function
 function startCountdown(targetDate) {
-    const statusEl = document.getElementById("scheduler-status");
-    const btn = document.getElementById("feeding-btn");
-
     function updateCountdown() {
         const now = new Date();
         const diff = targetDate - now;
 
         if (diff <= 0) {
-            statusEl.innerText = "Feeding is due now!";
-            statusEl.style.color = "red";
+            schedulerStatus.innerText = "Feeding is due now!";
+            schedulerStatus.style.color = "red";
             clearInterval(timer);
-            btn.style.display = "inline-block";
-            alert("Feeding is due now!");
+            if(nextFeedingBtn) nextFeedingBtn.style.display = "inline-block"; // show button
             return;
         }
 
@@ -586,7 +580,9 @@ function startCountdown(targetDate) {
         const m = Math.floor((diff % (1000*60*60)) / (1000*60));
         const s = Math.floor((diff % (1000*60)) / 1000);
 
-        statusEl.innerText = `Next feeding in ${d}d ${h}h ${m}m ${s}s`;
+        schedulerStatus.innerText = `Next feeding in ${d}d ${h}h ${m}m ${s}s`;
+
+        if(nextFeedingBtn) nextFeedingBtn.style.display = "none"; // hide button during countdown
     }
 
     updateCountdown();

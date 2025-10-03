@@ -1,61 +1,53 @@
 <?php
 $filename = 'next_feeding.json';
-$message = '';
+$message = "";
 
-// Handle form submission
-if (isset($_POST['save'])) {
-    $days = intval($_POST['days'] ?? 0);
-    $hours = intval($_POST['hours'] ?? 0);
-    $minutes = intval($_POST['minutes'] ?? 0);
-
-    // Save as total milliseconds for easy JS use
-    $data = [
-        'days' => $days,
-        'hours' => $hours,
-        'minutes' => $minutes,
-        'saved_at' => date('Y-m-d H:i:s') // optional
-    ];
-
-    file_put_contents($filename, json_encode($data));
-    $message = "Feeding countdown time saved successfully!";
-}
+// Default interval
+$existing = ['days'=>3, 'hours'=>0, 'minutes'=>0];
 
 // Load existing values
-$existing = ['days'=>3, 'hours'=>0, 'minutes'=>0];
 if (file_exists($filename)) {
     $saved = json_decode(file_get_contents($filename), true);
-    if ($saved) $existing = $saved;
+    if (is_array($saved)) {
+        $existing['days']    = isset($saved['days']) ? intval($saved['days']) : 3;
+        $existing['hours']   = isset($saved['hours']) ? intval($saved['hours']) : 0;
+        $existing['minutes'] = isset($saved['minutes']) ? intval($saved['minutes']) : 0;
+    }
+}
+
+// Save new interval
+if (isset($_POST['save_time'])) {
+    $days    = intval($_POST['days']);
+    $hours   = intval($_POST['hours']);
+    $minutes = intval($_POST['minutes']);
+
+    // Keep last feeding if exists
+    $last_feeding = isset($saved['last_feeding']) ? $saved['last_feeding'] : date('Y-m-d H:i:s');
+
+    file_put_contents($filename, json_encode([
+        'days'         => $days,
+        'hours'        => $hours,
+        'minutes'      => $minutes,
+        'last_feeding' => $last_feeding
+    ]));
+
+    $message = "Feeding time saved!";
 }
 ?>
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Set Feeding Time</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Set Feeding Time</title>
 </head>
-<body class="p-4">
-
-<div class="container">
-    <h2>Set Feeding Countdown Time</h2>
-    <?php if ($message) echo "<div class='alert alert-success'>$message</div>"; ?>
-
+<body>
+    <h2>Set Feeding Time</h2>
+    <?php if(!empty($message)) echo "<p style='color:green;'>$message</p>"; ?>
     <form method="post">
-        <div class="row mb-2">
-            <div class="col">
-                <input type="number" name="days" class="form-control" placeholder="Days" min="0" value="<?= $existing['days'] ?>">
-            </div>
-            <div class="col">
-                <input type="number" name="hours" class="form-control" placeholder="Hours" min="0" max="23" value="<?= $existing['hours'] ?>">
-            </div>
-            <div class="col">
-                <input type="number" name="minutes" class="form-control" placeholder="Minutes" min="0" max="59" value="<?= $existing['minutes'] ?>">
-            </div>
-        </div>
-        <button type="submit" name="save" class="btn btn-primary">Save Time</button>
+        <input type="number" name="days" min="0" value="<?= $existing['days'] ?>"> Days
+        <input type="number" name="hours" min="0" max="23" value="<?= $existing['hours'] ?>"> Hours
+        <input type="number" name="minutes" min="0" max="59" value="<?= $existing['minutes'] ?>"> Minutes
+        <button type="submit" name="save_time">Save</button>
     </form>
-</div>
-
+    <a href="user-dashboard.php">Go to Dashboard</a>
 </body>
 </html>
