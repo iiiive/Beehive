@@ -287,7 +287,7 @@ canvas { margin-top:20px; height:120px !important; }
     <canvas id="weightChart"></canvas>
   </div>
 
- <!-- Fan -->
+  <!-- Fan -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
     <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
@@ -334,6 +334,8 @@ canvas { margin-top:20px; height:120px !important; }
 
 
 <script>
+
+  
 const tempData = <?php echo json_encode($temperature_history); ?>;
 const humData = <?php echo json_encode($humidity_history); ?>;
 const weightData = <?php echo json_encode($weight_history); ?>;
@@ -378,6 +380,17 @@ async function reloadValues() {
     document.getElementById("weight-value").innerText = data.weight + " kg";
     document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
 
+    // Threshold checks with notifications
+    if (data.temperature > 32 || data.temperature < 28) {
+      showNotification("⚠ Temperature Alert", "Temperature is out of safe range (" + data.temperature + "°C)");
+    }
+    if (data.humidity > 80 || data.humidity < 65) {
+      showNotification("⚠ Humidity Alert", "Humidity is out of safe range (" + data.humidity + "%)");
+    }
+    if (data.weight < 2 || data.weight > 5) {
+      showNotification("⚠ Weight Alert", "Hive weight abnormal (" + data.weight + "kg)");
+    }
+
     // Update statuses
     updateStatus("temp-status",
       (data.temperature >= 28 && data.temperature <= 32) ?
@@ -407,6 +420,7 @@ async function reloadValues() {
     console.error("Error fetching latest data:", err);
   }
 }
+
 
 
 function updateStatus(id, obj) {
