@@ -1,39 +1,43 @@
 <?php
-$filename = 'next_feeding.json';
-$message = "";
+require_once "../config.php";
 
-// Default interval
-$existing = ['days'=>3, 'hours'=>0, 'minutes'=>0];
+// === Handle form submission first ===
+if(isset($_POST['save_time'])) {
+    $days = intval($_POST['days']);
+    $hours = intval($_POST['hours']);
+    $minutes = intval($_POST['minutes']);
+    $hive_id = 1; // example hive
 
-// Load existing values
-if (file_exists($filename)) {
-    $saved = json_decode(file_get_contents($filename), true);
-    if (is_array($saved)) {
-        $existing['days']    = isset($saved['days']) ? intval($saved['days']) : 3;
-        $existing['hours']   = isset($saved['hours']) ? intval($saved['hours']) : 0;
-        $existing['minutes'] = isset($saved['minutes']) ? intval($saved['minutes']) : 0;
+    // Check if record exists
+    $check = mysqli_query($link, "SELECT * FROM feeding_schedule WHERE hive_id=$hive_id");
+    if(mysqli_num_rows($check) > 0) {
+        mysqli_query($link, "UPDATE feeding_schedule 
+                             SET interval_days=$days, interval_hours=$hours, interval_minutes=$minutes 
+                             WHERE hive_id=$hive_id");
+    } else {
+        $now = date('Y-m-d H:i:s');
+        mysqli_query($link, "INSERT INTO feeding_schedule (last_feeding, interval_days, interval_hours, interval_minutes, hive_id) 
+                             VALUES ('$now', $days, $hours, $minutes, $hive_id)");
     }
+
+    $message = "Feeding interval updated!";
 }
 
-// Save new interval
-if (isset($_POST['save_time'])) {
-    $days    = intval($_POST['days']);
-    $hours   = intval($_POST['hours']);
-    $minutes = intval($_POST['minutes']);
-
-    // Keep last feeding if exists
-    $last_feeding = isset($saved['last_feeding']) ? $saved['last_feeding'] : date('Y-m-d H:i:s');
-
-    file_put_contents($filename, json_encode([
-        'days'         => $days,
-        'hours'        => $hours,
-        'minutes'      => $minutes,
-        'last_feeding' => $last_feeding
-    ]));
-
-    $message = "Feeding time saved!";
+// === Load current interval for form display ===
+$hive_id = 1;
+$result = mysqli_query($link, "SELECT * FROM feeding_schedule WHERE hive_id=$hive_id");
+if(mysqli_num_rows($result) > 0) {
+    $row = mysqli_fetch_assoc($result);
+    $existing = [
+        'days' => $row['interval_days'],
+        'hours' => $row['interval_hours'],
+        'minutes' => $row['interval_minutes']
+    ];
+} else {
+    $existing = ['days'=>3, 'hours'=>0, 'minutes'=>0];
 }
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
