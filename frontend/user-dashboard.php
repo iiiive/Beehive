@@ -385,20 +385,17 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 
   <!-- Feeding Scheduler Card -->
+<!-- Feeding Scheduler Card -->
 <div class="card">
   <h5 class="card-title"><i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Feeding Scheduler</h5>
+  
   <div id="feeding-area">
-    <?php if($needs_feeding): ?>
-      <!-- Show Feed Done button if it's time -->
-      <button id="feed-done-btn" class="status-good">Feed Done</button>
-    <?php elseif($next_feed): ?>
-      <!-- Show countdown if next feed is scheduled -->
-      <span id="countdown" class="value"></span>
-    <?php else: ?>
-      <span class="status-bad">No schedule set</span>
-    <?php endif; ?>
+    <div id="feeding-status" class="status-good"></div>
+    <span id="countdown" class="value mt-2"></span>
+    <button id="feed-done-btn" class="status-good mt-2" style="display:none;">Feed Done</button>
   </div>
 </div>
+
 
 </div>
 
@@ -584,85 +581,79 @@ async function reloadFan() {
 
 
 
-// Feeding Scheduler JS
 const feedArea = document.getElementById("feeding-area");
-let feedDoneBtn = document.getElementById("feed-done-btn");
+const feedingStatusEl = document.getElementById("feeding-status");
 let countdownEl = document.getElementById("countdown");
+let feedDoneBtn = document.getElementById("feed-done-btn");
+let timerInterval;
 
-// Function to attach Feed Done button
-function attachFeedDone(btn){
-  btn.addEventListener("click", async () => {
-    // Update DB
-    await fetch('feed_done.php', { method:'POST' });
-
-    // Fetch updated next_feed
-    const res = await fetch('get_next_feed.php');
-    const data = await res.json();
-    if(data.next_feed){
-      const nextFeedTime = new Date(data.next_feed).getTime();
-
-      // Remove button
-      btn.remove();
-
-      // Add countdown element
-      const span = document.createElement('span');
-      span.id = 'countdown';
-      span.classList.add('value');
-      feedArea.appendChild(span);
-
-      startCountdown(span, nextFeedTime);
-    }
-  });
+// Function to fetch next_feed from DB
+async function fetchNextFeed(){
+  const res = await fetch('get_next_feed.php');
+  const data = await res.json();
+  return data.next_feed ? new Date(data.next_feed).getTime() : null;
 }
 
-// Countdown function
-function startCountdown(el, nextFeedTime){
-  function updateCountdown(){
-    const now = new Date().getTime();
-    const distance = nextFeedTime - now;
-
-    if(distance <= 0){
-      el.innerText = "Time to feed!";
-      clearInterval(timerInterval);
-
-      // Show Feed Done button again
-      const newBtn = document.createElement('button');
-      newBtn.id = "feed-done-btn";
-      newBtn.classList.add('status-good');
-      newBtn.innerText = "Feed Done";
-      feedArea.appendChild(newBtn);
-      attachFeedDone(newBtn);
-
-      el.remove();
-      return;
-    }
-
-    const days = Math.floor(distance/(1000*60*60*24));
-    const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-    const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
-    const seconds = Math.floor((distance%(1000*60))/1000);
-
-    el.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+// Start countdown
+async function startFeedingCountdown(){
+  const nextFeedTime = await fetchNextFeed();
+  if(!nextFeedTime){
+    feedingStatusEl.innerText = "No schedule set";
+    feedingStatusEl.className = "status-bad";
+    countdownEl.innerText = "";
+    feedDoneBtn.style.display = "none";
+    return;
   }
 
+ function updateCountdown(){
+  const now = new Date().getTime();
+  const distance = nextFeedTime - now;
+
+  if(distance <= 0){
+    countdownEl.innerText = "";
+    feedingStatusEl.innerText = "Time to feed! 🐝";
+    feedingStatusEl.className = "status-bad";
+    feedDoneBtn.style.display = "inline-block"; // show button
+    clearInterval(timerInterval);
+    return;
+  }
+
+  // Show countdown
+  const days = Math.floor(distance/(1000*60*60*24));
+  const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+  const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
+  const seconds = Math.floor((distance%(1000*60))/1000);
+
+  countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  feedingStatusEl.innerText = "Next feed in:";
+  feedingStatusEl.className = "status-good";
+  feedDoneBtn.style.display = "none"; // hide button until feed time
+}
+
+
   updateCountdown();
-  const timerInterval = setInterval(updateCountdown, 1000);
+  timerInterval = setInterval(updateCountdown, 1000);
 }
 
-// Start countdown if next_feed exists and user doesn’t need feeding yet
-<?php if($next_feed && !$needs_feeding): ?>
-const nextFeedTime = new Date("<?= $next_feed->format('Y-m-d H:i:s') ?>").getTime();
-if(countdownEl){
-  startCountdown(countdownEl, nextFeedTime);
-}
-<?php endif; ?>
+// Feed Done button click
+feedDoneBtn.addEventListener("click", async () => {
+  await fetch('feed_done.php', { method:'POST' });
+  startFeedingCountdown(); // restart countdown immediately
+});
 
-// Attach event if Feed Done button is visible
-if(feedDoneBtn){
-  attachFeedDone(feedDoneBtn);
-}
+// Initialize
+startFeedingCountdown();
 
 
+feedDoneBtn.addEventListener("click", async () => {
+  // Call feed_done.php
+  await fetch('feed_done.php', { method:'POST' });
+
+  // Wait a short time to ensure DB is updated
+  setTimeout(() => {
+    startFeedingCountdown(); // restart countdown
+  }, 200); // 200ms delay
+});
 
 
 
