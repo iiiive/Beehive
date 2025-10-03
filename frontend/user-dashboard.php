@@ -1,7 +1,7 @@
 <?php
 require_once "../config.php";
 
-// Query all readings for charts
+// === Hive readings ===
 $sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status 
             FROM beehive_readings 
             ORDER BY timestamp ASC";
@@ -21,18 +21,15 @@ while ($row = mysqli_fetch_assoc($result_all)) {
     $fans[]         = $row['fan_status'];
 }
 
-// Latest values
 $latestTemp   = end($temperatures);
 $latestHum    = end($humidities);
 $latestWeight = end($weights);
 $latestFan    = end($fans);
 
-// For charts
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
 
-// Last 5 history (excluding latest)
 $sql_last5 = "SELECT timestamp, temperature, humidity, weight, status
               FROM beehive_readings 
               ORDER BY timestamp DESC 
@@ -46,7 +43,36 @@ while ($row = mysqli_fetch_assoc($result_last5)) {
 array_shift($history_rows);
 
 mysqli_close($link);
+
+// === Rainy season check ===
+$month = date('n'); // numeric month 1-12
+$isRainy = ($month >= 6 && $month <= 11);
+
+// === Scheduler file ===
+$filename = 'next_feeding.json';
+$nextFeeding = null;
+
+// Read existing next feeding date
+if (file_exists($filename)) {
+    $data = json_decode(file_get_contents($filename), true);
+    if ($data && isset($data['next_feeding'])) {
+        $nextFeeding = $data['next_feeding'];
+    }
+}
+
+// Handle "Mark Feeding Done" button
+$message = "";
+if (isset($_POST['done'])) {
+    $nextDate = new DateTime();
+    $nextDate->modify('+3 days'); // next feeding in 3 days
+    $nextFeeding = $nextDate->format('Y-m-d');
+
+    // Save to JSON
+    file_put_contents($filename, json_encode(['next_feeding' => $nextFeeding]));
+    $message = "Feeding marked done! Next feeding scheduled in 3 days.";
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -332,6 +358,36 @@ canvas { margin-top:20px; height:120px !important; }
     </table>
   </div>
 </div>
+
+<div class="card">
+  <h5 class="card-title"><i class="bi bi-calendar-event"></i> Bee Feeding Scheduler</h5>
+  <div id="scheduler-body">
+    <?php if (!$isRainy): ?>
+      <p>Scheduler inactive (not rainy season)</p>
+    <?php else: ?>
+      <?php if ($nextFeeding): ?>
+        <?php
+          $today = new DateTime();
+          $feedingDate = new DateTime($nextFeeding);
+          $diff = $today->diff($feedingDate)->days;
+          $statusText = ($feedingDate <= $today) ? "Feeding is due today!" : "Next feeding in $diff day(s)";
+        ?>
+        <p id="scheduler-status" style="color:<?= ($feedingDate <= $today)?'red':'green' ?>;">
+          <?= $statusText ?>
+        </p>
+      <?php else: ?>
+        <p id="scheduler-status">Next feeding: Today</p>
+      <?php endif; ?>
+
+      <form method="post">
+        <button type="submit" name="done" class="btn btn-warning mt-2">Mark Feeding Done</button>
+      </form>
+
+      <?php if (!empty($message)) echo "<p style='color:green;'>$message</p>"; ?>
+    <?php endif; ?>
+  </div>
+</div>
+
 
 
 <script>
