@@ -49,27 +49,25 @@ $month = date('n'); // numeric month 1-12
 $isRainy = ($month >= 6 && $month <= 11);
 
 // === Scheduler file ===
+// === Handle feeding schedule ===
 $filename = 'next_feeding.json';
-$nextFeeding = null;
+$message = "";
 
-// Read existing next feeding date
-if (file_exists($filename)) {
-    $data = json_decode(file_get_contents($filename), true);
-    if ($data && isset($data['next_feeding'])) {
-        $nextFeeding = $data['next_feeding'];
-    }
-}
+// Load existing feeding data
+$data = json_decode(file_get_contents($filename), true);
+$lastFeeding = new DateTime($data['last_feeding']);
+$nextFeeding = clone $lastFeeding;
+$nextFeeding->modify("+{$data['days']} days +{$data['hours']} hours +{$data['minutes']} minutes");
 
 // Handle "Mark Feeding Done" button
-$message = "";
 if (isset($_POST['done'])) {
-    $nextDate = new DateTime();
-    $nextDate->modify('+3 days'); // next feeding in 3 days
-    $nextFeeding = $nextDate->format('Y-m-d');
+    $now = new DateTime();
+    $data['last_feeding'] = $now->format('Y-m-d H:i:s');
+    file_put_contents($filename, json_encode($data));
 
-    // Save to JSON
-    file_put_contents($filename, json_encode(['next_feeding' => $nextFeeding]));
-    $message = "Feeding marked done! Next feeding scheduled in 3 days.";
+    $nextFeeding = clone $now;
+    $nextFeeding->modify("+{$data['days']} days +{$data['hours']} hours +{$data['minutes']} minutes");
+    $message = "Feeding marked done!";
 }
 ?>
 
@@ -341,7 +339,11 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 
   <!-- Actions aligned to the right -->
+
   <div class="header-actions">
+    <a href="set_feeding_time.php" class="logout-btn">
+      <i class="bi bi-box-arrow-right"></i> Set Feeding Time
+    </a>
     <a href="user-profile.php" class="settings-btn">
       <i class="bi bi-person-fill"></i> Edit Profile
     </a>
@@ -429,6 +431,21 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 </div>
 
+
+
+<div class="row mb-2">
+  <div class="col">
+    <input type="number" id="feed-days" class="form-control" placeholder="Days" min="0" value="3">
+  </div>
+  <div class="col">
+    <input type="number" id="feed-hours" class="form-control" placeholder="Hours" min="0" max="23" value="0">
+  </div>
+  <div class="col">
+    <input type="number" id="feed-minutes" class="form-control" placeholder="Minutes" min="0" max="59" value="0">
+  </div>
+</div>
+
+
 <div class="card">
   <h5 class="card-title"><i class="bi bi-calendar-event"></i> Bee Feeding Scheduler</h5>
   <div id="scheduler-body">
@@ -449,14 +466,15 @@ canvas { margin-top:20px; height:120px !important; }
         <p id="scheduler-status">Next feeding: Today</p>
       <?php endif; ?>
 
-      <form method="post">
-        <button type="submit" name="done" class="btn btn-warning mt-2">Mark Feeding Done</button>
+      <form method="post" id="feeding-form">
+        <button type="submit" name="done" id="feeding-btn" class="btn btn-warning mt-2">Mark Feeding Done</button>
       </form>
 
       <?php if (!empty($message)) echo "<p style='color:green;'>$message</p>"; ?>
     <?php endif; ?>
   </div>
 </div>
+
 
 
 
@@ -593,6 +611,58 @@ async function reloadFan() {
     console.error("Fan fetch error:", err);
   }
 }
+
+const nextFeedingBtn = document.getElementById("feeding-btn");
+const schedulerStatus = document.getElementById("scheduler-status");
+
+let nextFeedingDate = null;
+
+// Fetch next feeding from JSON
+fetch('next_feeding.json')
+.then(res => res.json())
+.then(data => {
+    if (data.next_feeding) {
+        nextFeedingDate = new Date(data.next_feeding);
+        startCountdown(nextFeedingDate);
+    } else {
+        schedulerStatus.innerText = "Feeding is due now!";
+        schedulerStatus.style.color = "red";
+    }
+});
+
+function startCountdown(targetDate) {
+    function updateCountdown() {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            schedulerStatus.innerText = "Feeding is due now!";
+            schedulerStatus.style.color = "red";
+            clearInterval(timer);
+            if(nextFeedingBtn) nextFeedingBtn.style.display = "inline-block"; // show button
+            return;
+        }
+
+        const d = Math.floor(diff / (1000*60*60*24));
+        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const s = Math.floor((diff % (1000*60)) / 1000);
+
+        schedulerStatus.innerText = `Next feeding in ${d}d ${h}h ${m}m ${s}s`;
+
+        if(nextFeedingBtn) nextFeedingBtn.style.display = "none"; // hide button during countdown
+    }
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+}
+
+
+
+
+
+
+
 
 
 
