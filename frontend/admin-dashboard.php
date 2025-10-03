@@ -319,21 +319,24 @@ canvas {
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
+          <th>Fan Status</th>
           <th>Status</th>
           
         </tr>
       </thead>
       <tbody id="history-body">
-        <?php foreach ($history_rows as $row): ?>
-          <tr>
-            <td><?= $row['timestamp'] ?></td>
-            <td><?= $row['temperature'] ?></td>
-            <td><?= $row['humidity'] ?></td>
-            <td><?= $row['weight'] ?></td>
-            <td><?= $row['status'] ?></td>
-          </tr>
-        <?php endforeach; ?>
-      </tbody>
+  <?php foreach ($history_rows as $row): ?>
+    <tr>
+      <td><?= $row['timestamp'] ?></td>
+      <td><?= $row['temperature'] ?> °C</td>
+      <td><?= $row['humidity'] ?> %</td>
+      <td><?= $row['weight'] ?> kg</td>
+<td><?php echo ($row['fan_status'] == 1 ? 'ON' : 'OFF'); ?></td>
+      <td><?= $row['status'] ?></td>
+    </tr>
+  <?php endforeach; ?>
+</tbody>
+
     </table>
   </div>
 </div>
@@ -422,6 +425,7 @@ async function reloadHistory() {
         <td>${row.temperature} °C</td>
         <td>${row.humidity} %</td>
         <td>${row.weight} kg</td>
+        <td>${row.fan_status > 0 ? "ON" : "OFF"}</td>
         <td>${row.status}</td>
       `;
       tbody.appendChild(tr);

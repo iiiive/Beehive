@@ -1,7 +1,7 @@
 <?php
 require_once "../config.php";
 
-$sql = "SELECT timestamp, temperature, humidity, weight, status
+$sql = "SELECT timestamp, temperature, humidity, weight, fan_status, status
         FROM beehive_readings
         ORDER BY timestamp DESC
         LIMIT 5";

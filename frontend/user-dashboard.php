@@ -311,6 +311,7 @@ canvas { margin-top:20px; height:120px !important; }
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
+          <th>Fan</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -321,6 +322,7 @@ canvas { margin-top:20px; height:120px !important; }
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
+            <td><?= $row['fan_status'] > 0 ? "ON" : "OFF" ?></td>
             <td><?= $row['status'] ?></td>
 
           </tr>
@@ -434,6 +436,7 @@ async function reloadHistory() {
         <td>${row.temperature} °C</td>
         <td>${row.humidity} %</td>
         <td>${row.weight} kg</td>
+        <td>${row.fan_status > 0 ? "ON" : "OFF"}</td>
         <td>${row.status}</td>
       `;
       tbody.appendChild(tr);
