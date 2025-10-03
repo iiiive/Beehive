@@ -261,9 +261,9 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
-    <div class="<?php echo ($latestTemp>32||$latestTemp<20)?'status-bad':'status-good';?>">
-      <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
-    </div>
+    <div id="temp-status" class="<?php echo ($latestTemp>32||$latestTemp<20)?'status-bad':'status-good';?>">
+  <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+</div>
     <canvas id="tempChart"></canvas>
   </div>
 
@@ -271,9 +271,9 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
-    <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
-      <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
-    </div>
+    <div id="hum-status" class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>">
+  <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+</div>
     <canvas id="humChart"></canvas>
   </div>
 
@@ -281,9 +281,9 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
     <div id="weight-value" class="value"><?php echo $latestWeight; ?> kg</div>
-    <div class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
-      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
-    </div>
+    <div id="weight-status" class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
+  <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
+</div>
     <canvas id="weightChart"></canvas>
   </div>
 
@@ -291,9 +291,10 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
     <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
-    <div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
-      <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
-    </div>
+    <!-- Fan -->
+<div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
+  <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
+</div>
   </div>
 </div>
 
@@ -368,7 +369,6 @@ function controlFan(action, btn) {
   console.log('Fan set to:', action);
 }
 
-
 async function reloadValues() {
   try {
     const response = await fetch("get_latest.php"); 
@@ -380,18 +380,7 @@ async function reloadValues() {
     document.getElementById("weight-value").innerText = data.weight + " kg";
     document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
 
-    // Threshold checks with notifications
-    if (data.temperature > 32 || data.temperature < 28) {
-      showNotification("⚠ Temperature Alert", "Temperature is out of safe range (" + data.temperature + "°C)");
-    }
-    if (data.humidity > 80 || data.humidity < 65) {
-      showNotification("⚠ Humidity Alert", "Humidity is out of safe range (" + data.humidity + "%)");
-    }
-    if (data.weight < 2 || data.weight > 5) {
-      showNotification("⚠ Weight Alert", "Hive weight abnormal (" + data.weight + "kg)");
-    }
-
-    // Update statuses
+    // Update statuses dynamically
     updateStatus("temp-status",
       (data.temperature >= 28 && data.temperature <= 32) ?
       {text:"Temperature is Good ✔", cls:"status-good"} :
@@ -421,15 +410,14 @@ async function reloadValues() {
   }
 }
 
-
-
+// Helper function
 function updateStatus(id, obj) {
   const el = document.getElementById(id);
   el.className = obj.cls;
   el.innerText = obj.text;
 }
 
-// run immediately + every 5 seconds
+// Run immediately + every 5 seconds
 reloadValues();
 setInterval(reloadValues, 5000);
 
