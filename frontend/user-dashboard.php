@@ -614,6 +614,8 @@ async function startFeedingCountdown(){
     countdownEl.innerText = "";
     feedingStatusEl.innerText = "Time to feed! 🐝";
     feedDoneBtn.style.display = "inline-block"; // show button once
+        alert("🟢 It's time to feed the bees!"); // <-- alert here
+
     return;
 }
  
