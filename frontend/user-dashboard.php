@@ -609,14 +609,14 @@ async function startFeedingCountdown(){
   const now = new Date().getTime();
   const distance = nextFeedTime - now;
 
-  if(distance <= 0){
+ if (distance <= 0) {
+    clearInterval(timerInterval); // stop the timer
     countdownEl.innerText = "";
     feedingStatusEl.innerText = "Time to feed! 🐝";
-    feedingStatusEl.className = "status-bad";
-    feedDoneBtn.style.display = "inline-block"; // show button
-    clearInterval(timerInterval);
+    feedDoneBtn.style.display = "inline-block"; // show button once
     return;
-  }
+}
+ 
 
   // Show countdown
   const days = Math.floor(distance/(1000*60*60*24));
