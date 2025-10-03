@@ -155,71 +155,79 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     async function reloadTable(page = 1) {
-      try {
-        const params = new URLSearchParams(window.location.search);
-        params.set("page", page); // ensure page param exists
-        const res = await fetch("beehivetable.php?" + params.toString());
-        const json = await res.json();
+  try {
+    currentPage = page; // save current page
 
-        const tbody = document.getElementById("table-body");
-        tbody.innerHTML = "";
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page); // ensure page param exists
+    const res = await fetch("beehivetable.php?" + params.toString());
+    const json = await res.json();
 
-        if (json.data.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="8" class="text-center">No records found</td></tr>`;
-        } else {
-          json.data.forEach(row => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-              <td>${row.reading_id}</td>
-              <td>${row.timestamp}</td>
-              <td>${row.temperature}</td>
-              <td>${row.humidity}</td>
-              <td>${row.weight}</td>
-              <td>${row.fan_status == 1 ? "ON" : "OFF"}</td>
-              <td>${row.status}</td>
-              <td><a href="read.php?reading_id=${row.reading_id}" class="btn btn-sm">View</a></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        }
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = "";
 
-        // Build pagination
-        const pagination = document.getElementById("pagination");
-        pagination.innerHTML = "";
-        const current = json.current_page;
-        const total = json.total_pages;
-
-        if (total > 1) {
-          // Prev
-          const prevLi = document.createElement("li");
-          prevLi.className = "page-item" + (current === 1 ? " disabled" : "");
-          prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
-          prevLi.onclick = (e) => { e.preventDefault(); if (current > 1) reloadTable(current - 1); };
-          pagination.appendChild(prevLi);
-
-          // Page numbers
-          for (let i = 1; i <= total; i++) {
-            const li = document.createElement("li");
-            li.className = "page-item" + (i === current ? " active" : "");
-            li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-            li.onclick = (e) => { e.preventDefault(); reloadTable(i); };
-            pagination.appendChild(li);
-          }
-
-          // Next
-          const nextLi = document.createElement("li");
-          nextLi.className = "page-item" + (current === total ? " disabled" : "");
-          nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
-          nextLi.onclick = (e) => { e.preventDefault(); if (current < total) reloadTable(current + 1); };
-          pagination.appendChild(nextLi);
-        }
-
-      } catch (err) {
-        console.error("Table fetch error:", err);
-      }
+    if (json.data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center">No records found</td></tr>`;
+    } else {
+      json.data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.reading_id}</td>
+          <td>${row.timestamp}</td>
+          <td>${row.temperature}</td>
+          <td>${row.humidity}</td>
+          <td>${row.weight}</td>
+          <td>${row.fan_status == 1 ? "ON" : "OFF"}</td>
+          <td>${row.status}</td>
+          <td><a href="read.php?reading_id=${row.reading_id}" class="btn btn-sm">View</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
-    reloadTable(); // initial load
+    // Build pagination
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+    const current = json.current_page;
+    const total = json.total_pages;
+
+    if (total > 1) {
+      // Prev
+      const prevLi = document.createElement("li");
+      prevLi.className = "page-item" + (current === 1 ? " disabled" : "");
+      prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
+      prevLi.onclick = (e) => { e.preventDefault(); if (current > 1) reloadTable(current - 1); };
+      pagination.appendChild(prevLi);
+
+      // Page numbers
+      for (let i = 1; i <= total; i++) {
+        const li = document.createElement("li");
+        li.className = "page-item" + (i === current ? " active" : "");
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.onclick = (e) => { e.preventDefault(); reloadTable(i); };
+        pagination.appendChild(li);
+      }
+
+      // Next
+      const nextLi = document.createElement("li");
+      nextLi.className = "page-item" + (current === total ? " disabled" : "");
+      nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+      nextLi.onclick = (e) => { e.preventDefault(); if (current < total) reloadTable(current + 1); };
+      pagination.appendChild(nextLi);
+    }
+
+  } catch (err) {
+    console.error("Table fetch error:", err);
+  }
+}
+
+
+reloadTable(); // initial load
+
+// Reload every 5 seconds on the same page
+setInterval(() => {
+  reloadTable(currentPage);
+}, 5000);
   </script>
 </body>
 </html>
