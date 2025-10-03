@@ -49,27 +49,25 @@ $month = date('n'); // numeric month 1-12
 $isRainy = ($month >= 6 && $month <= 11);
 
 // === Scheduler file ===
+// === Handle feeding schedule ===
 $filename = 'next_feeding.json';
-$nextFeeding = null;
+$message = "";
 
-// Read existing next feeding date
-if (file_exists($filename)) {
-    $data = json_decode(file_get_contents($filename), true);
-    if ($data && isset($data['next_feeding'])) {
-        $nextFeeding = $data['next_feeding'];
-    }
-}
+// Load existing feeding data
+$data = json_decode(file_get_contents($filename), true);
+$lastFeeding = new DateTime($data['last_feeding']);
+$nextFeeding = clone $lastFeeding;
+$nextFeeding->modify("+{$data['days']} days +{$data['hours']} hours +{$data['minutes']} minutes");
 
 // Handle "Mark Feeding Done" button
-$message = "";
 if (isset($_POST['done'])) {
-    $nextDate = new DateTime();
-    $nextDate->modify('+3 days'); // next feeding in 3 days
-    $nextFeeding = $nextDate->format('Y-m-d');
+    $now = new DateTime();
+    $data['last_feeding'] = $now->format('Y-m-d H:i:s');
+    file_put_contents($filename, json_encode($data));
 
-    // Save to JSON
-    file_put_contents($filename, json_encode(['next_feeding' => $nextFeeding]));
-    $message = "Feeding marked done! Next feeding scheduled in 3 days.";
+    $nextFeeding = clone $now;
+    $nextFeeding->modify("+{$data['days']} days +{$data['hours']} hours +{$data['minutes']} minutes");
+    $message = "Feeding marked done!";
 }
 ?>
 
