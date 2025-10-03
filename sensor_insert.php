@@ -12,20 +12,18 @@ if ($link === false) {
     die("ERROR: Could not connect. " . mysqli_connect_error());
 }
 
-if (isset($_POST['temp']) && isset($_POST['hum']) && isset($_POST['weight'])) {
-    $temp   = $_POST['temp'];
-    $hum    = $_POST['hum'];
-    $weight = $_POST['weight'];
+if (isset($_POST['temp']) && isset($_POST['hum']) && isset($_POST['weight']) && isset($_POST['fan_status'])) {
+    $temp       = $_POST['temp'];
+    $hum        = $_POST['hum'];
+    $weight     = $_POST['weight'];
+    $fan_status = $_POST['fan_status']; // 0 or 1 from Arduino
 
-    // Decide fan_status automatically (example: ON if temp > 32)
-    $fan_status = ($temp > 32) ? 1 : 0;
-
-    // Insert without status (it will stay NULL by default)
+    // Insert data into database
     $sql = "INSERT INTO beehive_readings (temperature, humidity, weight, fan_status) 
             VALUES (?, ?, ?, ?)";
     if ($stmt = mysqli_prepare($link, $sql)) {
-        // i = int, d = double/float
-        mysqli_stmt_bind_param($stmt, "iidi", $temp, $hum, $weight, $fan_status);
+        // d = double/float, i = int
+        mysqli_stmt_bind_param($stmt, "dddi", $temp, $hum, $weight, $fan_status);
 
         if (mysqli_stmt_execute($stmt)) {
             echo "Data saved successfully";
@@ -35,7 +33,7 @@ if (isset($_POST['temp']) && isset($_POST['hum']) && isset($_POST['weight'])) {
         mysqli_stmt_close($stmt);
     }
 } else {
-    echo "Error: Missing data (temp, hum, weight)";
+    echo "Error: Missing data (temp, hum, weight, fan_status)";
 }
 
 mysqli_close($link);
