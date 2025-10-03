@@ -43,6 +43,18 @@ while ($row = mysqli_fetch_assoc($result_last5)) {
 }
 array_shift($history_rows);
 
+
+// fetch user feeding schedule
+$user_id = $_SESSION['user_id'] ?? 1;
+$sql_feed = "SELECT * FROM bee_feeding_schedule WHERE user_id=$user_id LIMIT 1";
+$result_feed = mysqli_query($link, $sql_feed);
+$feeding = mysqli_fetch_assoc($result_feed);
+
+$now = new DateTime();
+$next_feed = $feeding ? new DateTime($feeding['next_feed']) : null;
+$time_diff = $next_feed ? $next_feed->getTimestamp() - $now->getTimestamp() : null;
+$needs_feeding = ($time_diff <= 0);
+
 mysqli_close($link);
 
 ?>
@@ -408,6 +420,19 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 </div>
 
+<!-- Feeding Scheduler Card -->
+<div class="card">
+  <h5 class="card-title"><i class="bi bi-clock"></i> Feeding Schedule</h5>
+  
+  <?php if($needs_feeding): ?>
+    <p class="value text-danger">It's time to feed the bees!</p>
+    <button class="btn btn-success" id="feed-done-btn">Done</button>
+  <?php elseif($next_feed): ?>
+    <p class="value">Next feeding in: <span id="countdown"></span></p>
+  <?php else: ?>
+    <p class="value text-warning">No feeding schedule set</p>
+  <?php endif; ?>
+</div>
 
 
 
@@ -554,6 +579,39 @@ async function reloadFan() {
 
 
 
+<?php if($next_feed && !$needs_feeding): ?>
+let nextFeedTime = new Date("<?= $next_feed->format('Y-m-d H:i:s') ?>").getTime();
+
+function updateCountdown() {
+  let now = new Date().getTime();
+  let distance = nextFeedTime - now;
+
+  if(distance <= 0){
+    document.getElementById("countdown").innerText = "Time to feed!";
+    clearInterval(timerInterval);
+    return;
+  }
+
+  let days = Math.floor(distance/(1000*60*60*24));
+  let hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
+  let minutes = Math.floor((distance%(1000*60*60))/(1000*60));
+  let seconds = Math.floor((distance%(1000*60))/1000);
+
+  document.getElementById("countdown").innerText = 
+    `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+
+let timerInterval = setInterval(updateCountdown, 1000);
+updateCountdown();
+<?php endif; ?>
+
+// Feeding done button
+document.getElementById("feed-done-btn")?.addEventListener("click", async () => {
+  const res = await fetch('feed_done.php', { method:'POST' });
+  if(res.ok){
+    location.reload(); // refresh dashboard to start new countdown
+  }
+});
 
 
 
