@@ -30,7 +30,8 @@ $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
 
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight, status
+// Get last 5 readings
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, status
               FROM beehive_readings 
               ORDER BY timestamp DESC 
               LIMIT 6";
@@ -44,32 +45,8 @@ array_shift($history_rows);
 
 mysqli_close($link);
 
-// === Rainy season check ===
-$month = date('n'); // numeric month 1-12
-$isRainy = ($month >= 6 && $month <= 11);
-
-// === Scheduler file ===
-// === Handle feeding schedule ===
-$filename = 'next_feeding.json';
-$message = "";
-
-// Load existing feeding data
-$data = json_decode(file_get_contents($filename), true);
-$lastFeeding = new DateTime($data['last_feeding']);
-$nextFeeding = clone $lastFeeding;
-$nextFeeding->modify("+{$data['days']} days +{$data['hours']} hours +{$data['minutes']} minutes");
-
-// Handle "Mark Feeding Done" button
-if (isset($_POST['done'])) {
-    $now = new DateTime();
-    $data['last_feeding'] = $now->format('Y-m-d H:i:s');
-    file_put_contents($filename, json_encode($data));
-
-    $nextFeeding = clone $now;
-    $nextFeeding->modify("+{$data['days']} days +{$data['hours']} hours +{$data['minutes']} minutes");
-    $message = "Feeding marked done!";
-}
 ?>
+
 
 
 <!DOCTYPE html>
@@ -433,47 +410,10 @@ canvas { margin-top:20px; height:120px !important; }
 
 
 
-<div class="row mb-2">
-  <div class="col">
-    <input type="number" id="feed-days" class="form-control" placeholder="Days" min="0" value="3">
-  </div>
-  <div class="col">
-    <input type="number" id="feed-hours" class="form-control" placeholder="Hours" min="0" max="23" value="0">
-  </div>
-  <div class="col">
-    <input type="number" id="feed-minutes" class="form-control" placeholder="Minutes" min="0" max="59" value="0">
-  </div>
-</div>
 
 
-<div class="card">
-  <h5 class="card-title"><i class="bi bi-calendar-event"></i> Bee Feeding Scheduler</h5>
-  <div id="scheduler-body">
-    <?php if (!$isRainy): ?>
-      <p>Scheduler inactive (not rainy season)</p>
-    <?php else: ?>
-      <?php if ($nextFeeding): ?>
-        <?php
-          $today = new DateTime();
-          $feedingDate = new DateTime($nextFeeding);
-          $diff = $today->diff($feedingDate)->days;
-          $statusText = ($feedingDate <= $today) ? "Feeding is due today!" : "Next feeding in $diff day(s)";
-        ?>
-        <p id="scheduler-status" style="color:<?= ($feedingDate <= $today)?'red':'green' ?>;">
-          <?= $statusText ?>
-        </p>
-      <?php else: ?>
-        <p id="scheduler-status">Next feeding: Today</p>
-      <?php endif; ?>
 
-      <form method="post" id="feeding-form">
-        <button type="submit" name="done" id="feeding-btn" class="btn btn-warning mt-2">Mark Feeding Done</button>
-      </form>
 
-      <?php if (!empty($message)) echo "<p style='color:green;'>$message</p>"; ?>
-    <?php endif; ?>
-  </div>
-</div>
 
 
 
@@ -612,50 +552,7 @@ async function reloadFan() {
   }
 }
 
-const nextFeedingBtn = document.getElementById("feeding-btn");
-const schedulerStatus = document.getElementById("scheduler-status");
 
-let nextFeedingDate = null;
-
-// Fetch next feeding from JSON
-fetch('next_feeding.json')
-.then(res => res.json())
-.then(data => {
-    if (data.next_feeding) {
-        nextFeedingDate = new Date(data.next_feeding);
-        startCountdown(nextFeedingDate);
-    } else {
-        schedulerStatus.innerText = "Feeding is due now!";
-        schedulerStatus.style.color = "red";
-    }
-});
-
-function startCountdown(targetDate) {
-    function updateCountdown() {
-        const now = new Date();
-        const diff = targetDate - now;
-
-        if (diff <= 0) {
-            schedulerStatus.innerText = "Feeding is due now!";
-            schedulerStatus.style.color = "red";
-            clearInterval(timer);
-            if(nextFeedingBtn) nextFeedingBtn.style.display = "inline-block"; // show button
-            return;
-        }
-
-        const d = Math.floor(diff / (1000*60*60*24));
-        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
-        const m = Math.floor((diff % (1000*60*60)) / (1000*60));
-        const s = Math.floor((diff % (1000*60)) / 1000);
-
-        schedulerStatus.innerText = `Next feeding in ${d}d ${h}h ${m}m ${s}s`;
-
-        if(nextFeedingBtn) nextFeedingBtn.style.display = "none"; // hide button during countdown
-    }
-
-    updateCountdown();
-    const timer = setInterval(updateCountdown, 1000);
-}
 
 
 
