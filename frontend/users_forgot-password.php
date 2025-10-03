@@ -62,10 +62,41 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <title>Forgot Password - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 <style>
-body { height: 100vh; display:flex; align-items:center; justify-content:center; font-family:Raleway, sans-serif; background: url('images/beehive.jpeg') no-repeat center center/cover; margin:0; position:relative; }
-body::before { content:""; position:absolute; inset:0; background: rgba(0,0,0,0.7); }
-.container { position:relative; z-index:1; background: rgba(255,255,255,0.1); backdrop-filter: blur(15px); border-radius:20px; padding:40px; width:360px; box-shadow:0 0 24px #ceae1fff; text-align:center; }
-input { width:100%; padding:12px; margin:12px 0; border-radius:10px; border:none; background: rgba(255,255,255,0.2); color:#fff; }
+body { height: 100vh; 
+    display:flex; 
+    align-items:center; 
+    justify-content:center; 
+    font-family:Raleway, sans-serif; 
+    background: url('images/beehive.jpeg') no-repeat center center/cover; 
+    margin:0; 
+    position:relative; 
+}
+body::before { 
+    content:""; 
+    position:absolute; 
+    inset:0; 
+    background: rgba(0,0,0,0.7); }
+.container { 
+    position:relative; 
+    z-index:1; 
+    background: rgba(255,255,255,0.1); 
+    backdrop-filter: blur(15px); 
+    border-radius:20px; 
+    padding:40px; 
+    width:360px; 
+    box-shadow:0 0 24px #ceae1fff; 
+    text-align:center; }
+input { 
+    width:100%; 
+    padding:12px; 
+    margin:12px 0; 
+    border-radius:10px; 
+    border:none; 
+    background: rgba(255,255,255,0.2); 
+    color:#fff; }
+    h2{
+        color: #ceae1fff;
+    }
 input::placeholder { color:#eee; }
 button { width:100%; padding:14px; border:none; border-radius:12px; background:#e7d25b; color:#6d611b; font-weight:bold; cursor:pointer; transition:0.3s; }
 button:hover { background:#cdbd49; color:#000; }

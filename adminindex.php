@@ -82,9 +82,11 @@ $totalPages = ceil($totalRows / $limit);
     <meta charset="UTF-8">
     <title>Admin Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
         body {
-            background-image: url("https://static.vecteezy.com/system/resources/previews/000/532/210/original/vector-bee-hive-background.jpg");
+            background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png");
             background-repeat: no-repeat;
             background-size: cover;
             background-attachment: fixed;
@@ -98,7 +100,7 @@ $totalPages = ceil($totalRows / $limit);
             font-family: 'Cursive', 'Brush Script MT', sans-serif;
             font-size: 4rem;
             margin-top: 10px;
-            color: #0B0806;
+            color: #FEDE16;
             text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
         }
         .btn {
@@ -141,8 +143,9 @@ $totalPages = ceil($totalRows / $limit);
             <div class="col-md-12">
 
                 <div class="mt-5 mb-3 d-flex align-items-center position-relative">
-                    <a href="frontend/database.php" class="btn position-absolute start-0"> < Back</a>
-                    <h2 class="mx-auto text-center">Admin Account Records</h2>
+<a href="frontend/database.php" class="btn">
+  <i class="bi bi-arrow-bar-left"></i> <span>Back</span>
+</a>                    <h2 class="mx-auto text-center">Admin Account Records</h2>
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -162,23 +165,17 @@ $totalPages = ceil($totalRows / $limit);
                             value="<?php echo htmlspecialchars($search); ?>"
                           />
                         </div>
-                        <button type="submit" class="btn">Search</button>
-                        <a href="adminindex.php" class="btn">Reset</a>
-
-                        <div class="dropdown">
-                            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                                Filters
-                            </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="adminindex.php">Show All</a></li>
-                                <li><a class="dropdown-item" href="adminindex.php?filter=active">Active</a></li>
-                                <li><a class="dropdown-item" href="adminindex.php?filter=disabled">Disabled</a></li>
-                                <li><a class="dropdown-item" href="adminindex.php?filter=pending">Pending</a></li>
-                                <li><a class="dropdown-item" href="adminindex.php?filter=recent">Most Recent</a></li>
-                            </ul>
-                        </div>
-                        <a href="admininfoCSV.php" class="btn">Get a Copy</a>
-                    </form>
+                            <button type="submit" class="btn">
+                             <i class="bi bi-search"></i> <span>Search</span>
+                            </button>                        
+                            
+<a href="adminindex.php" class="btn">
+  <i class="bi bi-arrow-counterclockwise"></i> <span>Reset</span>
+</a>
+                        
+<a href="admininfoCSV.php" class="btn">
+  <i class="bi bi-file-earmark-arrow-down-fill"></i> <span>Get a Copy</span>
+</a>                    </form>
                 </div>
 
                 <?php
@@ -201,8 +198,9 @@ $totalPages = ceil($totalRows / $limit);
                         echo "<td>" . $row['username'] . "</td>";
                         echo "<td>" . $row['email'] . "</td>";
                         echo "<td>" . $row['created_at'] . "</td>";
-                        echo "<td><a href='readadmin.php?admin_id=" . $row['admin_id'] . "' class='cta'>View</a></td>";
-                        echo "</tr>";
+                        echo "<td><a href='readadmin.php?admin_id=" . $row['admin_id'] . "' class='cta'>
+        <i class='bi bi-eye-fill'></i> View</a></td>";
+echo "</tr>";
                     }
                     echo "</tbody></table>";
                 } else {

@@ -17,7 +17,6 @@ if (isset($_GET["admin_id"]) && !empty(trim($_GET["admin_id"]))) {
                 $lastname   = $row["lastname"];
                 $username   = $row["username"];
                 $email      = $row["email"];
-                $status     = $row["status"];
                 $created_at = $row["created_at"];
             } else {
                 header("location: error.php");
@@ -204,7 +203,6 @@ if (isset($_GET["admin_id"]) && !empty(trim($_GET["admin_id"]))) {
             <li class="card__list_item"><span>Last Name:</span><span><?php echo htmlspecialchars($lastname); ?></span></li>
             <li class="card__list_item"><span>Username:</span><span><?php echo htmlspecialchars($username); ?></span></li>
             <li class="card__list_item"><span>Email:</span><span><?php echo htmlspecialchars($email); ?></span></li>
-            <li class="card__list_item"><span>Status:</span><span><?php echo htmlspecialchars($status); ?></span></li>
             <li class="card__list_item"><span>Created At:</span><span><?php echo htmlspecialchars($created_at); ?></span></li>
         </ul>
 

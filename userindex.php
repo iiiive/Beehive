@@ -82,9 +82,11 @@ $total_pages = ceil($total_rows / $limit);
     <meta charset="UTF-8">
     <title>User Management</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
   body {
-    background-image: url("https://static.vecteezy.com/system/resources/previews/000/532/210/original/vector-bee-hive-background.jpg");
+    background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png");
     background-repeat: no-repeat;
     background-size: cover;
     background-attachment: fixed;
@@ -110,7 +112,7 @@ $total_pages = ceil($total_rows / $limit);
         font-family: 'Cursive', 'Brush Script MT', sans-serif;
         font-size: 4rem;
         margin-top: 10px;
-        color: #0B0806; /* bright yellow for headings */
+        color: #FEDE16; /* bright yellow for headings */
         text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
     }
 
@@ -233,8 +235,9 @@ $total_pages = ceil($total_rows / $limit);
             <div class="col-md-12">
 
                 <div class="mt-5 mb-3 d-flex align-items-center position-relative">
-    <a href="frontend/database.php" class="btn position-absolute start-0"> < Back</a>
-    <h2 class="mx-auto text-center">User Account Records</h2>
+<a href="frontend/database.php" class="btn">
+  <i class="bi bi-arrow-bar-left"></i> <span>Back</span>
+</a>    <h2 class="mx-auto text-center">User Account Records</h2>
 </div>
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <form method="get" class="d-flex align-items-center flex-wrap gap-2">
@@ -256,9 +259,18 @@ $total_pages = ceil($total_rows / $limit);
                           />
                         </div>
 
-                        <button type="submit" class="btn">Search</button>
-                        <a href="userindex.php" class="btn">Reset</a>
-                        <a href="userinfoCSV.php" class="btn">Get a Copy</a>
+<button type="submit" class="btn">
+  <i class="bi bi-search"></i> <span>Search</span>
+</button>
+
+<a href="userindex.php" class="btn">
+  <i class="bi bi-arrow-counterclockwise"></i> <span>Reset</span>
+</a>
+
+ <a href="userinfoCSV.php" class="btn">
+  <i class="bi bi-file-earmark-arrow-down-fill"></i> <span>Get a Copy</span>
+</a>
+
 
                     </form>
                 </div>
@@ -281,23 +293,20 @@ $total_pages = ceil($total_rows / $limit);
                         echo "<tbody>";
                         while ($row = mysqli_fetch_array($result)) {
                             echo "<tr>";
-                                echo "<td>" . $row['user_id'] . "</td>";
-                                echo "<td>" . $row['firstname'] . "</td>";
-                                echo "<td>" . $row['lastname'] . "</td>";
-                                echo "<td>" . $row['username'] . "</td>";
-                                echo "<td>" . $row['email'] . "</td>";
-                                echo "<td>" . $row['contact_number'] . "</td>";
-                                echo "<td>" . $row['created_at'] . "</td>";
-                                echo "<td>";
-                                    echo '<a href="readuser.php?user_id='. $row['user_id'] .'" class="cta"><span>View</span>
-                                            <svg width="15px" height="10px" viewBox="0 0 13 10">
-                                                <path d="M1,5 L11,5"></path>
-                                                <polyline points="8 1 12 5 8 9"></polyline>
-                                            </svg>
-                                          </a>
-                                           ';
-                                echo "</td>";
-                            echo "</tr>";
+    echo "<td>" . $row['user_id'] . "</td>";
+    echo "<td>" . $row['firstname'] . "</td>";
+    echo "<td>" . $row['lastname'] . "</td>";
+    echo "<td>" . $row['username'] . "</td>";
+    echo "<td>" . $row['email'] . "</td>";
+    echo "<td>" . $row['contact_number'] . "</td>";
+    echo "<td>" . $row['created_at'] . "</td>";
+    echo "<td>
+            <a href='readuser.php?user_id=" . $row['user_id'] . "' class='cta'>
+              <i class='bi bi-eye-fill'></i> View
+            </a>
+          </td>";
+echo "</tr>";
+
                         }
                         echo "</tbody>";                            
                     echo "</table>";

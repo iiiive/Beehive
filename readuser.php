@@ -20,9 +20,7 @@ if (isset($_GET["user_id"]) && !empty(trim($_GET["user_id"]))) {
                 $birthday        = $row["birthday"];
                 $address         = $row["address"];
                 $contact_number  = $row["contact_number"];
-                $created_by      = $row["created_by_admin_id"];
                 $created_at      = $row["created_at"];
-                $status          = $row["status"];
             } else {
                 header("location: error.php");
                 exit();
@@ -212,9 +210,7 @@ if (isset($_GET["user_id"]) && !empty(trim($_GET["user_id"]))) {
             <li class="card__list_item"><span>Birthday:</span><span><?php echo htmlspecialchars($birthday); ?></span></li>
             <li class="card__list_item"><span>Address:</span><span><?php echo htmlspecialchars($address); ?></span></li>
             <li class="card__list_item"><span>Contact:</span><span><?php echo htmlspecialchars($contact_number); ?></span></li>
-            <li class="card__list_item"><span>Created By:</span><span><?php echo htmlspecialchars($created_by); ?></span></li>
             <li class="card__list_item"><span>Created At:</span><span><?php echo htmlspecialchars($created_at); ?></span></li>
-            <li class="card__list_item"><span>Status:</span><span><?php echo htmlspecialchars($status); ?></span></li>
         </ul>
 
         <a href="userindex.php" class="button">Back</a>

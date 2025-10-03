@@ -18,6 +18,8 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
                 $humidity    = $row["humidity"];
                 $weight      = $row["weight"];
                 $fan_status  = $row["fan_status"];
+                $status      = $row["status"];
+
             } else {
                 header("location: error.php");
                 exit();
@@ -217,6 +219,10 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
             <li class="card__list_item">
                 <span>Fan Status:</span>
                 <span><?php echo $fan_status; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Status:</span>
+                <span><?php echo $status; ?></span>
             </li>
         </ul>
 

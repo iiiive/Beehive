@@ -62,7 +62,8 @@ body {
   min-height: 100vh;
   background: url('https://a-z-animals.com/media/2025/08/shutterstock-2374833763-huge-licensed-scaled.jpg') no-repeat center center/cover;
   position: relative;
-  padding: 20px 0;
+  margin: 0;
+  padding: 0;
   color: #212121;
 }
 body::before {
@@ -145,6 +146,117 @@ canvas { margin-top:20px; height:120px !important; }
   transform: scale(1.01);
 }
 
+/* ================= RESPONSIVE FIXES ================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+  .dashboard-header img {
+    height: 60px;
+    width: 60px;
+  }
+  .dashboard-header .title span {
+    font-size: 2rem;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .settings-btn, .logout-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  .container {
+    margin: 20px auto;
+    gap: 15px;
+  }
+  .card {
+    flex: 1 1 45%; /* 2 cards per row */
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 10px;
+    gap: 10px;
+  }
+  .dashboard-header .title {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .dashboard-header img {
+    height: 50px;
+    width: 50px;
+  }
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .settings-btn, .logout-btn {
+    width: 100%;
+    text-align: center;
+  }
+  .container {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .card {
+    flex: 1 1 100%;
+    width: 95%;
+    min-width: unset;
+  }
+  .card-title {
+    font-size: 1.2rem;
+  }
+  .value {
+    font-size: 1.5rem;
+  }
+  .history-table th, .history-table td {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+}
+
+/* Extra Small Phones */
+@media (max-width: 480px) {
+  .dashboard-header .title span {
+    font-size: 1.4rem;
+  }
+  .dashboard-header img {
+    height: 40px;
+    width: 40px;
+  }
+  .card {
+    padding: 15px;
+  }
+  .card-title {
+    font-size: 1rem;
+  }
+  .value {
+    font-size: 1.2rem;
+  }
+
+  /* Make history table scrollable */
+  .history-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .history-table thead, .history-table tbody, .history-table tr, .history-table th, .history-table td {
+    display: inline-block;
+    min-width: 100px;
+  }
+}
+
+
 </style>
 </head>
 <body>
@@ -184,16 +296,6 @@ canvas { margin-top:20px; height:120px !important; }
     <canvas id="weightChart"></canvas>
   </div>
 
-   <!-- Fan -->
-  <div class="card">
-    <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
-    <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
-    <div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
-      <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
-    </div>
-  </div>
-</div>
-</div>
 
 
 <!-- History Log Section -->

@@ -89,7 +89,8 @@ body {
   min-height: 100vh;
   background: url('https://a-z-animals.com/media/2025/08/shutterstock-2374833763-huge-licensed-scaled.jpg') no-repeat center center/cover;
   position: relative;
-  padding: 20px 0;
+  margin: 0; 
+  padding: 0;
   color: #212121;
 }
 body::before {
@@ -98,14 +99,13 @@ body::before {
   background-color: rgba(0,0,0,0.4);
   z-index: 0;
 }
-.container, .dashboard-header, .card, .fan-card { 
+.container, .dashboard-header, .card{ 
 position: relative; 
 z-index: 1; }
 
 /* Header */
 .dashboard-header {
   width:100%; 
-  padding:15px 25px;
   display:flex; 
   justify-content:space-between; 
   align-items:center;
@@ -114,7 +114,9 @@ z-index: 1; }
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
 }
 .dashboard-header .title {
-  display:flex; align-items:center; gap:15px;
+  display:flex; 
+  align-items:center; 
+  gap:15px;
 }
 .dashboard-header .title span {
   font-family: 'Cursive','Brush Script MT',sans-serif;
@@ -155,7 +157,7 @@ z-index: 1; }
 }
 
 /* Metric Cards */
-.card, .fan-card {
+.card {
   flex:1 1 300px; 
   min-width:280px;
   background: linear-gradient(145deg, #FFF8DC, #9b8c51ff);
@@ -186,51 +188,7 @@ z-index: 1; }
 
 canvas { margin-top:20px; height:120px !important; }
 
-/* Fan card */
-/* Fan card */
-.fan-card {
-  flex: 1 1 100%;
-  text-align: center;
-}
 
-.fan-controls {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-top: 15px;
-  flex-wrap: wrap;
-}
-
-.fan-btn {
-  padding: 10px 18px;
-  border-radius: 12px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-
-.fan-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-}
-
-.fan-btn.active {
-  border: 3px solid #fff;
-  box-shadow: 0 0 12px rgba(0,0,0,0.3);
-}
-
-/* Colors */
-.fan-auto { background:#FFD93D; color:#4B2E1E; }
-.fan-on   { background:#4B2E1E; color:#FFD93D; }
-.fan-off  { background:#D2691E; color:#fff; }
-
-.fan-status {
-  margin-top: 18px;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: #4B2E1E;
-}
 /* History Table */
 .history-table {
   width: 100%;
@@ -260,6 +218,118 @@ canvas { margin-top:20px; height:120px !important; }
   background: #FEDE16 !important;
   transform: scale(1.01);
 }
+
+
+/* ================= RESPONSIVE FIXES ================= */
+
+/* Tablet */
+@media (max-width: 992px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 15px;
+  }
+  .dashboard-header img {
+    height: 60px;
+    width: 60px;
+  }
+  .dashboard-header .title span {
+    font-size: 2rem;
+  }
+  .header-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .settings-btn, .logout-btn {
+    padding: 8px 15px;
+    font-size: 0.9rem;
+  }
+  .container {
+    margin: 20px auto;
+    gap: 15px;
+  }
+  .card {
+    flex: 1 1 45%; /* 2 cards per row */
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 10px;
+    gap: 10px;
+  }
+  .dashboard-header .title {
+    flex-direction: column;
+    gap: 5px;
+  }
+  .dashboard-header img {
+    height: 50px;
+    width: 50px;
+  }
+  .header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .settings-btn, .logout-btn {
+    width: 100%;
+    text-align: center;
+  }
+  .container {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+  }
+  .card {
+    flex: 1 1 100%;
+    width: 95%;
+    min-width: unset;
+  }
+  .card-title {
+    font-size: 1.2rem;
+  }
+  .value {
+    font-size: 1.5rem;
+  }
+  .history-table th, .history-table td {
+    font-size: 0.85rem;
+    padding: 8px;
+  }
+}
+
+/* Extra Small Phones */
+@media (max-width: 480px) {
+  .dashboard-header .title span {
+    font-size: 1.4rem;
+  }
+  .dashboard-header img {
+    height: 40px;
+    width: 40px;
+  }
+  .card {
+    padding: 15px;
+  }
+  .card-title {
+    font-size: 1rem;
+  }
+  .value {
+    font-size: 1.2rem;
+  }
+
+  /* Make history table scrollable */
+  .history-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .history-table thead, .history-table tbody, .history-table tr, .history-table th, .history-table td {
+    display: inline-block;
+    min-width: 100px;
+  }
+}
+
 </style>
 </head>
 <body>

@@ -4,9 +4,11 @@
   <meta charset="UTF-8">
   <title>Beehive Monitoring Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
   <style>
     body {
-      background-image: url("https://static.vecteezy.com/system/resources/previews/000/532/210/original/vector-bee-hive-background.jpg");
+      background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png");
       background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;
@@ -18,7 +20,8 @@
     .wrapper { width: 95%; margin: auto; }
     h2 {
       font-family: 'Cursive', 'Brush Script MT', sans-serif;
-      font-size: 4rem; margin-bottom: 40px; color: #0B0806;
+      font-size: 4rem; margin-bottom: 40px; 
+      color: #FEDE16;
       text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
     }
     .btn {
@@ -40,7 +43,29 @@
     .custom-table thead { background-color: #74512D; color: #fff; }
     .custom-table th, .custom-table td { padding: 0.9em 1em; border-bottom: 1px solid #E9E7D8; }
     .custom-table tbody tr:hover { background-color: #fae76a; transition: 0.3s ease; }
-    <style>
+    /* Animated View Button */
+    .cta {
+        position: relative;
+        margin: auto;
+        padding: 8px 16px;
+        border: none;
+        background: #FFF2A3; /* vanilla */
+        color: #0B0806; /* smoky black */
+        font-weight: 700;
+        cursor: pointer;
+        border-radius: 25px;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .cta:hover {
+        background: #74512D; /* yellow hover */
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .cta svg {
+        fill: #74512D; /* coffee icon */
+    }
   /* Pagination styling */
   .pagination .page-item .page-link {
     color: #0B0806;
@@ -70,6 +95,78 @@
     color: #999;
     border-color: #ccc;
   }
+
+  /* Make forms and filters wrap nicely */
+.d-flex.flex-wrap.gap-2 {
+  gap: 10px;
+}
+
+/* Responsive tweaks */
+@media (max-width: 992px) {
+  h2 {
+    font-size: 2.5rem;
+    text-align: center;
+  }
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .group {
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  .input {
+    width: 100%;
+  }
+  .custom-table th, .custom-table td {
+    font-size: 0.85rem;
+    padding: 0.6em;
+  }
+}
+
+@media (max-width: 576px) {
+  .wrapper {
+    width: 100%;
+    padding: 10px;
+  }
+  h2 {
+    font-size: 2rem;
+  }
+  .btn, .dropdown-toggle {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
+  .custom-table th, .custom-table td {
+    font-size: 0.75rem;
+  }
+}
+/* General button responsiveness */
+.btn i, .cta i {
+  font-size: 1.2rem;
+}
+
+/* On small screens, hide button text and make buttons circular */
+@media (max-width: 576px) {
+  .btn span, 
+  .btn:not(.dropdown-toggle)::after, 
+  .cta span {
+    display: none !important; /* hide text labels */
+  }
+
+  .btn, .cta {
+    padding: 8px;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
 </style>
 
   </style>
@@ -81,7 +178,10 @@
         <div class="col-md-12">
 
           <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
-            <a href="frontend/database.php" class="btn"> < Back</a>
+           <a href="frontend/database.php" class="btn">
+  <i class="bi bi-arrow-bar-left"></i> <span>Back</span>
+</a>
+
             <h2>Beehive Monitoring Records</h2>
           </div>
 
@@ -96,15 +196,21 @@
                 </svg>
                 <input id="query" class="input" type="search" placeholder="Search..." name="search"/>
               </div>
-              <button type="submit" class="btn">Search</button>
-              <a href="index.php" class="btn">Reset</a>
+             <button type="submit" class="btn">
+  <i class="bi bi-search"></i> <span>Search</span>
+</button>
+
+<a href="index.php" class="btn">
+  <i class="bi bi-arrow-counterclockwise"></i> <span>Reset</span>
+</a>
 
               <!-- Filter dropdown -->
               <div class="dropdown">
                 <button class="btn dropdown-toggle" type="button" id="filterDropdown"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                  Filters
-                </button>
+        data-bs-toggle="dropdown" aria-expanded="false">
+  <i class="bi bi-funnel"></i> <span>Filters</span>
+</button>
+
                 <ul class="dropdown-menu" aria-labelledby="filterDropdown">
                   <li><a class="dropdown-item" href="?filter=statusGood">Status: Good</a></li>
                   <li><a class="dropdown-item" href="?filter=statusBad">Status: Bad</a></li>
@@ -122,10 +228,13 @@
                   <li><a class="dropdown-item" href="?filter=orderDesc">Order: Latest First</a></li>
                 </ul>
               </div>
-              <a href="BeehiveReadingsCSV.php" class="btn">Get a Copy</a>
+              <a href="BeehiveReadingsCSV.php" class="btn">
+  <i class="bi bi-file-earmark-arrow-down-fill"></i> <span>Get a Copy</span>
+</a>
+
             </form>
           </div>
-
+<div class = "table-responsive">
           <table class="custom-table">
             <thead>
               <tr>
@@ -141,6 +250,7 @@
             </thead>
             <tbody id="table-body"></tbody>
           </table>
+          </div>
 
           <!-- Pagination -->
           <nav>
@@ -179,7 +289,11 @@
           <td>${row.weight}</td>
           <td>${row.fan_status == 1 ? "ON" : "OFF"}</td>
           <td>${row.status}</td>
-          <td><a href="read.php?reading_id=${row.reading_id}" class="btn btn-sm">View</a></td>
+          <td><a href="read.php?reading_id=${row.reading_id}" class="cta">
+  <i class="bi bi-eye-fill"></i> <span>View</span>
+</a>
+
+        </td>
         `;
         tbody.appendChild(tr);
       });
