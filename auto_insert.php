@@ -5,7 +5,7 @@ require_once "config.php";
 // Example: generate random values (replace with sensor data if available)
 $temperature = rand(30, 40);   // °C
 $humidity    = rand(60, 90);   // %
-$weight      = rand(1, 20); // grams
+$weight      = rand(1, 20);    // kg
 $fan_status  = rand(0, 1);     // 0 = off, 1 = on
 
 $sql = "INSERT INTO beehive_readings (timestamp, temperature, humidity, weight, fan_status) 
@@ -33,12 +33,12 @@ $result = mysqli_query($link, $sql);
 
 if ($result && mysqli_num_rows($result) > 0) {
     $row = mysqli_fetch_assoc($result);
-    $timestamp = $row['timestamp'];
+    $timestamp   = $row['timestamp'];
     $temperature = $row['temperature'];
-    $humidity = $row['humidity'];
-    $weight = $row['weight'];
-    $fan_status = $row['fan_status'];
-    $status = $row['status']; // <-- fixed missing semicolon
+    $humidity    = $row['humidity'];
+    $weight      = $row['weight'];
+    $fan_status  = $row['fan_status'];
+    $status      = $row['status']; 
 
     // Prepare alert messages
     $alerts = [];
@@ -51,7 +51,7 @@ if ($result && mysqli_num_rows($result) > 0) {
 
     if ($humidity > 80) {
         $alerts[] = "💧 Humidity too high! Humidity: {$humidity}% at {$timestamp}";
-    }elseif ($humidity < 28) {
+    } elseif ($humidity < 28) {
         $alerts[] = "💧 Humidity too low! Please provide water source for the Bees! Humidity: {$humidity}% at {$timestamp}";
     }
 
@@ -61,15 +61,9 @@ if ($result && mysqli_num_rows($result) > 0) {
         $alerts[] = "⚠️ Beehive weight is critically low! Please check for potential hive loss. Weight: {$weight}Kg at {$timestamp}";
     }
 
-    // Optional weight alert
-    // $prev_sql = "SELECT weight FROM beehive_readings ORDER BY timestamp DESC LIMIT 1,1";
-    // $prev_result = mysqli_query($link, $prev_sql);
-    // if ($prev_result && mysqli_num_rows($prev_result) > 0) {
-    //     $prev_weight = mysqli_fetch_assoc($prev_result)['weight'];
-    //     if (($prev_weight - $weight) > 2) {
-    //         $alerts[] = "⚠️ Sudden weight drop detected! Previous: {$prev_weight}kg, Now: {$weight}kg at {$timestamp}";
-    //     }
-    // }
+    // ✅ Add fan status
+    $fan_text = ($fan_status == 1) ? "🌀 Fan is ON" : "🛑 Fan is OFF";
+    $alerts[] = "{$fan_text} at {$timestamp}";
 
     // Send alerts to Discord
     foreach ($alerts as $alert) {

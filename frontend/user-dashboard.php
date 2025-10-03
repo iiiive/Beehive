@@ -1,8 +1,8 @@
 <?php
 require_once "../config.php";
 
-// Query 1: Get ALL readings for charts and latest values
-$sql_all = "SELECT timestamp, temperature, humidity, weight 
+// Query all readings for charts
+$sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status 
             FROM beehive_readings 
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
@@ -11,40 +11,43 @@ $timestamps   = [];
 $temperatures = [];
 $humidities   = [];
 $weights      = [];
+$fans         = [];
 
 while ($row = mysqli_fetch_assoc($result_all)) {
     $timestamps[]   = $row['timestamp'];
     $temperatures[] = $row['temperature'];
     $humidities[]   = $row['humidity'];
     $weights[]      = $row['weight'];
+    $fans[]         = $row['fan_status'];
 }
 
+// Latest values
 $latestTemp   = end($temperatures);
 $latestHum    = end($humidities);
 $latestWeight = end($weights);
+$latestFan    = end($fans);
 
 // For charts
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
 
-// Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
+// Last 5 history (excluding latest)
 $sql_last5 = "SELECT timestamp, temperature, humidity, weight, status
               FROM beehive_readings 
               ORDER BY timestamp DESC 
-              LIMIT 6";  // get 6: latest + 5 previous
+              LIMIT 6";
 $result_last5 = mysqli_query($link, $sql_last5);
 
 $history_rows = [];
 while ($row = mysqli_fetch_assoc($result_last5)) {
     $history_rows[] = $row;
 }
-
-// Remove the very latest row (first row in DESC order)
 array_shift($history_rows);
 
 mysqli_close($link);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -284,24 +287,17 @@ canvas { margin-top:20px; height:120px !important; }
     <canvas id="weightChart"></canvas>
   </div>
 
-<!-- Fan Control -->
-<div class="fan-card">
-  <h5 class="card-title">
-    <i class="bi bi-lightning-charge" style="color:#FFD93D;"></i> Fan Control
-  </h5>
-  <div class="fan-controls">
-    <button class="fan-btn fan-auto active" onclick="controlFan('auto', this)">
-      <i class="bi bi-gear-fill"></i> Automatic
-    </button>
-    <button class="fan-btn fan-on" onclick="controlFan('on', this)">
-      <i class="bi bi-toggle-on"></i> Turn On
-    </button>
-    <button class="fan-btn fan-off" onclick="controlFan('off', this)">
-      <i class="bi bi-toggle-off"></i> Turn Off
-    </button>
+ <!-- Fan -->
+  <div class="card">
+    <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
+    <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
+    <div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
+      <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
+    </div>
   </div>
-  <div id="fan-status" class="fan-status">Fan mode: Automatic</div>
 </div>
+
+
 
 
 <!-- History Log Section -->
@@ -369,17 +365,16 @@ function controlFan(action, btn) {
 }
 
 
-<!-- ✅ Auto-refresh script -->
-
 async function reloadValues() {
   try {
-    const response = await fetch("get_latest.php"); // small API
+    const response = await fetch("get_latest.php"); 
     const data = await response.json();
 
     // Update numbers
     document.getElementById("temp-value").innerText   = data.temperature + " °C";
     document.getElementById("hum-value").innerText    = data.humidity + " %";
     document.getElementById("weight-value").innerText = data.weight + " kg";
+    document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
 
     // Update statuses
     updateStatus("temp-status",
@@ -400,10 +395,17 @@ async function reloadValues() {
       {text:"The Hive is still Light", cls:"status-bad"}
     );
 
+    updateStatus("fan-status",
+      (data.fan_status == 1) ?
+      {text:"The Fan is Running ✔", cls:"status-good"} :
+      {text:"The Fan is Off ✖", cls:"status-bad"}
+    );
+
   } catch (err) {
     console.error("Error fetching latest data:", err);
   }
 }
+
 
 function updateStatus(id, obj) {
   const el = document.getElementById(id);
@@ -444,6 +446,22 @@ async function reloadHistory() {
 // Run immediately + every 5s
 reloadHistory();
 setInterval(reloadHistory, 5000);
+
+async function reloadFan() {
+  try {
+    const res = await fetch("get_fan.php");
+    const data = await res.json();
+    const fanStatusEl = document.getElementById("fan-status");
+
+    if (data.fan_status === 1) {
+      fanStatusEl.innerHTML = '<span style="color:green; font-weight:bold;">Fan is ON ✔</span>';
+    } else {
+      fanStatusEl.innerHTML = '<span style="color:red; font-weight:bold;">Fan is OFF ✖</span>';
+    }
+  } catch (err) {
+    console.error("Fan fetch error:", err);
+  }
+}
 
 
 
