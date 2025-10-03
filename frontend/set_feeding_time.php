@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <button type="submit" class="btn btn-primary">Set Schedule</button>
 </form>
 
-<a href="dashboard.php" class="btn btn-secondary mt-3">Back to Dashboard</a>
+<a href="user-dashboard.php" class="btn btn-secondary mt-3">Back to Dashboard</a>
 </div>
 </body>
 </html>
