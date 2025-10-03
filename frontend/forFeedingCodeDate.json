@@ -1,0 +1,63 @@
+// Countdown for feeding
+document.getElementById("feeding-form").addEventListener("submit", function(e){
+    e.preventDefault(); // prevent normal form reload
+
+    const btn = document.getElementById("feeding-btn");
+    btn.style.display = "none"; // hide button
+
+    const statusEl = document.getElementById("scheduler-status");
+    statusEl.style.color = "green";
+
+    // Set countdown for 3 days
+    const nextFeedingDate = new Date();
+    nextFeedingDate.setDate(nextFeedingDate.getDate() + 3);
+
+    function sendDiscordAlert(message) {
+        const webhookURL = "https://discord.com/api/webhooks/1423648258718175353/KSxyHb61KFaDh8F1o-gTBXyOZ3vMkJYm8jWWoYSD7lSDTwrmALqUx045moHLhGnGiMQb";
+        fetch(webhookURL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content: message })
+        }).then(res => console.log("Discord alert sent"))
+          .catch(err => console.error("Error sending Discord alert:", err));
+    }
+
+    function updateCountdown() {
+        const now = new Date();
+        const diff = nextFeedingDate - now;
+
+        if (diff <= 0) {
+            statusEl.innerText = "Feeding is due today!";
+            statusEl.style.color = "red";
+            clearInterval(timer);
+            btn.style.display = "inline-block";
+
+            // Send alert to Discord
+            sendDiscordAlert("🐝 Feeding is due today! Please check your hive.");
+            
+            // Optional: show browser alert
+            alert("Feeding is due today! Check your hive.");
+            return;
+        }
+
+        const days = Math.floor(diff / (1000*60*60*24));
+        const hours = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const seconds = Math.floor((diff % (1000*60)) / 1000);
+
+        statusEl.innerText = `Next feeding in ${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+
+    // AJAX submit to PHP to save JSON without reloading
+    fetch("", { 
+        method: "POST",
+        body: new FormData(this)
+    }).then(res => res.text()).then(data => {
+        console.log("Feeding saved to server.");
+    });
+});

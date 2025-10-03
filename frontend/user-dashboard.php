@@ -271,7 +271,11 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 
   <!-- Actions aligned to the right -->
+
   <div class="header-actions">
+    <a href="set_feeding_time.php" class="logout-btn">
+      <i class="bi bi-box-arrow-right"></i> Set Feeding Time
+    </a>
     <a href="user-profile.php" class="settings-btn">
       <i class="bi bi-person-fill"></i> Edit Profile
     </a>
@@ -359,6 +363,21 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 </div>
 
+
+
+<div class="row mb-2">
+  <div class="col">
+    <input type="number" id="feed-days" class="form-control" placeholder="Days" min="0" value="3">
+  </div>
+  <div class="col">
+    <input type="number" id="feed-hours" class="form-control" placeholder="Hours" min="0" max="23" value="0">
+  </div>
+  <div class="col">
+    <input type="number" id="feed-minutes" class="form-control" placeholder="Minutes" min="0" max="59" value="0">
+  </div>
+</div>
+
+
 <div class="card">
   <h5 class="card-title"><i class="bi bi-calendar-event"></i> Bee Feeding Scheduler</h5>
   <div id="scheduler-body">
@@ -379,14 +398,15 @@ canvas { margin-top:20px; height:120px !important; }
         <p id="scheduler-status">Next feeding: Today</p>
       <?php endif; ?>
 
-      <form method="post">
-        <button type="submit" name="done" class="btn btn-warning mt-2">Mark Feeding Done</button>
+      <form method="post" id="feeding-form">
+        <button type="submit" name="done" id="feeding-btn" class="btn btn-warning mt-2">Mark Feeding Done</button>
       </form>
 
       <?php if (!empty($message)) echo "<p style='color:green;'>$message</p>"; ?>
     <?php endif; ?>
   </div>
 </div>
+
 
 
 
@@ -523,6 +543,62 @@ async function reloadFan() {
     console.error("Fan fetch error:", err);
   }
 }
+
+// Fetch saved feeding time from JSON
+let nextFeedingDate = new Date();
+fetch('next_feeding.json')
+  .then(res => res.json())
+  .then(data => {
+      let days = parseInt(data.days || 3);
+      let hours = parseInt(data.hours || 0);
+      let minutes = parseInt(data.minutes || 0);
+
+      nextFeedingDate.setTime(
+          nextFeedingDate.getTime() 
+          + days*24*60*60*1000 
+          + hours*60*60*1000 
+          + minutes*60*1000
+      );
+
+      startCountdown(nextFeedingDate);
+  });
+
+// Countdown function
+function startCountdown(targetDate) {
+    const statusEl = document.getElementById("scheduler-status");
+    const btn = document.getElementById("feeding-btn");
+
+    function updateCountdown() {
+        const now = new Date();
+        const diff = targetDate - now;
+
+        if (diff <= 0) {
+            statusEl.innerText = "Feeding is due now!";
+            statusEl.style.color = "red";
+            clearInterval(timer);
+            btn.style.display = "inline-block";
+            alert("Feeding is due now!");
+            return;
+        }
+
+        const d = Math.floor(diff / (1000*60*60*24));
+        const h = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+        const m = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const s = Math.floor((diff % (1000*60)) / 1000);
+
+        statusEl.innerText = `Next feeding in ${d}d ${h}h ${m}m ${s}s`;
+    }
+
+    updateCountdown();
+    const timer = setInterval(updateCountdown, 1000);
+}
+
+
+
+
+
+
+
 
 
 
