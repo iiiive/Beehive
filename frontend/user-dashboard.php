@@ -604,6 +604,7 @@ async function startFeedingCountdown(){
     feedDoneBtn.style.display = "none";
     return;
   }
+ let alerted = false; // new flag at top of your script
 
  function updateCountdown(){
   const now = new Date().getTime();
@@ -614,7 +615,22 @@ async function startFeedingCountdown(){
     countdownEl.innerText = "";
     feedingStatusEl.innerText = "Time to feed! 🐝";
     feedDoneBtn.style.display = "inline-block"; // show button once
-        alert("🟢 It's time to feed the bees!"); // <-- alert here
+if (!alerted) {
+        alerted = true;
+
+        // Send webhook notification
+        fetch('FeedingDiscord.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ message: "🟢 It's time to feed the bees!" })
+        })
+        .then(res => res.json())
+        .then(data => console.log("Discord notified:", data))
+        .catch(err => console.error("Discord webhook error:", err));
+
+        // Optional browser alert
+        alert("🟢 It's time to feed the bees!");
+    }
 
     return;
 }

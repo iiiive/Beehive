@@ -1,19 +1,26 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $message = $_POST['message'] ?? 'No message';
+require_once "../config.php";
 
-    $webhookURL = "https://discord.com/api/webhooks/1423648258718175353/KSxyHb61KFaDh8F1o-gTBXyOZ3vMkJYm8jWWoYSD7lSDTwrmALqUx045moHLhGnGiMQb";
+// Discord webhook URL
+$webhookUrl = "https://discord.com/api/webhooks/1423648258718175353/KSxyHb61KFaDh8F1o-gTBXyOZ3vMkJYm8jWWoYSD7lSDTwrmALqUx045moHLhGnGiMQb";
 
-    $data = json_encode(["content" => $message]);
+// Get optional message from POST
+$message = $_POST['message'] ?? "🟢 It's time to feed the bees!";
 
-    $ch = curl_init($webhookURL);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
+// Prepare payload
+$payload = json_encode([
+    "content" => $message
+]);
 
-    echo $response;
-}
-?>
+// Send webhook
+$ch = curl_init($webhookUrl);
+curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, $payload);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+$response = curl_exec($ch);
+curl_close($ch);
+
+// Return response
+header('Content-Type: application/json');
+echo json_encode(['success' => true, 'response' => $response]);
