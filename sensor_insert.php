@@ -1,40 +1,17 @@
 <?php
-define('DB_SERVER', 'localhost');
-define('DB_USERNAME', 'root');
-define('DB_PASSWORD', '');
-define('DB_NAME', 'beemonitoring');
+require_once "config.php"; // adjust path
 
-// Create connection
-$link = mysqli_connect(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+$temperature = $_POST['temperature'];
+$humidity    = $_POST['humidity'];
+$weight      = $_POST['weight'];
+$fan_status  = $_POST['fan_status'];
 
-// Check connection
-if ($link === false) {
-    die("ERROR: Could not connect. " . mysqli_connect_error());
-}
+$sql = "INSERT INTO beehive_readings (temperature, humidity, weight, fan_status)
+        VALUES ('$temperature','$humidity','$weight','$fan_status')";
 
-if (isset($_POST['temp']) && isset($_POST['hum']) && isset($_POST['weight']) && isset($_POST['fan_status'])) {
-    $temp       = $_POST['temp'];
-    $hum        = $_POST['hum'];
-    $weight     = $_POST['weight'];
-    $fan_status = $_POST['fan_status']; // 0 or 1 from Arduino
-
-    // Insert data into database
-    $sql = "INSERT INTO beehive_readings (temperature, humidity, weight, fan_status) 
-            VALUES (?, ?, ?, ?)";
-    if ($stmt = mysqli_prepare($link, $sql)) {
-        // d = double/float, i = int
-        mysqli_stmt_bind_param($stmt, "dddi", $temp, $hum, $weight, $fan_status);
-
-        if (mysqli_stmt_execute($stmt)) {
-            echo "Data saved successfully";
-        } else {
-            echo "Error inserting data: " . mysqli_error($link);
-        }
-        mysqli_stmt_close($stmt);
-    }
+if (mysqli_query($link, $sql)) {
+    echo "Data inserted successfully";
 } else {
-    echo "Error: Missing data (temp, hum, weight, fan_status)";
+    echo "Error: " . mysqli_error($link);
 }
-
-mysqli_close($link);
 ?>
