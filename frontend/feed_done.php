@@ -1,30 +1,29 @@
 <?php
 require_once "../config.php";
 session_start();
-date_default_timezone_set('Asia/Manila'); // make sure times are PH-local
+date_default_timezone_set('Asia/Manila');
 
-$user_id = $_SESSION['user_id'] ?? 1; // current logged-in user
-$fed_by_user_id = $user_id; // the one who fed the bees
+$user_id = $_SESSION['user_id'] ?? 1;
+$fed_by_user_id = $user_id;
 
-// Get the current feeding schedule for this user
-$sql = "SELECT * FROM bee_feeding_schedule WHERE user_id=$user_id LIMIT 1";
+// Fetch last feeding interval for this user (if any)
+$sql = "SELECT interval_minutes FROM bee_feeding_schedule WHERE user_id = $user_id ORDER BY id DESC LIMIT 1";
 $res = mysqli_query($link, $sql);
-$feeding = mysqli_fetch_assoc($res);
+$row = mysqli_fetch_assoc($res);
 
-if ($feeding) {
-    // Get feeding interval (default 30 mins if not set)
-    $interval = $feeding['interval_minutes'] ?? 1;
+$interval = $row['interval_minutes'] ?? 30; // default 30 mins
+$next_feed = date('Y-m-d H:i:s', strtotime("+$interval minutes"));
 
-    // Calculate the new next_feed time based on current time
-    $next_feed = date('Y-m-d H:i:s', strtotime("+$interval minutes"));
+// ✅ Insert new record (keep history)
+$insert_sql = "
+    INSERT INTO bee_feeding_schedule (user_id, fed_by_user_id, last_fed, fed_at, next_feed, interval_minutes)
+    VALUES ($user_id, $fed_by_user_id, NOW(), NOW(), '$next_feed', $interval)
+";
 
-    // ✅ Insert new feeding record instead of updating
-    $insert_sql = "
-        INSERT INTO bee_feeding_schedule (user_id, fed_by_user_id, last_fed, fed_at, next_feed, interval_minutes)
-        VALUES ($user_id, $fed_by_user_id, NOW(), NOW(), '$next_feed', $interval)
-    ";
-
-    mysqli_query($link, $insert_sql);
+if (mysqli_query($link, $insert_sql)) {
+    echo "Feeding recorded successfully.";
+} else {
+    echo "Error: " . mysqli_error($link);
 }
 
 mysqli_close($link);
