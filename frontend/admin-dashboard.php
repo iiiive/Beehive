@@ -374,35 +374,15 @@ Feeding Schedule</a>
 
   
 <div class="card">
-  <h5 class="card-title"><i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Bee Feeding Status</h5>
+  <h5 class="card-title">
+    <i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Bee Feeding Status
+  </h5>
 
   <div id="feeding-status-list">
-    <?php while ($feed = mysqli_fetch_assoc($result)): 
-      $now = new DateTime();
-      $next_feed = new DateTime($feed['next_feed']);
-      $is_hungry = $next_feed <= $now;
-    ?>
-      <div class="feed-card mb-3 p-3 rounded-3" 
-           style="background-color: <?= $is_hungry ? '#ffe6e6' : '#e8fce8' ?>;">
-
-        <h6><i class="bi bi-person-fill"></i> <?= htmlspecialchars($feed['username']) ?></h6>
-
-        <?php if ($is_hungry): ?>
-          <p class="text-danger fw-bold">🐝 Bees are hungry! Feed them.</p>
-        <?php else: ?>
-          <p class="text-success fw-bold">🍯 Bees are eating.</p>
-          <p>Next feeding in: 
-            <span class="countdown" data-nextfeed="<?= $feed['next_feed'] ?>"></span>
-          </p>
-        <?php endif; ?>
-
-        <small>
-          Last fed: <?= $feed['last_fed'] ? $feed['last_fed'] : 'Not yet fed' ?><br>
-          Next feed: <?= $feed['next_feed'] ?>
-        </small>
-      </div>
-    <?php endwhile; ?>
+    <!-- Live data from JS -->
   </div>
+</div>
+
 </div>
 
 </div>
@@ -551,29 +531,66 @@ setInterval(reloadHistory, 5000);
 
 
 
-function updateCountdowns() {
-  document.querySelectorAll('.countdown').forEach(el => {
-    const nextFeedTime = new Date(el.dataset.nextfeed).getTime();
+function fetchFeedingStatus() {
+  fetch('get_feeding_status.php')
+    .then(response => response.json())
+    .then(data => {
+      const now = new Date();
+      const nextFeed = new Date(data.next_feed);
+      const isHungry = nextFeed <= now;
+
+      const bgColor = isHungry ? '#ffe6e6' : '#e8fce8';
+      const statusText = isHungry
+        ? '<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them.</p>'
+        : `<p class="text-success fw-bold">🍯 Bees are eating.</p>
+           <p>Next feeding in: <span class="countdown"></span></p>`;
+
+      document.getElementById('feeding-status-list').innerHTML = `
+        <div class="feed-card mb-3 p-3 rounded-3" style="background-color:${bgColor};">
+          <h6><i class="bi bi-person-fill"></i> ${data.username}</h6>
+          ${statusText}
+          <small>
+            Last fed: ${data.last_fed || 'Not yet fed'}<br>
+            Next feed: ${data.next_feed}
+          </small>
+        </div>
+      `;
+
+      if (!isHungry) {
+        updateCountdown(data.next_feed);
+      }
+    })
+    .catch(err => console.error('Fetch error:', err));
+}
+
+function updateCountdown(nextFeedTime) {
+  const countdownElem = document.querySelector('.countdown');
+  if (!countdownElem) return;
+
+  const targetTime = new Date(nextFeedTime).getTime();
+
+  const interval = setInterval(() => {
     const now = new Date().getTime();
-    const diff = nextFeedTime - now;
+    const diff = targetTime - now;
 
     if (diff <= 0) {
-      const card = el.closest('.feed-card');
-      card.style.backgroundColor = '#ffe6e6';
-      card.querySelector('p.fw-bold').innerText = '🐝 Bees are hungry! Feed them.';
-      el.innerText = '';
+      clearInterval(interval);
+      countdownElem.textContent = "Time to feed the bees!";
       return;
     }
 
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-    el.innerText = `${hours}h ${minutes}m ${seconds}s`;
-  });
+    const hrs = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+    countdownElem.textContent = `${hrs}h ${mins}m ${secs}s`;
+  }, 1000);
 }
 
-updateCountdowns();
-setInterval(updateCountdowns, 1000);
+// Auto-refresh every 1 second
+setInterval(fetchFeedingStatus, 1000);
+fetchFeedingStatus(); // Initial load
+
 
 </script>
 
