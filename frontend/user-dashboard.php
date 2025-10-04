@@ -712,7 +712,7 @@ function updateDisplay(data) {
       feedDoneBtn.style.display = "inline-block";
       countdownEl.innerText = "";
 
-
+        alert("The bees are hungry! Time to feed them 🍯");
         fetch("check_feeding_status.php");
 
         
