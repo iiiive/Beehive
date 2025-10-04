@@ -133,6 +133,11 @@ h2 {
                 <img src="images/admin.png" alt="Admin Icon">
                 <div class="label">Admin Information</div>
             </a>
+
+            <a href="../feedindex.php" class="card-link">
+                <img src="images/admin.png" alt="Admin Icon">
+                <div class="label">Bee Feeding Information</div>
+            </a>
         </div>
 
         <a href="admin-dashboard.php" class="back-btn">⬅ Back</a>
