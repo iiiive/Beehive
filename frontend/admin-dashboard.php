@@ -315,7 +315,8 @@ canvas { margin-top:20px; height:120px !important; }
     <span>HiveCare - Admin Dashboard</span>
   </div>
   <div>
-        <a href="admin-feedsched.php" class="settings-btn"><i class="bi bi-database"></i>Feeding Schedule</a>
+        <a href="admin-feedsched.php" class="settings-btn"><i class="bi bi-calendar-event"></i>
+Feeding Schedule</a>
 
     <a href="database_access.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
     <a href="manage_users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Add Users</a>
