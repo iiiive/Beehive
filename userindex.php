@@ -285,6 +285,8 @@ $total_pages = ceil($total_rows / $limit);
                                 echo "<th>Last Name</th>";
                                 echo "<th>Username</th>";
                                 echo "<th>Email Address</th>";
+                                echo "<th>Address</th>";
+                                echo "<th>Birthday</th>";
                                 echo "<th>Contact</th>";
                                 echo "<th>Created At</th>";
                                 echo "<th>Options</th>";
@@ -298,6 +300,8 @@ $total_pages = ceil($total_rows / $limit);
     echo "<td>" . $row['lastname'] . "</td>";
     echo "<td>" . $row['username'] . "</td>";
     echo "<td>" . $row['email'] . "</td>";
+    echo "<td>" . $row['address'] . "</td>";
+    echo "<td>" . $row['birthday'] . "</td>";
     echo "<td>" . $row['contact_number'] . "</td>";
     echo "<td>" . $row['created_at'] . "</td>";
     echo "<td>
