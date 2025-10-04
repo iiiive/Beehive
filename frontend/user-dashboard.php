@@ -316,6 +316,83 @@ canvas { margin-top:20px; height:120px !important; }
     min-width: 100px;
   }
 }
+/* Feeding Scheduler Custom Design */
+.feeding-card {
+  background: linear-gradient(145deg, #FFF8DC, #f7d36c);
+  border-radius: 25px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Honey drip accent on top */
+.feeding-card::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: radial-gradient(circle at 10% 30%, #ffd93d, transparent 50%),
+              radial-gradient(circle at 30% 10%, #ffcc00, transparent 50%),
+              radial-gradient(circle at 60% 30%, #ffb703, transparent 50%),
+              radial-gradient(circle at 90% 20%, #fcbf49, transparent 50%);
+  opacity: 0.7;
+  animation: honeyMove 5s infinite linear;
+}
+
+@keyframes honeyMove {
+  from { background-position: 0 0, 20px 0, 40px 0, 60px 0; }
+  to { background-position: 60px 0, 80px 0, 100px 0, 120px 0; }
+}
+
+/* Countdown text styling */
+.countdown-container {
+  margin-top: 10px;
+}
+
+.countdown-text {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #4B2E1E;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+  display: block;
+  margin-top: 10px;
+}
+
+/* Feed Done Button */
+.feed-btn {
+  background: linear-gradient(145deg, #FFD93D, #E8C547);
+  border: none;
+  color: #4B2E1E;
+  padding: 12px 25px;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 15px;
+  margin-top: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.feed-btn:hover {
+  background: linear-gradient(145deg, #E8C547, #FFD93D);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+/* Status bubble */
+#feeding-status {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
 
 </style>
 </head>
@@ -331,7 +408,7 @@ canvas { margin-top:20px; height:120px !important; }
 
   <div class="header-actions">
     <a href="set_feeding_time.php" class="logout-btn">
-      <i class="bi bi-box-arrow-right"></i> Set Feeding Time
+      <i class="bi bi-calendar-event"></i> Set Feeding Time
     </a>
     <a href="user-profile.php" class="settings-btn">
       <i class="bi bi-person-fill"></i> Edit Profile
@@ -386,16 +463,21 @@ canvas { margin-top:20px; height:120px !important; }
 
   <!-- Feeding Scheduler Card -->
 <!-- Feeding Scheduler Card -->
-<div class="card">
-  <h5 class="card-title"><i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Feeding Scheduler</h5>
-  
+<div class="card feeding-card">
+  <h5 class="card-title">
+    <i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Feeding Scheduler
+  </h5>
+
   <div id="feeding-area">
     <div id="feeding-status" class="status-good"></div>
-    <span id="countdown" class="value mt-2"></span>
-    <button id="feed-done-btn" class="status-good mt-2" style="display:none;">Feed Done</button>
+    <div class="countdown-container">
+      <span id="countdown" class="countdown-text"></span>
+    </div>
+    <button id="feed-done-btn" class="feed-btn" style="display:none;">
+      <i class="bi bi-check-circle"></i> Feed Done
+    </button>
   </div>
 </div>
-
 
 </div>
 
