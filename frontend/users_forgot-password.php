@@ -103,9 +103,32 @@ button:hover { background:#cdbd49; color:#000; }
 .message { margin-top:15px; font-weight:bold; }
 .message.success { color: lightgreen; }
 .message.error { color:#ff8080; }
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  background: #e7d25bff;
+  border-radius: 20px;
+  text-decoration: none;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+  transition: background 0.3s ease, transform 0.2s ease;
+  z-index: 1000;
+}
+.back-btn:hover {
+  background: #e7d25bff;
+  color: #333;
+  transform: scale(1.05);
+}
 </style>
 </head>
 <body>
+    <a href="user-login.php" class="back-btn">⬅ Back</a>
+
 <div class="container">
 <h2>Forgot Password</h2>
 <form method="POST">
