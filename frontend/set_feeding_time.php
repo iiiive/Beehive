@@ -47,7 +47,8 @@ body::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png");
+background: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png") 
+  no-repeat center center / cover;
   filter: brightness(25%);
   z-index: -1;
 }
