@@ -47,6 +47,20 @@ while ($row = mysqli_fetch_assoc($result_last5)) {
 
 // Remove the very latest row (first row in DESC order)
 array_shift($history_rows);
+$sql_feed_all = "
+    SELECT 
+        bfs.*, 
+        u.username
+    FROM bee_feeding_schedule bfs
+    LEFT JOIN users u ON bfs.user_id = u.user_id
+    ORDER BY bfs.next_feed ASC
+";
+$result_feed_all = mysqli_query($link, $sql_feed_all);
+
+$feed_schedules = [];
+while ($row = mysqli_fetch_assoc($result_feed_all)) {
+    $feed_schedules[] = $row;
+}
 
 mysqli_close($link);
 ?>
@@ -364,6 +378,32 @@ canvas { margin-top:20px; height:120px !important; }
   <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
 </div>
   </div>
+
+  <div class="card">
+  <h5 class="card-title"><i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Bee Feeding Overview</h5>
+  <div id="feeding-list">
+    <?php foreach ($feed_schedules as $feed): 
+      $now = new DateTime();
+      $next_feed = new DateTime($feed['next_feed']);
+      $diff = $next_feed->getTimestamp() - $now->getTimestamp();
+      $needs_feeding = $diff <= 0;
+    ?>
+      <div class="feed-item mb-3 p-3" style="border-radius:15px; background:<?= $needs_feeding ? '#ffcccb' : '#dfffcf' ?>;">
+        <h6><i class="bi bi-person-fill"></i> <?= htmlspecialchars($feed['username']) ?></h6>
+        <p>
+          <?= $needs_feeding 
+            ? "<strong style='color:red;'>Time to feed! 🐝</strong>" 
+            : "Next feed in: <span class='countdown' data-nextfeed='{$feed['next_feed']}'></span>" ?>
+        </p>
+        <small>
+          Last fed: <?= $feed['last_fed'] ? $feed['last_fed'] : 'Not yet fed' ?><br>
+          Fed by: <?= $feed['fed_by_user_id'] ? "User ID #".$feed['fed_by_user_id'] : '—' ?>
+        </small>
+      </div>
+    <?php endforeach; ?>
+  </div>
+</div>
+
 </div>
 
 
