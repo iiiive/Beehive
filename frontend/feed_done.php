@@ -18,18 +18,13 @@ if ($feeding) {
     // Calculate the new next_feed time based on current time
     $next_feed = date('Y-m-d H:i:s', strtotime("+$interval minutes"));
 
-    // Update feeding info
-    $update_sql = "
-        UPDATE bee_feeding_schedule 
-        SET 
-            last_fed = NOW(),
-            fed_at = NOW(),
-            fed_by_user_id = $fed_by_user_id,
-            next_feed = '$next_feed'
-        WHERE user_id = $user_id
+    // ✅ Insert new feeding record instead of updating
+    $insert_sql = "
+        INSERT INTO bee_feeding_schedule (user_id, fed_by_user_id, last_fed, fed_at, next_feed, interval_minutes)
+        VALUES ($user_id, $fed_by_user_id, NOW(), NOW(), '$next_feed', $interval)
     ";
 
-    mysqli_query($link, $update_sql);
+    mysqli_query($link, $insert_sql);
 }
 
 mysqli_close($link);
