@@ -662,98 +662,85 @@ async function reloadFan() {
 }
 
 
-
-const feedArea = document.getElementById("feeding-area");
 const feedingStatusEl = document.getElementById("feeding-status");
-let countdownEl = document.getElementById("countdown");
-let feedDoneBtn = document.getElementById("feed-done-btn");
-let timerInterval;
+const countdownEl = document.getElementById("countdown");
+const feedDoneBtn = document.getElementById("feed-done-btn");
 
-// Function to fetch next_feed from DB
-async function fetchNextFeed(){
-  const res = await fetch('get_next_feed.php');
+let timerInterval;
+let nextFeedTime = null;
+let lastFetchedFeed = null;
+
+// Function to fetch current feeding schedule every 1 second
+async function fetchFeedingData() {
+  const res = await fetch("get_next_feed.php");
   const data = await res.json();
-  return data.next_feed ? new Date(data.next_feed).getTime() : null;
+
+  // Only update countdown if data changed
+  if (JSON.stringify(data) !== JSON.stringify(lastFetchedFeed)) {
+    lastFetchedFeed = data;
+    nextFeedTime = data.next_feed ? new Date(data.next_feed).getTime() : null;
+    updateDisplay(data);
+  }
 }
 
-// Start countdown
-async function startFeedingCountdown(){
-  const nextFeedTime = await fetchNextFeed();
-  if(!nextFeedTime){
-    feedingStatusEl.innerText = "No schedule set";
+// Function to update display
+function updateDisplay(data) {
+  clearInterval(timerInterval);
+  
+  const now = new Date().getTime();
+  const distance = data.next_feed ? new Date(data.next_feed).getTime() - now : 0;
+
+  if (distance <= 0) {
+    feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
     feedingStatusEl.className = "status-bad";
+    feedDoneBtn.style.display = "inline-block";
     countdownEl.innerText = "";
-    feedDoneBtn.style.display = "none";
     return;
   }
- let alerted = false; // new flag at top of your script
 
- function updateCountdown(){
-  const now = new Date().getTime();
-  const distance = nextFeedTime - now;
+  feedDoneBtn.style.display = "none"; // hide button when countdown active
+  feedingStatusEl.innerText = "🍯 Bees are eating";
 
- if (distance <= 0) {
-    clearInterval(timerInterval); // stop the timer
-    countdownEl.innerText = "";
-    feedingStatusEl.innerText = "Time to feed! 🐝";
-    feedDoneBtn.style.display = "inline-block"; // show button once
-if (!alerted) {
-        alerted = true;
+  // Start countdown timer
+  function updateCountdown() {
+    const now = new Date().getTime();
+    const dist = new Date(data.next_feed).getTime() - now;
 
-        // Send webhook notification
-        fetch('FeedingDiscord.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams({ message: "🟢 It's time to feed the bees!" })
-        })
-        .then(res => res.json())
-        .then(data => console.log("Discord notified:", data))
-        .catch(err => console.error("Discord webhook error:", err));
-
-        // Optional browser alert
-        alert("🟢 It's time to feed the bees!");
+    if (dist <= 0) {
+      clearInterval(timerInterval);
+      feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
+      feedDoneBtn.style.display = "inline-block";
+      countdownEl.innerText = "";
+      return;
     }
 
-    return;
-}
- 
+    const days = Math.floor(dist / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((dist % (1000 * 60)) / 1000);
 
-  // Show countdown
-  const days = Math.floor(distance/(1000*60*60*24));
-  const hours = Math.floor((distance%(1000*60*60*24))/(1000*60*60));
-  const minutes = Math.floor((distance%(1000*60*60))/(1000*60));
-  const seconds = Math.floor((distance%(1000*60))/1000);
-
-  countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  feedingStatusEl.innerText = "Next feed in:";
-  feedingStatusEl.className = "status-good";
-  feedDoneBtn.style.display = "none"; // hide button until feed time
-}
-
+    countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
 
   updateCountdown();
   timerInterval = setInterval(updateCountdown, 1000);
 }
 
-// Feed Done button click
+// Feed Done button
 feedDoneBtn.addEventListener("click", async () => {
-  await fetch('feed_done.php', { method:'POST' });
-  startFeedingCountdown(); // restart countdown immediately
+  feedDoneBtn.disabled = true;
+  await fetch("feed_done.php", { method: "POST" });
+  await fetchFeedingData(); // immediately refresh data
+  feedDoneBtn.disabled = false;
 });
 
-// Initialize
-startFeedingCountdown();
+// Poll every 1 second to sync between users
+setInterval(fetchFeedingData, 1000);
+
+// Initial load
+fetchFeedingData();
 
 
-feedDoneBtn.addEventListener("click", async () => {
-  // Call feed_done.php
-  await fetch('feed_done.php', { method:'POST' });
-
-  // Wait a short time to ensure DB is updated
-  setTimeout(() => {
-    startFeedingCountdown(); // restart countdown
-  }, 200); // 200ms delay
-});
 
 
 
