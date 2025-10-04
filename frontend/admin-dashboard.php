@@ -47,23 +47,15 @@ while ($row = mysqli_fetch_assoc($result_last5)) {
 
 // Remove the very latest row (first row in DESC order)
 array_shift($history_rows);
-$sql_feed_all = "
-    SELECT 
-        bfs.*, 
-        u.username
+$sql = "
+    SELECT bfs.*, u.username
     FROM bee_feeding_schedule bfs
     LEFT JOIN users u ON bfs.user_id = u.user_id
-    ORDER BY bfs.next_feed ASC
 ";
-$result_feed_all = mysqli_query($link, $sql_feed_all);
-
-$feed_schedules = [];
-while ($row = mysqli_fetch_assoc($result_feed_all)) {
-    $feed_schedules[] = $row;
-}
-
-mysqli_close($link);
+$result = mysqli_query($link, $sql);
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -380,28 +372,36 @@ Feeding Schedule</a>
 </div>
   </div>
 
-  <div class="card">
-  <h5 class="card-title"><i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Bee Feeding Overview</h5>
-  <div id="feeding-list">
-    <?php foreach ($feed_schedules as $feed): 
+  
+<div class="card">
+  <h5 class="card-title"><i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Bee Feeding Status</h5>
+
+  <div id="feeding-status-list">
+    <?php while ($feed = mysqli_fetch_assoc($result)): 
       $now = new DateTime();
       $next_feed = new DateTime($feed['next_feed']);
-      $diff = $next_feed->getTimestamp() - $now->getTimestamp();
-      $needs_feeding = $diff <= 0;
+      $is_hungry = $next_feed <= $now;
     ?>
-      <div class="feed-item mb-3 p-3" style="border-radius:15px; background:<?= $needs_feeding ? '#ffcccb' : '#dfffcf' ?>;">
+      <div class="feed-card mb-3 p-3 rounded-3" 
+           style="background-color: <?= $is_hungry ? '#ffe6e6' : '#e8fce8' ?>;">
+
         <h6><i class="bi bi-person-fill"></i> <?= htmlspecialchars($feed['username']) ?></h6>
-        <p>
-          <?= $needs_feeding 
-            ? "<strong style='color:red;'>Time to feed! 🐝</strong>" 
-            : "Next feed in: <span class='countdown' data-nextfeed='{$feed['next_feed']}'></span>" ?>
-        </p>
+
+        <?php if ($is_hungry): ?>
+          <p class="text-danger fw-bold">🐝 Bees are hungry! Feed them.</p>
+        <?php else: ?>
+          <p class="text-success fw-bold">🍯 Bees are eating.</p>
+          <p>Next feeding in: 
+            <span class="countdown" data-nextfeed="<?= $feed['next_feed'] ?>"></span>
+          </p>
+        <?php endif; ?>
+
         <small>
           Last fed: <?= $feed['last_fed'] ? $feed['last_fed'] : 'Not yet fed' ?><br>
-          Fed by: <?= $feed['fed_by_user_id'] ? "User ID #".$feed['fed_by_user_id'] : '—' ?>
+          Next feed: <?= $feed['next_feed'] ?>
         </small>
       </div>
-    <?php endforeach; ?>
+    <?php endwhile; ?>
   </div>
 </div>
 
@@ -547,6 +547,34 @@ reloadValues();
 reloadHistory();
 setInterval(reloadValues, 5000);
 setInterval(reloadHistory, 5000);
+
+
+
+
+function updateCountdowns() {
+  document.querySelectorAll('.countdown').forEach(el => {
+    const nextFeedTime = new Date(el.dataset.nextfeed).getTime();
+    const now = new Date().getTime();
+    const diff = nextFeedTime - now;
+
+    if (diff <= 0) {
+      const card = el.closest('.feed-card');
+      card.style.backgroundColor = '#ffe6e6';
+      card.querySelector('p.fw-bold').innerText = '🐝 Bees are hungry! Feed them.';
+      el.innerText = '';
+      return;
+    }
+
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    el.innerText = `${hours}h ${minutes}m ${seconds}s`;
+  });
+}
+
+updateCountdowns();
+setInterval(updateCountdowns, 1000);
+
 </script>
 
 </body>
