@@ -657,25 +657,31 @@ function fetchFeedingStatus() {
         </div>
       `;
 
-      if (!isHungry) updateCountdown(data.next_feed);
+      // ✅ Always start/update the countdown when not hungry
+      if (!isHungry && data.next_feed) {
+        updateCountdown(data.next_feed);
+      }
     })
     .catch(err => console.error('Fetch error:', err));
 }
 
+let countdownInterval;
 
 function updateCountdown(nextFeedTime) {
   const countdownElem = document.querySelector('.countdown');
   if (!countdownElem) return;
 
   const targetTime = new Date(nextFeedTime).getTime();
+  clearInterval(countdownInterval); // 🧹 stop previous countdown
 
-  const interval = setInterval(() => {
+  countdownInterval = setInterval(() => {
     const now = new Date().getTime();
     const diff = targetTime - now;
 
     if (diff <= 0) {
-      clearInterval(interval);
-      countdownElem.textContent = "Time to feed the bees!";
+      clearInterval(countdownInterval);
+      countdownElem.textContent = "🐝 Time to feed the bees!";
+      // Optional: trigger Discord webhook here if you like
       return;
     }
 
@@ -684,7 +690,7 @@ function updateCountdown(nextFeedTime) {
     const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
     countdownElem.textContent = `${hrs}h ${mins}m ${secs}s`;
-  }, 1000);
+  }, 1);
 }
 
 // Auto-refresh every 1 second
