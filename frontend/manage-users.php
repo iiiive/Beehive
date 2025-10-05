@@ -2,13 +2,11 @@
 require_once "../config.php";
 session_start();
 
-// Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in']) || $_SESSION['admin_logged_in'] !== true) {
     header("location: admin-login.php");
     exit;
 }
 
-// === Handle deactivate request ===
 if (isset($_GET['delete_id'])) {
     $user_id = intval($_GET['delete_id']);
     $sql = "UPDATE users SET status = 'inactive' WHERE user_id = ?";
@@ -20,7 +18,6 @@ if (isset($_GET['delete_id'])) {
     exit;
 }
 
-// === Handle reactivate request ===
 if (isset($_GET['activate_id'])) {
     $user_id = intval($_GET['activate_id']);
     $sql = "UPDATE users SET status = 'active' WHERE user_id = ?";
@@ -32,7 +29,6 @@ if (isset($_GET['activate_id'])) {
     exit;
 }
 
-// === Handle permanent delete request ===
 if (isset($_GET['permanent_delete_id'])) {
     $user_id = intval($_GET['permanent_delete_id']);
     $sql = "DELETE FROM users WHERE user_id = ?";
@@ -44,7 +40,6 @@ if (isset($_GET['permanent_delete_id'])) {
     exit;
 }
 
-// === Fetch all users ===
 $sql = "SELECT user_id, firstname, lastname, username, email, status, created_at 
         FROM users ORDER BY created_at DESC";
 $result = mysqli_query($link, $sql);
@@ -52,76 +47,253 @@ $result = mysqli_query($link, $sql);
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Manage Users</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<meta charset="UTF-8">
+<title>Manage Users</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Raleway', sans-serif;
+}
+body {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+  position: relative;
+  color: white;
+}
+body::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('images/profile_addusers.jpeg') no-repeat center center/cover;
+  filter: brightness(25%);
+  z-index: -1;
+}
+.container {
+  width: 90%;
+  max-width: 1100px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0px 0px 24px #ceae1fff;
+  padding: 30px;
+  animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+h2 {
+  text-align: center;
+  color: #e7d25bff;
+  font-size: 28px;
+  margin-bottom: 25px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+.table th, .table td {
+  padding: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.table th {
+  background: rgba(255,255,255,0.15);
+  color: #e7d25bff;
+}
+.table tr:hover {
+  background: rgba(255,255,255,0.1);
+  transition: 0.3s;
+}
+
+/* 🔹 Customizable Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 2px;
+  min-width: 100px;
+  text-decoration: none;
+  color: white;
+}
+.btn i {
+  font-size: 1rem;
+}
+
+/* 🔸 Custom Colors — you can freely edit these */
+.btn-add {
+  background: #47300cff; /* gold */
+}
+.btn-add:hover {
+  background: #d4aa2a;
+  transform: scale(1.05);
+}
+
+.btn-deactivate {
+  background: #74512D; /* orange */
+}
+.btn-deactivate:hover {
+  background: #cf6e1a;
+  transform: scale(1.05);
+}
+
+.btn-reactivate {
+  background: #27ae60; /* green */
+}
+.btn-reactivate:hover {
+  background: #219150;
+  transform: scale(1.05);
+}
+
+.btn-delete {
+  background: #532d28ff; /* red */
+}
+.btn-delete:hover {
+  background: #c0392b;
+  transform: scale(1.05);
+}
+
+/* Back Button */
+.back-btn {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #333;
+  background: #e7d25bff;
+  border-radius: 20px;
+  text-decoration: none;
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+.back-btn:hover {
+  background: #cdbd49;
+  transform: scale(1.05);
+}
+
+/* Badges */
+.badge {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+.bg-success { background: #4CAF50; color: white; }
+.bg-secondary { background: #aaa; color: black; }
+
+.alert {
+  text-align: center;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-radius: 10px;
+}
+.alert-warning { color: #e7d25bff; }
+.alert-success { color: lightgreen; }
+.alert-danger { color: #ff7b7b; }
+
+.table-responsive {
+  overflow-x: auto;
+}
+@media (max-width: 768px) {
+  .container { padding: 15px; }
+  table { font-size: 0.9rem; }
+  h2 { font-size: 22px; }
+  .btn {
+    display: block;
+    width: 100%;
+    margin: 5px 0;
+  }
+  td:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+}
+</style>
 </head>
-<body class="bg-light">
-<div class="container mt-5">
-    <h2 class="mb-4 text-center">Manage Users</h2>
+<body>
 
-    <div class="mb-3 text-center">
-        <a href="manage_users.php" class="btn btn-warning">➕ Add Users</a>
-        <a href="admin-dashboard.php" class="btn btn-secondary">⬅ Back to Dashboard</a>
-    </div>
+<a href="admin-dashboard.php" class="back-btn"><i class="bi bi-arrow-left"></i> Back</a>
 
-    <?php if (isset($_GET['deleted'])): ?>
-        <div class="alert alert-warning">User account has been deactivated.</div>
-    <?php elseif (isset($_GET['activated'])): ?>
-        <div class="alert alert-success">User account has been reactivated.</div>
-    <?php elseif (isset($_GET['permadeleted'])): ?>
-        <div class="alert alert-danger">User account permanently deleted.</div>
-    <?php endif; ?>
+<div class="container">
+  <h2>Manage Users</h2>
 
-    <table class="table table-bordered table-striped text-center align-middle shadow-sm">
-        <thead class="table-dark">
-            <tr>
-                <th>ID</th>
-                <th>Full Name</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-        <?php while ($row = mysqli_fetch_assoc($result)): ?>
-            <tr>
-                <td><?= $row['user_id'] ?></td>
-                <td><?= htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) ?></td>
-                <td><?= htmlspecialchars($row['username']) ?></td>
-                <td><?= htmlspecialchars($row['email']) ?></td>
-                <td>
-                    <?php if ($row['status'] == 'active'): ?>
-                        <span class="badge bg-success">Active</span>
-                    <?php else: ?>
-                        <span class="badge bg-secondary">Inactive</span>
-                    <?php endif; ?>
-                </td>
-                <td><?= $row['created_at'] ?></td>
-                <td>
-                    <?php if ($row['status'] == 'active'): ?>
-                        <a href="?delete_id=<?= $row['user_id'] ?>" class="btn btn-warning btn-sm"
-                           onclick="return confirm('Deactivate this user?');">
-                           Deactivate
-                        </a>
-                    <?php else: ?>
-                        <a href="?activate_id=<?= $row['user_id'] ?>" class="btn btn-success btn-sm">
-                           Reactivate
-                        </a>
-                    <?php endif; ?>
-                    
-                    <a href="?permanent_delete_id=<?= $row['user_id'] ?>" 
-                       class="btn btn-danger btn-sm"
-                       onclick="return confirm('⚠️ WARNING: This will permanently delete the user. Continue?');">
-                       Delete
-                    </a>
-                </td>
-            </tr>
-        <?php endwhile; ?>
-        </tbody>
+  <?php if (isset($_GET['deleted'])): ?>
+    <div class="alert alert-warning">User account has been deactivated.</div>
+  <?php elseif (isset($_GET['activated'])): ?>
+    <div class="alert alert-success">User account has been reactivated.</div>
+  <?php elseif (isset($_GET['permadeleted'])): ?>
+    <div class="alert alert-danger">User account permanently deleted.</div>
+  <?php endif; ?>
+
+  <div class="text-center mb-3">
+    <a href="add_users.php" class="btn btn-add"><i class="bi bi-person-plus-fill"></i> Add Users</a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Full Name</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      <?php while ($row = mysqli_fetch_assoc($result)): ?>
+        <tr>
+          <td><?= $row['user_id'] ?></td>
+          <td><?= htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) ?></td>
+          <td><?= htmlspecialchars($row['username']) ?></td>
+          <td><?= htmlspecialchars($row['email']) ?></td>
+          <td>
+            <?php if ($row['status'] == 'active'): ?>
+              <span class="badge bg-success">Active</span>
+            <?php else: ?>
+              <span class="badge bg-secondary">Inactive</span>
+            <?php endif; ?>
+          </td>
+          <td><?= $row['created_at'] ?></td>
+          <td>
+            <?php if ($row['status'] == 'active'): ?>
+              <a href="?delete_id=<?= $row['user_id'] ?>" class="btn btn-deactivate btn-sm" onclick="return confirm('Deactivate this user?');">
+                <i class="bi bi-person-dash-fill"></i> Deactivate
+              </a>
+            <?php else: ?>
+              <a href="?activate_id=<?= $row['user_id'] ?>" class="btn btn-reactivate btn-sm">
+                <i class="bi bi-person-check-fill"></i> Reactivate
+              </a>
+            <?php endif; ?>
+            <a href="?permanent_delete_id=<?= $row['user_id'] ?>" class="btn btn-delete btn-sm" onclick="return confirm('⚠️ Permanently delete this user?');">
+              <i class="bi bi-trash3-fill"></i> Delete
+            </a>
+          </td>
+        </tr>
+      <?php endwhile; ?>
+      </tbody>
     </table>
+  </div>
 </div>
 </body>
 </html>

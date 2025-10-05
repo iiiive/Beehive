@@ -1,20 +1,12 @@
-<?php
-session_start();
-if (!isset($_SESSION['db_logged_in']) || $_SESSION['db_logged_in'] !== true) {
-    header("Location: db-login.php"); // redirect back to login if not logged in
-    exit;
-}
-?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Beehive Monitoring Databases</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-   <style>
-    body {
+
+    <style>
+      body {
     position: relative;
     font-family: 'Verdana', sans-serif;
     min-height: 100vh;
@@ -33,29 +25,35 @@ body::before {
     z-index: -1; /* push it behind content */
 }
 
-/* Wrapper */
 .wrapper {
-    margin: 50px auto;
+    margin: 0px auto; /* smaller top margin */
     text-align: center;
+    padding-top: 0px; /* adds small breathing room */
 }
 
 /* Title */
 h2 {
     font-family: 'Cursive', 'Brush Script MT', sans-serif;
-    font-size: 5rem;
-    margin-top: 100px;
-    margin-bottom: 80px;
+    font-size: 4.5rem;
+    margin-top: 10px;  /* reduced top space */
+    margin-bottom: 60px; /* smaller gap below */
     color: #FEDE16; /* School Bus Yellow */
     text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
 }
 
 /* Cards container */
 .container-cards {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 25px; /* spacing between cards */
     justify-content: center;
-    gap: 30px;
-    flex-wrap: wrap;
+    align-items: center;
+    place-items: center; /* centers content nicely */
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
 }
+
 
 /* Card style */
 .card-link {
@@ -95,6 +93,7 @@ h2 {
 .back-btn {
     display: inline-block;
     margin-top: 80px;
+    margin-left: 30px;
     padding: 12px 25px;
     font-size: 1rem;
     font-weight: bold;
@@ -111,17 +110,81 @@ h2 {
     color: #0B0806;
     transform: scale(1.05);
 }
+        /* RESPONSIVENESS */
+        @media (max-width: 992px) {
+            .wrapper {
+                margin-top: 80px;
+            }
 
-</style>
+            h2 {
+                font-size: 3.5rem;
+                margin-bottom: 40px;
+            }
+
+            .container-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 30px;
+            }
+
+            .card-link {
+                max-width: 220px;
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 3rem;
+                margin-bottom: 30px;
+            }
+
+            .container-cards {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            .card-link {
+                width: 80%;
+                height: 180px;
+            }
+
+            .card-link img {
+                width: 75px;
+                height: 75px;
+            }
+
+            .label {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h2 {
+                font-size: 2.5rem;
+            }
+
+            .back-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <a href="admin-dashboard.php" class="back-btn">⬅ Back</a>
+
     <div class="wrapper">
         <h2>HiveCare Monitoring Records</h2>
 
         <div class="container-cards">
             <a href="../index.php" class="card-link">
-                <img src="images/bee.png" alt="Beehive Icon">
+                <img src="images/bee2.png" alt="Beehive Icon">
                 <div class="label">Beehive Readings</div>
+            </a>
+
+            <a href="../feedindex.php" class="card-link">
+                <img src="images/info.png" alt="Feeding Icon">
+                <div class="label">Bee Feeding Information</div>
             </a>
 
             <a href="../userindex.php" class="card-link">
@@ -133,14 +196,7 @@ h2 {
                 <img src="images/admin.png" alt="Admin Icon">
                 <div class="label">Admin Information</div>
             </a>
-
-            <a href="../feedindex.php" class="card-link">
-                <img src="images/admin.png" alt="Admin Icon">
-                <div class="label">Bee Feeding Information</div>
-            </a>
         </div>
-
-        <a href="admin-dashboard.php" class="back-btn">⬅ Back</a>
     </div>
 </body>
 </html>
