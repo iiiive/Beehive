@@ -14,17 +14,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $result = mysqli_stmt_get_result($stmt);
 
     if ($row = mysqli_fetch_assoc($result)) {
-        if (password_verify($password, $row['password_hash'])) {
+    if (password_verify($password, $row['password_hash'])) {
+        // Check if the user is active
+        if ($row['status'] !== 'active') {
+            $error = "Your account has been deactivated by the administrator.";
+        } else {
+            // Proceed with login
             $_SESSION['user_id'] = $row['user_id'];
             $_SESSION['email']   = $row['email'];
             header("Location: user-dashboard.php");
             exit();
-        } else {
-            $error = "Invalid email or password.";
         }
     } else {
         $error = "Invalid email or password.";
     }
+} else {
+    $error = "Invalid email or password.";
+}
+
 }
 ?>
 

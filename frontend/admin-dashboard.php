@@ -334,7 +334,7 @@ canvas { margin-top:20px; height:120px !important; }
 Feeding History</a>
 
     <a href="database_access.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
-    <a href="manage_users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Add Users</a>
+    <a href="manage-users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Manage Users</a>
     <a href="admin-profile.php" class="settings-btn"><i class="bi bi-person-fill"></i> Edit Profile</a>
 
     <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
