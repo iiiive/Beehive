@@ -115,6 +115,8 @@ c0-4.97-4.03-9-9-9s-9 4.03-9 9
 </div>
 <button type="submit" class="btn"><i class="bi bi-search"></i> Search</button>
 <a href="bee_feeding_dashboard.php" class="btn"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+<a href="FeedingCSV.php" class="btn"><i class="bi bi-arrow-counterclockwise"></i> Get a Copy</a>
+
 </form>
 </div>
 

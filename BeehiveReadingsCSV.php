@@ -15,7 +15,7 @@ $output = fopen('php://output', 'w');
 
 
 
-fputcsv($output, ['Reading ID', 'Timestamp', 'Temperature', 'Humidity', 'Weight', 'Fan Status', 'Status']);
+fputcsv($output, fields: ['Reading ID', 'Timestamp', 'Temperature', 'Humidity', 'Weight', 'Fan Status', 'Status']);
 
 
 if ($result && mysqli_num_rows($result) > 0) {

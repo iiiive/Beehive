@@ -23,6 +23,10 @@ DHTesp dht;
 HX711 scale;
 LiquidCrystal_I2C lcd(0x27, 16, 2); // LCD I2C address
 
+// === ADJUST THIS after calibration ===
+float calibration_factor = 2000.0;  // Change this after testing
+// =====================================
+
 void setup() {
   Serial.begin(115200);
   pinMode(LED_PIN, OUTPUT);
@@ -44,25 +48,31 @@ void setup() {
 
   // Initialize sensors
   dht.setup(DHTPIN, DHTesp::DHT22);
+
+  // === HX711 Load Cell Setup ===
   scale.begin(LOADCELL_DOUT, LOADCELL_SCK);
-  scale.set_scale(0.420000); // calibration factor
-  scale.tare();
+  delay(1000);                    // 🕐 Allow HX711 to stabilize
+  scale.set_scale(calibration_factor); // 🧭 Use your calibrated value
+  scale.tare();                   // 🔄 Zero out the scale
+  Serial.println("HX711 initialized and tared!");
 }
 
 void loop() {
   // Read sensors
-  int h = dht.getHumidity();
   float t = dht.getTemperature();
+  float h = dht.getHumidity();
   float weight = 0;
   int fan_status = 0;
 
-  if (scale.wait_ready_timeout(100)) {
-    weight = scale.get_units(5);
+  // Safely read from HX711
+  if (scale.wait_ready_timeout(1000)) {
+    weight = scale.get_units(10); // average of 10 samples
   } else {
-    Serial.println("HX711 not detected!");
+    Serial.println("⚠️ HX711 not ready!");
     weight = 0;
   }
 
+  // LED / Fan control
   if (t > 32) {
     digitalWrite(LED_PIN, HIGH);
     fan_status = 1;
@@ -72,41 +82,40 @@ void loop() {
   }
 
   // Print locally
-  Serial.printf("Weight: %.2f kg, Temp: %.2f °C, Humidity: %d %%, Fan: %d\n",
-                weight/1000, t, h, fan_status);
+  Serial.printf("Weight: %.2f kg | Temp: %.2f °C | Humidity: %.1f %% | Fan: %d\n",
+                weight, t, h, fan_status);
 
+  // Display on LCD
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.printf("W:%.2fkg F:%d", weight/1000, fan_status);
+  lcd.printf("W:%.2fkg F:%d", weight, fan_status);
   lcd.setCursor(0, 1);
-  lcd.printf("T:%.1fC H:%d%%", t, h);
+  lcd.printf("T:%.1fC H:%.0f%%", t, h);
 
   // ====== Send to server ======
   if (WiFi.status() == WL_CONNECTED) {
     HTTPClient http;
     http.begin(serverName);
 
-    // Adjust to match your PHP script expected params
-    String postData = "temperature=" + String(t) +
-                      "&humidity=" + String(h) +
-                      "&weight=" + String(weight/1000) +
+    // Send data to PHP script
+    String postData = "temperature=" + String(t, 2) +
+                      "&humidity=" + String(h, 2) +
+                      "&weight=" + String(weight, 2) +
                       "&fan_status=" + String(fan_status);
 
     http.addHeader("Content-Type", "application/x-www-form-urlencoded");
     int httpResponseCode = http.POST(postData);
 
     if (httpResponseCode > 0) {
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-      Serial.println(http.getString());  // echo from PHP
+      Serial.printf("HTTP Response: %d → %s\n", httpResponseCode, http.getString().c_str());
     } else {
-      Serial.print("Error code: ");
-      Serial.println(httpResponseCode);
+      Serial.printf("HTTP Error: %d\n", httpResponseCode);
     }
+
     http.end();
   } else {
-    Serial.println("WiFi Disconnected!");
+    Serial.println("⚠️ WiFi Disconnected!");
   }
 
-  delay(5000); // every 5 seconds
+  delay(1000); // every 5 seconds
 }
