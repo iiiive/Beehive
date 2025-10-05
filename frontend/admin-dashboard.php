@@ -47,12 +47,21 @@ while ($row = mysqli_fetch_assoc($result_last5)) {
 
 // Remove the very latest row (first row in DESC order)
 array_shift($history_rows);
-$sql = "
-    SELECT bfs.*, u.username
-    FROM bee_feeding_schedule bfs
-    LEFT JOIN users u ON bfs.user_id = u.user_id
-";
+$sql = "SELECT u.username, f.last_fed, f.next_feed
+        FROM bee_feeding_schedule f
+        JOIN users u ON f.fed_by_user_id = u.user_id
+        ORDER BY f.id DESC
+        LIMIT 1"; // always get latest feed record
+
 $result = mysqli_query($link, $sql);
+$data = [];
+
+if ($row = mysqli_fetch_assoc($result)) {
+    $data = $row;
+}
+
+mysqli_close($link);
+
 ?>
 
 
@@ -414,7 +423,7 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
   <div>
         <a href="admin-feedsched.php" class="settings-btn"><i class="bi bi-calendar-event"></i>
-Feeding Schedule</a>
+Feeding History</a>
 
     <a href="database_access.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
     <a href="manage_users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Add Users</a>
@@ -682,6 +691,48 @@ function updateCountdown(nextFeedTime) {
 setInterval(fetchFeedingStatus, 1000);
 fetchFeedingStatus(); // Initial load
 
+// Function to load live feeding data
+function loadFeedingStatus() {
+  fetch("live_feeding_status.php")
+    .then(res => res.json())
+    .then(data => {
+      const now = new Date();
+      const nextFeed = new Date(data.next_feed);
+      const isHungry = nextFeed <= now;
+
+      const statusDiv = document.getElementById("feeding-status");
+      const feedBtn = document.getElementById("feed-done-btn");
+      const countdown = document.getElementById("countdown");
+
+      if (isHungry) {
+        statusDiv.textContent = "🐝 Bees are hungry! Feed them.";
+        feedBtn.style.display = "inline-block";
+        countdown.textContent = "";
+      } else {
+        statusDiv.textContent = "🍯 Bees are eating.";
+        feedBtn.style.display = "none";
+
+        const diff = Math.max(0, (nextFeed - now) / 1000);
+        countdown.textContent = `Next feed in ${Math.floor(diff / 60)}m ${Math.floor(diff % 60)}s`;
+      }
+    });
+}
+
+// Auto refresh every second
+setInterval(loadFeedingStatus, 1000);
+
+// When clicking feed done
+document.getElementById("feed-done-btn").addEventListener("click", () => {
+  fetch("feed_done.php", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      console.log(data.message);
+      loadFeedingStatus();
+    });
+});
+
+// Initial load
+loadFeedingStatus();
 
 </script>
 
