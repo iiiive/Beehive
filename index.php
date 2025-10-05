@@ -166,6 +166,37 @@
     justify-content: center;
   }
 }
+/* Scrollable Pagination Container */
+.pagination-container {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  background-color: rgba(255, 242, 163, 0.9);
+  border-radius: 10px;
+  padding: 8px;
+  scrollbar-color: #74512D #E9E7D8;
+  scrollbar-width: thin;
+}
+
+/* Keep pagination buttons inline */
+.pagination {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  min-width: max-content;
+}
+
+/* Style scrollbars (for Chrome, Edge) */
+.pagination-container::-webkit-scrollbar {
+  height: 8px;
+}
+.pagination-container::-webkit-scrollbar-thumb {
+  background-color: #74512D;
+  border-radius: 5px;
+}
+.pagination-container::-webkit-scrollbar-track {
+  background-color: #E9E7D8;
+}
 
 </style>
 
@@ -250,12 +281,17 @@
             </thead>
             <tbody id="table-body"></tbody>
           </table>
+          
+ <!-- Pagination -->
+         <!-- Scrollable Pagination -->
+<div class="pagination-container mt-3">
+  <ul id="pagination" class="pagination mb-0"></ul>
+</div>
+
+
           </div>
 
-          <!-- Pagination -->
-          <nav>
-            <ul id="pagination" class="pagination justify-content-center mt-3"></ul>
-          </nav>
+          
 
         </div>
       </div>

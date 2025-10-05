@@ -310,6 +310,98 @@ canvas { margin-top:20px; height:120px !important; }
     min-width: 100px;
   }
 }
+/* 🐝 Bee Feeding Status Card */
+.feeding-card {
+  background: linear-gradient(145deg, #FFF8DC, #EED484);
+  border: 2px solid #E3B23C;
+  border-radius: 25px;
+  box-shadow: 6px 6px 20px rgba(0,0,0,0.25);
+  transition: 0.3s ease;
+}
+
+#feeding-status-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Inner card for each status */
+.feed-card {
+  padding: 20px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: 0.3s ease;
+  border-left: 6px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🐝 Hungry Mode */
+.feed-hungry {
+  background: linear-gradient(145deg, #FFEAEA, #FFB6B6);
+  border-left-color: #E63946;
+  box-shadow: 4px 6px 16px rgba(230, 57, 70, 0.3);
+}
+
+.feed-hungry::before {
+  content: "⚠️ Hungry Alert!";
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-weight: 700;
+  color: #B22222;
+}
+
+/* 🍯 Eating Mode */
+.feed-eating {
+  background: linear-gradient(145deg, #E8FFE8, #C4F2C4);
+  border-left-color: #2A9D8F;
+  box-shadow: 4px 6px 16px rgba(42, 157, 143, 0.3);
+}
+
+.feed-eating::before {
+  content: "🍯 Feeding Time";
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-weight: 700;
+  color: #1E5631;
+}
+
+/* Common text */
+.feed-card h6 {
+  font-weight: 800;
+  color: #4B2E1E;
+  margin-bottom: 5px;
+}
+
+.feed-card p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.feed-card small {
+  color: #4B2E1E;
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.countdown {
+  font-weight: bold;
+  color: #4B2E1E;
+  background: rgba(255,255,255,0.5);
+  padding: 4px 10px;
+  border-radius: 10px;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+
 
 </style>
 </head>
@@ -373,15 +465,15 @@ Feeding Schedule</a>
   </div>
 
   
-<div class="card">
+<!-- 🐝 Bee Feeding Status Card -->
+<div class="card feeding-card">
   <h5 class="card-title">
-    <i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Bee Feeding Status
+    <i class="bi bi-check-circle-fill" style="color:#D2691E;"></i> Bee Feeding Status
   </h5>
 
-  <div id="feeding-status-list">
-    <!-- Live data from JS -->
-  </div>
+  <div id="feeding-status-list"></div>
 </div>
+
 
 </div>
 
@@ -539,29 +631,28 @@ function fetchFeedingStatus() {
       const nextFeed = new Date(data.next_feed);
       const isHungry = nextFeed <= now;
 
-      const bgColor = isHungry ? '#ffe6e6' : '#e8fce8';
+      const cardClass = isHungry ? 'feed-card feed-hungry' : 'feed-card feed-eating';
       const statusText = isHungry
-        ? '<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them.</p>'
-        : `<p class="text-success fw-bold">🍯 Bees are eating.</p>
+        ? `<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them now!</p>`
+        : `<p class="text-success fw-bold">🍯 Bees are eating happily!</p>
            <p>Next feeding in: <span class="countdown"></span></p>`;
 
       document.getElementById('feeding-status-list').innerHTML = `
-        <div class="feed-card mb-3 p-3 rounded-3" style="background-color:${bgColor};">
-          <h6><i class="bi bi-person-fill"></i> ${data.username}</h6>
+        <div class="${cardClass}">
+          <h6><i class="bi bi-person-fill"></i> ${data.username || 'Unknown User'}</h6>
           ${statusText}
           <small>
-            Last fed: ${data.last_fed || 'Not yet fed'}<br>
-            Next feed: ${data.next_feed}
+            <i class="bi bi-clock-history"></i> Last fed: ${data.last_fed || 'Not yet fed'}<br>
+            <i class="bi bi-calendar-event"></i> Next feed: ${data.next_feed || 'N/A'}
           </small>
         </div>
       `;
 
-      if (!isHungry) {
-        updateCountdown(data.next_feed);
-      }
+      if (!isHungry) updateCountdown(data.next_feed);
     })
     .catch(err => console.error('Fetch error:', err));
 }
+
 
 function updateCountdown(nextFeedTime) {
   const countdownElem = document.querySelector('.countdown');
