@@ -1,6 +1,8 @@
 <?php
 session_start();
 require_once "../config.php";
+date_default_timezone_set('Asia/Manila');
+mysqli_query($link, "SET time_zone = '+08:00'");
 
 $user_id = $_SESSION['user_id'] ?? null; // logged-in user
 if (!$user_id) {

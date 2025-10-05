@@ -1,5 +1,7 @@
 <?php
 require_once "../config.php";
+date_default_timezone_set('Asia/Manila');
+mysqli_query($link, "SET time_zone = '+08:00'");
 
 $sql = "SELECT u.username, f.last_fed, f.next_feed
         FROM bee_feeding_schedule f

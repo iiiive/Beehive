@@ -1,5 +1,7 @@
 <?php
 require_once "../config.php";
+date_default_timezone_set('Asia/Manila');
+mysqli_query($link, "SET time_zone = '+08:00'");
 
 // === Hive readings ===
 $sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status 
