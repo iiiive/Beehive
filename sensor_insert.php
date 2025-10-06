@@ -47,7 +47,7 @@ if (mysqli_query($link, $sql_insert)) {
             $alerts[] = "💧 **Humidity too low!** Humidity: {$humidity}% at {$timestamp}";
         }
 
-        if ($weight > 5) {
+        if ($weight >= 5) {
             $alerts[] = "⚠️ **Beehive too heavy!** Possible harvest or swarm. Weight: {$weight}kg at {$timestamp}";
         } elseif ($weight < 2) {
             $alerts[] = "⚠️ **Beehive too light!** Possible hive loss. Weight: {$weight}kg at {$timestamp}";
