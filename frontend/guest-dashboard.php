@@ -296,7 +296,15 @@ canvas { margin-top:20px; height:120px !important; }
     </div>
     <canvas id="weightChart"></canvas>
   </div>
-
+  <div class="card">
+    <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
+    <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
+    <!-- Fan -->
+<div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
+  <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
+</div>
+  </div>
+</div>
 
 
 <!-- History Log Section -->
@@ -455,6 +463,22 @@ async function reloadHistory() {
 reloadHistory();
 setInterval(reloadHistory, 5000);
 
+
+async function reloadFan() {
+  try {
+    const res = await fetch("get_fan.php");
+    const data = await res.json();
+    const fanStatusEl = document.getElementById("fan-status");
+
+    if (data.fan_status === 1) {
+      fanStatusEl.innerHTML = '<span style="color:green; font-weight:bold;">Fan is ON ✔</span>';
+    } else {
+      fanStatusEl.innerHTML = '<span style="color:red; font-weight:bold;">Fan is OFF ✖</span>';
+    }
+  } catch (err) {
+    console.error("Fan fetch error:", err);
+  }
+}
 
 </script>
 
