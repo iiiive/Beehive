@@ -275,16 +275,16 @@ canvas { margin-top:20px; height:120px !important; }
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <!-- ✅ Added IDs -->
     <div class="value" id="temp-value"><?php echo $latestTemp; ?> °C</div>
-    <div class="<?php echo ($latestTemp>32||$latestTemp<28)?'status-bad':'status-good';?>" id="temp-status">
-      <?php echo ($latestTemp>32||$latestTemp<28)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    <div class="<?php echo ($latestTemp>36||$latestTemp<32)?'status-bad':'status-good';?>" id="temp-status">
+      <?php echo ($latestTemp>36||$latestTemp<32)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
     </div>
     <canvas id="tempChart"></canvas>
   </div>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div class="value" id="hum-value"><?php echo $latestHum; ?> %</div>
-    <div class="<?php echo ($latestHum>=65&&$latestHum<=80)?'status-good':'status-bad';?>" id="hum-status">
-      <?php echo ($latestHum>=65&& $latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div class="<?php echo ($latestHum>40&&$latestHum<=55)?'status-good':'status-bad';?>" id="hum-status">
+      <?php echo ($latestHum>=40&& $latestHum<=55)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
@@ -393,13 +393,13 @@ async function reloadValues() {
 
     // Update statuses
     updateStatus("temp-status",
-      (data.temperature >= 28 && data.temperature <= 32) ?
+      (data.temperature >= 32 && data.temperature <= 36) ?
       {text:"Temperature is Good ✔", cls:"status-good"} :
       {text:"Temperature is Bad ✖", cls:"status-bad"}
     );
 
     updateStatus("hum-status",
-      (data.humidity >= 65 && data.humidity <= 80) ?
+      (data.humidity >= 40 && data.humidity <= 55) ?
       {text:"Humidity is Good ✔", cls:"status-good"} :
       {text:"Humidity is Bad ✖", cls:"status-bad"}
     );
