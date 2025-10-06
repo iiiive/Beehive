@@ -1,69 +1,73 @@
 <?php
 require_once "config.php";
 
-$search = "";
+// === Initialize variables ===
+$search = isset($_GET['search']) ? trim($_GET['search']) : "";
 $filter = isset($_GET['filter']) ? $_GET['filter'] : "";
-
-// Pagination setup
-$limit = 10; // rows per page
-$page = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$page   = isset($_GET['page']) && is_numeric($_GET['page']) ? (int)$_GET['page'] : 1;
+$limit  = 10;
 $offset = ($page - 1) * $limit;
 
-$result = null;
-$totalRows = 0;
+// === Base setup ===
+$whereClauses = [];
+$params = [];
+$types = "";
 
-// Base query
-$sql = "SELECT * FROM bee_feeding_schedule";
-$countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule";
-
-// FILTER HANDLING
+// === FILTER HANDLING ===
 if (!empty($filter)) {
     if ($filter == "fed") {
-        $sql = "SELECT * FROM bee_feeding_schedule WHERE fed_at IS NOT NULL";
-        $countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule WHERE fed_at IS NOT NULL";
+        $whereClauses[] = "fed_at IS NOT NULL";
     } elseif ($filter == "notfed") {
-        $sql = "SELECT * FROM bee_feeding_schedule WHERE fed_at IS NULL";
-        $countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule WHERE fed_at IS NULL";
-    } elseif ($filter == "recent") {
-        $sql = "SELECT * FROM bee_feeding_schedule ORDER BY created_at DESC";
-        $countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule";
+        $whereClauses[] = "fed_at IS NULL";
     }
+    // "recent" only affects ORDER BY later
 }
 
-// SEARCH HANDLING
-if (isset($_GET['search']) && !empty(trim($_GET['search']))) {
-    $search = trim($_GET['search']);
-    $sql = "SELECT * FROM bee_feeding_schedule 
-            WHERE id LIKE ? OR user_id LIKE ? 
-            LIMIT $limit OFFSET $offset";
+// === SEARCH HANDLING ===
+if (!empty($search)) {
+    $whereClauses[] = "(id LIKE ? OR user_id LIKE ?)";
+    $params[] = "%" . $search . "%";
+    $params[] = "%" . $search . "%";
+    $types .= "ss";
+}
 
-    $countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule 
-                 WHERE id LIKE ? OR user_id LIKE ?";
+// === Combine WHERE conditions ===
+$whereSQL = "";
+if (!empty($whereClauses)) {
+    $whereSQL = "WHERE " . implode(" AND ", $whereClauses);
+}
 
-    if ($stmt = mysqli_prepare($link, $sql)) {
-        $param = "%" . $search . "%";
-        mysqli_stmt_bind_param($stmt, "ss", $param, $param);
-        mysqli_stmt_execute($stmt);
-        $result = mysqli_stmt_get_result($stmt);
-    }
+// === Sorting and Pagination ===
+$orderSQL = ($filter == "recent") ? "ORDER BY created_at DESC" : "";
+$limitSQL = "LIMIT ? OFFSET ?";
+$typesForMain = $types . "ii";
+$paramsForMain = array_merge($params, [$limit, $offset]);
 
-    if ($countStmt = mysqli_prepare($link, $countSql)) {
-        mysqli_stmt_bind_param($countStmt, "ss", $param, $param);
-        mysqli_stmt_execute($countStmt);
-        $countRes = mysqli_stmt_get_result($countStmt);
-        $totalRows = mysqli_fetch_assoc($countRes)['total'];
-    }
+// === Main query & Count query ===
+$sql = "SELECT * FROM bee_feeding_schedule $whereSQL $orderSQL $limitSQL";
+$countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule $whereSQL";
+
+// === Count query ===
+if (!empty($search)) {
+    $countStmt = mysqli_prepare($link, $countSql);
+    mysqli_stmt_bind_param($countStmt, $types, ...$params);
+    mysqli_stmt_execute($countStmt);
+    $countRes = mysqli_stmt_get_result($countStmt);
+    $totalRows = mysqli_fetch_assoc($countRes)['total'] ?? 0;
+    mysqli_stmt_close($countStmt);
 } else {
-    // Non-search queries (with filters or no filter)
-    $sql .= " LIMIT $limit OFFSET $offset";
-    $result = mysqli_query($link, $sql);
-
     $countRes = mysqli_query($link, $countSql);
-    $totalRows = mysqli_fetch_assoc($countRes)['total'];
+    $totalRows = mysqli_fetch_assoc($countRes)['total'] ?? 0;
 }
 
-// Calculate total pages
-$totalPages = ceil($totalRows / $limit);
+// === Fetch paginated data ===
+$stmt = mysqli_prepare($link, $sql);
+mysqli_stmt_bind_param($stmt, $typesForMain, ...$paramsForMain);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+
+// === Pagination Calculation ===
+$totalPages = ($totalRows > 0) ? ceil($totalRows / $limit) : 1;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -73,22 +77,89 @@ $totalPages = ceil($totalRows / $limit);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
-/* keep your existing styling */
-body { background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png"); background-repeat: no-repeat; background-size: cover; background-attachment: fixed; min-height: 100vh; color: #74512D; font-family: Arial, sans-serif; padding: 30px 50px;}
+body {
+    background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    min-height: 100vh;
+    color: #74512D;
+    font-family: Arial, sans-serif;
+    padding: 30px 50px;
+}
 .wrapper { width: 100%; margin: 0 auto; }
-h2 { font-family: 'Cursive', 'Brush Script MT', sans-serif; font-size: 4rem; margin-top: 10px; color: #FEDE16; text-shadow: 2px 2px 5px rgba(0,0,0,0.6);}
-.btn {padding: 0.6rem 1.2rem;font-weight:700;background:#FFF2A3;color:#0B0806;border-radius:0.5rem;border:2px solid #74512D;transition: all 0.3s ease;}
-.btn:hover {background:#fae76a;color:#0B0806;box-shadow:0px 4px 10px rgba(0,0,0,0.3);}
-.group { display: flex; align-items:center; position: relative; max-width:220px; margin-right:10px;}
-.input { width:100%; height:45px; padding-left:2.5rem; border-radius:12px; border:1px solid #74512D; background-color:#E9E7D8; color:#0B0806;}
-.input:focus {border-color:#FEDE16; box-shadow:0 0 5px #FEDE16;}
-.search-icon { position:absolute; left:1rem; fill:#74512D; width:1rem; height:1rem; pointer-events:none;}
-.custom-table { width:100%; margin:20px auto; border-collapse:collapse; background:#E9E7D8; border-radius:10px; overflow:hidden; box-shadow:0px 4px 20px rgba(0,0,0,0.1); color:#0B0806;}
-.custom-table thead { background-color:#74512D; color:#fff;}
-.custom-table th, .custom-table td { padding:0.9em 1em; border-bottom:1px solid #E9E7D8;}
-.custom-table tbody tr:hover { background-color:#fae76a; transition:0.3s ease;}
-.cta { padding: 8px 16px; background:#FFF2A3; color:#0B0806; font-weight:700; border-radius:25px; transition: all 0.3s ease; text-decoration:none;}
-.cta:hover { background:#74512D; color:#fff; box-shadow:0px 4px 10px rgba(0,0,0,0.3);}
+h2 {
+    font-family: 'Cursive', 'Brush Script MT', sans-serif;
+    font-size: 4rem;
+    margin-top: 10px;
+    color: #FEDE16;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+}
+.btn {
+    padding: 0.6rem 1.2rem;
+    font-weight: 700;
+    background: #FFF2A3;
+    color: #0B0806;
+    border-radius: 0.5rem;
+    border: 2px solid #74512D;
+    transition: all 0.3s ease;
+}
+.btn:hover {
+    background: #fae76a;
+    color: #0B0806;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+}
+.group {
+    display: flex;
+    align-items: center;
+    position: relative;
+    max-width: 220px;
+    margin-right: 10px;
+}
+.input {
+    width: 100%;
+    height: 45px;
+    padding-left: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid #74512D;
+    background-color: #E9E7D8;
+    color: #0B0806;
+}
+.input:focus { border-color: #FEDE16; box-shadow: 0 0 5px #FEDE16; }
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    fill: #74512D;
+    width: 1rem;
+    height: 1rem;
+    pointer-events: none;
+}
+.custom-table {
+    width: 100%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: #E9E7D8;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+    color: #0B0806;
+}
+.custom-table thead { background-color: #74512D; color: #fff; }
+.custom-table th, .custom-table td {
+    padding: 0.9em 1em;
+    border-bottom: 1px solid #E9E7D8;
+}
+.custom-table tbody tr:hover { background-color: #fae76a; transition: 0.3s ease; }
+.cta {
+    padding: 8px 16px;
+    background: #FFF2A3;
+    color: #0B0806;
+    font-weight: 700;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.cta:hover { background: #74512D; color: #fff; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); }
 </style>
 </head>
 <body>
@@ -114,9 +185,8 @@ c0-4.97-4.03-9-9-9s-9 4.03-9 9
 <input class="input" type="search" placeholder="Search..." name="search" value="<?php echo htmlspecialchars($search); ?>"/>
 </div>
 <button type="submit" class="btn"><i class="bi bi-search"></i> Search</button>
-<a href="bee_feeding_dashboard.php" class="btn"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+<a href="<?php echo basename($_SERVER['PHP_SELF']); ?>" class="btn"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
 <a href="FeedingCSV.php" class="btn"><i class="bi bi-file-earmark-arrow-down-fill"></i> Get a Copy</a>
-
 </form>
 </div>
 
@@ -134,20 +204,19 @@ if ($result && mysqli_num_rows($result) > 0) {
     <th>Options</th>
     </tr></thead><tbody>";
 
-    while ($row = mysqli_fetch_array($result)) {
+    while ($row = mysqli_fetch_assoc($result)) {
         echo "<tr>";
-        echo "<td>".$row['id']."</td>";
-        echo "<td>".$row['user_id']."</td>";
-        echo "<td>".$row['interval_minutes']."</td>";
-        echo "<td>".$row['next_feed']."</td>";
-        echo "<td>".$row['last_fed']."</td>";
-        echo "<td>".$row['fed_by_user_id']."</td>";
-        echo "<td>".$row['fed_at']."</td>";
+        echo "<td>{$row['id']}</td>";
+        echo "<td>{$row['user_id']}</td>";
+        echo "<td>{$row['interval_minutes']}</td>";
+        echo "<td>{$row['next_feed']}</td>";
+        echo "<td>{$row['last_fed']}</td>";
+        echo "<td>{$row['fed_by_user_id']}</td>";
+        echo "<td>{$row['fed_at']}</td>";
 
         $btnText = $row['fed_at'] ? "Already Fed" : "Mark as Fed";
         $btnClass = $row['fed_at'] ? "btn disabled" : "cta";
-        echo "<td><a href='markfed.php?id=".$row['id']."' class='$btnClass'>$btnText</a></td>";
-
+        echo "<td><a href='markfed.php?id={$row['id']}' class='$btnClass'>$btnText</a></td>";
         echo "</tr>";
     }
     echo "</tbody></table>";
@@ -155,20 +224,20 @@ if ($result && mysqli_num_rows($result) > 0) {
     echo '<div class="alert alert-danger"><em>No feeding records found.</em></div>';
 }
 
-// Pagination
+// === Pagination ===
 if ($totalPages > 1) {
     echo '<nav class="mt-3"><ul class="pagination justify-content-center">';
-    for ($i=1;$i<=$totalPages;$i++){
-        $active = ($i==$page)?"active":"";
-        $url = "bee_feeding_dashboard.php?page=$i&filter=".urlencode($filter)."&search=".urlencode($search);
+    for ($i = 1; $i <= $totalPages; $i++) {
+        $active = ($i == $page) ? "active" : "";
+        $url = basename($_SERVER['PHP_SELF'])."?page=$i&filter=".urlencode($filter)."&search=".urlencode($search);
         echo "<li class='page-item $active'><a class='page-link' href='$url'>$i</a></li>";
     }
     echo '</ul></nav>';
 }
 
+mysqli_stmt_close($stmt);
 mysqli_close($link);
 ?>
-
 </div></div></div></div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
