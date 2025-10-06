@@ -92,7 +92,7 @@ void loop() {
   }
 
   // Fan control
-  if (t > 32) {
+  if (t > 36) {
     digitalWrite(LED_PIN, HIGH);
     fan_status = 1;
   } else {
