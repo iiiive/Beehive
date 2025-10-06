@@ -43,15 +43,15 @@ if ($result && mysqli_num_rows($result) > 0) {
     // Prepare alert messages
     $alerts = [];
 
-    if ($temperature > 32) {
+    if ($temperature > 36) {
         $alerts[] = "🔥 Hive too hot! Fan turned On! Please put the hive on a shade. Temperature: {$temperature}°C at {$timestamp}";
-    } elseif ($temperature < 28) {
+    } elseif ($temperature < 32) {
         $alerts[] = "❄️ Hive too cold! Temperature: {$temperature}°C at {$timestamp}";
     }
 
-    if ($humidity > 80) {
+    if ($humidity > 55) {
         $alerts[] = "💧 Humidity too high! Humidity: {$humidity}% at {$timestamp}";
-    } elseif ($humidity < 28) {
+    } elseif ($humidity < 40) {
         $alerts[] = "💧 Humidity too low! Please provide water source for the Bees! Humidity: {$humidity}% at {$timestamp}";
     }
 
