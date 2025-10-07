@@ -1,41 +1,53 @@
 <?php
 require_once "config.php";
 
-if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
-    $param_user_id = (int) $_GET["user_id"];
+// ✅ Get feeding record by ID
+if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
+    $sql = "
+        SELECT 
+            f.id,
+            f.user_id,
+            f.next_feed,
+            f.interval_minutes,
+            f.last_fed,
+            f.created_at,
+            f.fed_at,
+            CONCAT(u.firstname, ' ', u.lastname) AS fed_by
+        FROM bee_feeding_schedule AS f
+        LEFT JOIN users AS u ON f.fed_by_user_id = u.user_id
+        WHERE f.id = ?
+    ";
 
-    $sql = "SELECT * FROM users WHERE user_id = ?";
     if ($stmt = mysqli_prepare($link, $sql)) {
-        mysqli_stmt_bind_param($stmt, "i", $param_user_id);
+        mysqli_stmt_bind_param($stmt, "i", $param_id);
+        $param_id = trim($_GET["id"]);
 
         if (mysqli_stmt_execute($stmt)) {
             $result = mysqli_stmt_get_result($stmt);
 
-            if (mysqli_num_rows($result) == 1) {
-                $row = mysqli_fetch_assoc($result);
+            if ($row = mysqli_fetch_assoc($result)) {
+                $next_feed        = $row["next_feed"];
+                $interval_minutes = $row["interval_minutes"];
+                $last_fed         = $row["last_fed"];
+                $fed_at           = $row["fed_at"];
+                $fed_by           = $row["fed_by"] ?: "Not Recorded";
+                $created_at       = $row["created_at"];
+                $user_id       = $row["user_id"];
 
-                // Assign values
-                $firstname       = $row["firstname"];
-                $lastname        = $row["lastname"];
-                $username        = $row["username"];
-                $email           = $row["email"];
-                $birthday        = $row["birthday"];
-                $address         = $row["address"];
-                $contact_number  = $row["contact_number"];
-                $created_at      = $row["created_at"];
             } else {
-                echo "<h3 style='text-align:center;color:red;'>No user found with ID: $param_user_id</h3>";
+                echo "<h2>No record found for ID: " . htmlspecialchars($param_id) . "</h2>";
                 exit();
             }
         } else {
-            echo "<h3 style='text-align:center;color:red;'>Database query failed. Please try again later.</h3>";
+            echo "Error executing query.";
             exit();
         }
         mysqli_stmt_close($stmt);
     }
+
     mysqli_close($link);
 } else {
-    echo "<h3 style='text-align:center;color:red;'>Invalid or missing ID parameter.</h3>";
+    echo "<h2>Invalid or missing ID parameter.</h2>";
     exit();
 }
 ?>
@@ -44,8 +56,8 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>View User Record</title>
-    <style>
+    <title>Feeding Record Details</title>
+        <style>
         :root {
             --white: hsl(0, 0%, 100%);
             --black: hsl(240, 15%, 9%);
@@ -192,28 +204,28 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             transform: translateY(-2px) scale(1.02);
         }
     </style>
+
 </head>
 <body>
     <div class="card">
-        <div class="card__border"></div>
         <div class="card_title__container">
-            <span class="card_title">User Details</span>
-            <p class="card_paragraph">Account Information</p>
+            <span class="card_title">Feeding Record Details</span>
+            <p class="card_paragraph">Schedule Information</p>
         </div>
         <hr class="line" />
 
         <ul class="card__list">
-            <li class="card__list_item"><span>First Name:</span><span><?php echo htmlspecialchars($firstname); ?></span></li>
-            <li class="card__list_item"><span>Last Name:</span><span><?php echo htmlspecialchars($lastname); ?></span></li>
-            <li class="card__list_item"><span>Username:</span><span><?php echo htmlspecialchars($username); ?></span></li>
-            <li class="card__list_item"><span>Email:</span><span><?php echo htmlspecialchars($email); ?></span></li>
-            <li class="card__list_item"><span>Birthday:</span><span><?php echo htmlspecialchars($birthday); ?></span></li>
-            <li class="card__list_item"><span>Address:</span><span><?php echo htmlspecialchars($address); ?></span></li>
-            <li class="card__list_item"><span>Contact:</span><span><?php echo htmlspecialchars($contact_number); ?></span></li>
-            <li class="card__list_item"><span>Created At:</span><span><?php echo htmlspecialchars($created_at); ?></span></li>
+            <li class="card__list_item"><span>ID:</span><span><?= htmlspecialchars($param_id) ?></span></li>
+            <li class="card__list_item"><span>Next Feed:</span><span><?= htmlspecialchars($next_feed) ?></span></li>
+            <li class="card__list_item"><span>Interval (minutes):</span><span><?= htmlspecialchars($interval_minutes) ?></span></li>
+            <li class="card__list_item"><span>Last Fed:</span><span><?= htmlspecialchars($last_fed ?: '—') ?></span></li>
+            <li class="card__list_item"><span>Fed At:</span><span><?= htmlspecialchars($fed_at ?: '—') ?></span></li>
+            <li class="card__list_item"><span>Fed By:</span><span><?= htmlspecialchars($fed_by) ?></span></li>
+            <li class="card__list_item"><span>User ID:</span><span><?= htmlspecialchars($user_id ?: '—') ?></span></li>
+            <li class="card__list_item"><span>Created At:</span><span><?= htmlspecialchars($created_at) ?></span></li>
         </ul>
 
-        <a href="userindex.php" class="button">Back</a>
+        <a href="feedindex.php" class="button">Back</a>
     </div>
 </body>
 </html>

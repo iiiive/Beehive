@@ -16,15 +16,15 @@ $types = "";
 // === FILTER HANDLING ===
 if (!empty($filter)) {
     if ($filter == "fed") {
-        $whereClauses[] = "fed_at IS NOT NULL";
+        $whereClauses[] = "f.fed_at IS NOT NULL";
     } elseif ($filter == "notfed") {
-        $whereClauses[] = "fed_at IS NULL";
+        $whereClauses[] = "f.fed_at IS NULL";
     }
 }
 
 // === SEARCH HANDLING ===
 if (!empty($search)) {
-    $whereClauses[] = "(id LIKE ? OR user_id LIKE ?)";
+    $whereClauses[] = "(f.id LIKE ? OR f.user_id LIKE ?)";
     $params[] = "%" . $search . "%";
     $params[] = "%" . $search . "%";
     $types .= "ss";
@@ -37,14 +37,20 @@ if (!empty($whereClauses)) {
 }
 
 // === Sorting and Pagination ===
-$orderSQL = ($filter == "recent") ? "ORDER BY created_at DESC" : "";
+$orderSQL = ($filter == "recent") ? "ORDER BY f.created_at DESC" : "";
 $limitSQL = "LIMIT ? OFFSET ?";
 $typesForMain = $types . "ii";
 $paramsForMain = array_merge($params, [$limit, $offset]);
 
-// === Main query & Count query ===
-$sql = "SELECT * FROM bee_feeding_schedule $whereSQL $orderSQL $limitSQL";
-$countSql = "SELECT COUNT(*) AS total FROM bee_feeding_schedule $whereSQL";
+// === Main query with JOIN to users ===
+$sql = "SELECT f.*, u.firstname, u.lastname 
+        FROM bee_feeding_schedule AS f
+        LEFT JOIN users AS u ON f.fed_by_user_id = u.user_id
+        $whereSQL $orderSQL $limitSQL";
+
+$countSql = "SELECT COUNT(*) AS total 
+             FROM bee_feeding_schedule AS f
+             $whereSQL";
 
 // === Count query ===
 if (!empty($search)) {
@@ -160,8 +166,6 @@ h2 {
   text-decoration: none;
 }
 .cta:hover { background: #74512D; color: #fff; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); }
-
-/* PAGINATION DESIGN */
 .pagination-container {
   display: block;
   overflow-x: auto;
@@ -169,12 +173,9 @@ h2 {
   background-color: rgba(255, 242, 163, 0.9);
   border-radius: 10px;
   padding: 8px;
-  scrollbar-color: #74512D #E9E7D8;
-  scrollbar-width: thin;
 }
 .pagination {
   display: inline-flex;
-  flex-wrap: nowrap;
   justify-content: flex-start;
   min-width: max-content;
 }
@@ -187,31 +188,9 @@ h2 {
   margin: 0 3px;
   transition: all 0.3s ease;
 }
-.pagination .page-item .page-link:hover {
-  background-color: #fae76a !important;
-  box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
-  color: #0B0806;
-}
 .pagination .page-item.active .page-link {
   background-color: #74512D !important;
   color: #fff !important;
-  border-color: #74512D !important;
-  box-shadow: 0px 3px 8px rgba(0,0,0,0.3);
-}
-.pagination .page-item.disabled .page-link {
-  background-color: #E9E7D8;
-  color: #999;
-  border-color: #ccc;
-}
-.pagination-container::-webkit-scrollbar {
-  height: 8px;
-}
-.pagination-container::-webkit-scrollbar-thumb {
-  background-color: #74512D;
-  border-radius: 5px;
-}
-.pagination-container::-webkit-scrollbar-track {
-  background-color: #E9E7D8;
 }
 </style>
 </head>
@@ -249,29 +228,44 @@ if ($result && mysqli_num_rows($result) > 0) {
     echo '<table class="custom-table">';
     echo "<thead><tr>
     <th>ID</th>
-    <th>User ID</th>
     <th>Interval (min)</th>
     <th>Next Feed</th>
     <th>Last Fed</th>
-    <th>Fed By User</th>
+        <th>User ID</th>
+    <th>Fed By</th>
     <th>Fed At</th>
-    <th>Options</th>
+    <th>Status</th>
+    <th>Actions</th>
     </tr></thead><tbody>";
 
     while ($row = mysqli_fetch_assoc($result)) {
-        echo "<tr>";
-        echo "<td>{$row['id']}</td>";
-        echo "<td>{$row['user_id']}</td>";
-        echo "<td>{$row['interval_minutes']}</td>";
-        echo "<td>{$row['next_feed']}</td>";
-        echo "<td>{$row['last_fed']}</td>";
-        echo "<td>{$row['fed_by_user_id']}</td>";
-        echo "<td>{$row['fed_at']}</td>";
+        $fedBy = (!empty($row['firstname']) || !empty($row['lastname'])) 
+            ? $row['firstname'] . ' ' . $row['lastname'] 
+            : 'N/A';
 
         $btnText = $row['fed_at'] ? "Already Fed" : "Mark as Fed";
         $btnClass = $row['fed_at'] ? "btn disabled" : "cta";
-        echo "<td><a href='markfed.php?id={$row['id']}' class='$btnClass'>$btnText</a></td>";
-        echo "</tr>";
+
+        echo "<tr>
+            <td>{$row['id']}</td>
+            <td>{$row['interval_minutes']}</td>
+            <td>{$row['next_feed']}</td>
+            <td>{$row['last_fed']}</td>
+                        <td>{$row['user_id']}</td>
+
+            <td>{$fedBy}</td>
+            <td>{$row['fed_at']}</td>
+            <td>
+              <a href='markfed.php?id={$row['id']}' class='$btnClass'>$btnText</a>
+              
+            </td>
+          
+          <td>
+              <a href='viewfeed.php?id={$row['id']}' class='cta ms-2'>
+                <i class='bi bi-eye-fill'></i> View
+              </a>
+            </td>
+         </tr>";
     }
     echo "</tbody></table>";
 } else {
