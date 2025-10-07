@@ -33,17 +33,17 @@ if (mysqli_query($link, $sql_insert)) {
         // === 4. Prepare alert messages ===
         $alerts = [];
 
-        if ($temperature > 36) {
+        if ($temperature > 25.90) {
             $alerts[] = "🔥 **Hive too hot!** Temperature: {$temperature}°C at {$timestamp}";
             $alerts[] = "🌀 Fan is ON! at {$timestamp}";
 
-        } elseif ($temperature < 32) {
+        } elseif ($temperature < 22.30) {
             $alerts[] = "❄️ **Hive too cold!** Temperature: {$temperature}°C at {$timestamp}";
         }
 
-        if ($humidity > 55) {
+        if ($humidity > 86.40) {
             $alerts[] = "💧 **Humidity too high!** Humidity: {$humidity}% at {$timestamp}";
-        } elseif ($humidity < 40) {
+        } elseif ($humidity < 79.20) {
             $alerts[] = "💧 **Humidity too low!** Humidity: {$humidity}% at {$timestamp}";
         }
 
