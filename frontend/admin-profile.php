@@ -2,13 +2,13 @@
 session_start();
 include("../config.php");
 
-// For testing purposes: if session not set, assume admin_id = 1
-$admin_id = $_SESSION['admin_id'] ?? 1;  
+// Fallback for testing
+$admin_id = $_SESSION['admin_id'] ?? 1;
 
 $success = $error = "";
 
 // Fetch current admin info
-$sql = "SELECT username, email FROM admins WHERE admin_id = ?";
+$sql = "SELECT firstname, lastname, username, email FROM admins WHERE admin_id = ?";
 $stmt = $link->prepare($sql);
 $stmt->bind_param("i", $admin_id);
 $stmt->execute();
@@ -19,33 +19,59 @@ if (!$admin) {
     die("Admin not found.");
 }
 
-// Handle form submission
+// Handle form submission safely
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+    $firstname = trim($_POST['firstname'] ?? '');
+    $lastname  = trim($_POST['lastname'] ?? '');
+    $username  = trim($_POST['username'] ?? '');
+    $email     = trim($_POST['email'] ?? '');
+    $password  = $_POST['password'] ?? '';
+    $confirm_password = $_POST['confirm_password'] ?? '';
 
-    if (!empty($password)) {
-        $password_hash = password_hash($password, PASSWORD_DEFAULT);
-        $sql = "UPDATE admins SET username = ?, email = ?, password_hash = ? WHERE admin_id = ?";
-        $stmt = $link->prepare($sql);
-        $stmt->bind_param("sssi", $username, $email, $password_hash, $admin_id);
+    // === VALIDATION ===
+    if (!preg_match("/^[A-Za-z ]+$/", $firstname)) {
+        $error = "First name can only contain letters and spaces.";
+    } elseif (!preg_match("/^[A-Za-z ]+$/", $lastname)) {
+        $error = "Last name can only contain letters and spaces.";
+    } elseif (!preg_match("/^[A-Za-z0-9]+$/", $username)) {
+        $error = "Username can only contain letters and numbers (no spaces).";
+    } elseif (!empty($password) && strlen($password) < 8) {
+        $error = "Password must be at least 8 characters long.";
+    } elseif (!empty($password) && $password !== $confirm_password) {
+        $error = "Passwords do not match.";
     } else {
-        $sql = "UPDATE admins SET username = ?, email = ? WHERE admin_id = ?";
-        $stmt = $link->prepare($sql);
-        $stmt->bind_param("ssi", $username, $email, $admin_id);
-    }
+        // Update query depending on whether a new password was entered
+        if (!empty($password)) {
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "UPDATE admins SET firstname=?, lastname=?, username=?, email=?, password_hash=? WHERE admin_id=?";
+            $stmt = $link->prepare($sql);
+            $stmt->bind_param("sssssi", $firstname, $lastname, $username, $email, $password_hash, $admin_id);
+        } else {
+            $sql = "UPDATE admins SET firstname=?, lastname=?, username=?, email=? WHERE admin_id=?";
+            $stmt = $link->prepare($sql);
+            $stmt->bind_param("ssssi", $firstname, $lastname, $username, $email, $admin_id);
+        }
 
-    if ($stmt->execute()) {
-        $success = " Profile updated successfully!";
-        $_SESSION['username'] = $username; 
-    } else {
-        $error = " Error: " . $stmt->error;
+        if ($stmt->execute()) {
+            $success = "✅ Profile updated successfully!";
+            $_SESSION['username'] = $username;
+
+            // Refresh displayed info
+            $sql = "SELECT firstname, lastname, username, email FROM admins WHERE admin_id = ?";
+            $stmt = $link->prepare($sql);
+            $stmt->bind_param("i", $admin_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $admin = $result->fetch_assoc();
+        } else {
+            $error = "❌ Error: " . $stmt->error;
+        }
     }
 }
 
 if (isset($stmt)) $stmt->close();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -101,6 +127,7 @@ form {
 }
 .form-group {
   margin-bottom: 18px;
+  position: relative;
 }
 form input {
   width: 100%;
@@ -137,24 +164,22 @@ button:hover {
   color: #000;
   transform: translateY(-2px);
 }
-button:active {
-  transform: scale(0.95);
-}
 .success, .error {
   text-align: center;
   margin-top: 15px;
   font-weight: bold;
 }
-.success { 
-    color: #299b29ff; 
-    margin-bottom: 30px; 
-}
-.error { 
-    color: #ec2f2fff; 
-    
-}
+.success { color: #299b29ff; margin-bottom: 30px; }
+.error { color: #ec2f2fff; margin-bottom: 30px; }
 
-/* Back Button */
+.eye-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #fff;
+}
 .back-btn {
   position: absolute;
   top: 20px;
@@ -190,7 +215,13 @@ button:active {
     <p class="error"><?= htmlspecialchars($error) ?></p>
   <?php endif; ?>
 
-  <form method="POST">
+  <form method="POST" id="profileForm">
+    <div class="form-group">
+      <input type="text" name="firstname" placeholder="First Name" value="<?= htmlspecialchars($admin['firstname']) ?>" required>
+    </div>
+    <div class="form-group">
+      <input type="text" name="lastname" placeholder="Last Name" value="<?= htmlspecialchars($admin['lastname']) ?>" required>
+    </div>
     <div class="form-group">
       <input type="text" name="username" placeholder="Username" value="<?= htmlspecialchars($admin['username']) ?>" required>
     </div>
@@ -198,10 +229,36 @@ button:active {
       <input type="email" name="email" placeholder="Email" value="<?= htmlspecialchars($admin['email']) ?>" required>
     </div>
     <div class="form-group">
-      <input type="password" name="password" placeholder="New Password (leave blank to keep current)">
+      <input type="password" id="password" name="password" placeholder="New Password (min 8 chars, leave blank to keep current)">
+      <span class="eye-icon" onclick="togglePassword('password')">👁</span>
+    </div>
+    <div class="form-group">
+      <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm New Password">
+      <span class="eye-icon" onclick="togglePassword('confirm_password')">👁</span>
     </div>
     <button type="submit">Update Profile</button>
   </form>
 </div>
+
+<script>
+// Allow letters + spaces for first and last name
+document.querySelectorAll('input[name=firstname], input[name=lastname]').forEach(input => {
+  input.addEventListener('input', function() {
+    this.value = this.value.replace(/[^A-Za-z ]/g, '');
+  });
+});
+
+// Username: allow letters and numbers, no spaces
+document.querySelector('input[name=username]').addEventListener('input', function() {
+  this.value = this.value.replace(/[^A-Za-z0-9]/g, '');
+});
+
+// Toggle password visibility
+function togglePassword(id) {
+  const field = document.getElementById(id);
+  field.type = field.type === "password" ? "text" : "password";
+}
+</script>
+
 </body>
 </html>
