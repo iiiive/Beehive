@@ -94,7 +94,7 @@ input {
     border:none; 
     background: rgba(255,255,255,0.2); 
     color:#fff; }
-  h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; }
+  h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; height: 40px; }
 
 input::placeholder { color:#eee; }
 button { width:100%; padding:14px; border:none; border-radius:12px; background:#e7d25b; color:#6d611b; font-weight:bold; cursor:pointer; transition:0.3s; }

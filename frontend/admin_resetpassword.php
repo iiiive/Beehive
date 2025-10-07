@@ -63,7 +63,7 @@ body {
   background: url('images/beehive.jpeg') no-repeat center center/cover;
   position: relative; margin: 0;
 }
-h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; }
+h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; height: 100px; }
 
 body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.7); }
 .container {
