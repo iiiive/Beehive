@@ -323,10 +323,7 @@ INSERT INTO `beehive_readings` (`reading_id`, `timestamp`, `temperature`, `humid
 (253, '2025-09-30 22:02:33', 28, 98, 0.00, 0, 'Bad'),
 (254, '2025-09-30 22:02:34', 28, 98, 0.00, 0, 'Bad');
 
---
--- Triggers `beehive_readings`
---
-DELIMITER $$
+--ITER $$
 CREATE TRIGGER `set_beehive_status_before_insert` BEFORE INSERT ON `beehive_readings` FOR EACH ROW BEGIN
     IF (NEW.temperature BETWEEN 28 AND 32)
        AND (NEW.humidity BETWEEN 65 AND 85) THEN
@@ -348,6 +345,9 @@ CREATE TRIGGER `set_beehive_status_before_update` BEFORE UPDATE ON `beehive_read
 END
 $$
 DELIMITER ;
+-- Triggers `beehive_readings`
+--
+DELIM
 
 -- --------------------------------------------------------
 
