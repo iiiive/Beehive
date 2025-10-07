@@ -32,15 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $birthday = $_POST['birthday'];
     $address = trim($_POST['address']);
     $contact_number = trim($_POST['contact_number']);
-    $password = $_POST['password']; // optional
+    $password = $_POST['password'] ?? ''; 
+    $confirm_password = $_POST['confirm_password'] ?? ''; // ✅ Fix undefined key
 
     // ✅ SERVER-SIDE VALIDATION
     if (!preg_match("/^[a-zA-Z ]+$/", $firstname)) {
         $error = "First name can only contain letters and spaces.";
     } elseif (!preg_match("/^[a-zA-Z ]+$/", $lastname)) {
         $error = "Last name can only contain letters and spaces.";
-    } elseif (!preg_match("/^[0-9]{10,15}$/", $contact_number)) {
-        $error = "Contact number must be 10 to 15 digits only.";
+    } elseif (!preg_match("/^[0-9]{11}$/", $contact_number)) { // ✅ 11 digits only
+        $error = "Contact number must be exactly 11 digits.";
+    } elseif (!empty($password) && strlen($password) < 8) {
+        $error = "Password must be at least 8 characters long.";
+    } elseif (!empty($password) && $password !== $confirm_password) {
+        $error = "Passwords do not match.";
     } else {
         if (!empty($password)) {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
@@ -61,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $success = "Profile updated successfully!";
             $_SESSION['username'] = $username;
 
-            // ✅ Re-fetch updated user data immediately (no reload needed)
+            // Refresh user data
             $sql_refresh = "SELECT firstname, lastname, username, email, birthday, address, contact_number 
                             FROM users WHERE user_id = ?";
             $stmt2 = $link->prepare($sql_refresh);
@@ -171,7 +176,7 @@ button:active { transform: scale(0.95); }
 }
 .back-btn:hover { background: #feba17; color: #333; transform: scale(1.05); }
 
-#togglePassword {
+#togglePassword, #toggleConfirmPassword {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -180,7 +185,7 @@ button:active { transform: scale(0.95); }
   color: #ddd;
   font-size: 18px;
 }
-#togglePassword:hover { color: #e7d25bff; }
+#togglePassword:hover, #toggleConfirmPassword:hover { color: #e7d25bff; }
 </style>
 </head>
 <body>
@@ -219,12 +224,19 @@ button:active { transform: scale(0.95); }
   </div>
   <div class="form-group">
     <input type="text" name="contact_number" id="contact_number" placeholder="Contact Number" 
-           value="<?= htmlspecialchars($user['contact_number']) ?>" pattern="[0-9]{10,15}" maxlength="15" required>
+           value="<?= htmlspecialchars($user['contact_number']) ?>" pattern="[0-9]{11}" maxlength="11" required>
   </div>
 
   <div class="form-group">
-    <input type="password" id="password" name="password" placeholder="New Password (leave blank to keep current)">
+    <input type="password" id="password" name="password" minlength="8" 
+           placeholder="New Password (leave blank to keep current)">
     <span id="togglePassword"><i class="fa-solid fa-eye"></i></span>
+  </div>
+
+  <div class="form-group">
+    <input type="password" id="confirm_password" name="confirm_password" minlength="8" 
+           placeholder="Confirm New Password">
+    <span id="toggleConfirmPassword"><i class="fa-solid fa-eye"></i></span>
   </div>
 
   <button type="submit">Update Profile</button>
@@ -233,15 +245,15 @@ button:active { transform: scale(0.95); }
 
 <script>
 // === Password Toggle ===
-const togglePassword = document.getElementById('togglePassword');
-const passwordField = document.getElementById('password');
-
-togglePassword.addEventListener('click', () => {
-  const type = passwordField.type === 'password' ? 'text' : 'password';
-  passwordField.type = type;
-  togglePassword.innerHTML = type === 'password' 
-    ? '<i class="fa-solid fa-eye"></i>' 
-    : '<i class="fa-solid fa-eye-slash"></i>';
+document.querySelectorAll("#togglePassword, #toggleConfirmPassword").forEach(icon => {
+  icon.addEventListener("click", () => {
+    const input = icon.previousElementSibling;
+    const type = input.type === "password" ? "text" : "password";
+    input.type = type;
+    icon.innerHTML = type === "password"
+      ? '<i class="fa-solid fa-eye"></i>'
+      : '<i class="fa-solid fa-eye-slash"></i>';
+  });
 });
 
 // === Live Input Validation ===
@@ -252,7 +264,17 @@ document.getElementById("lastname").addEventListener("input", function() {
   this.value = this.value.replace(/[^A-Za-z ]/g, '');
 });
 document.getElementById("contact_number").addEventListener("input", function() {
-  this.value = this.value.replace(/[^0-9]/g, '');
+  this.value = this.value.replace(/[^0-9]/g, '').slice(0, 11); // ✅ 11 digits max
+});
+
+// === Confirm Password Check ===
+document.getElementById("profileForm").addEventListener("submit", function(e) {
+  const pass = document.getElementById("password").value;
+  const confirm = document.getElementById("confirm_password").value;
+  if (pass !== confirm) {
+    e.preventDefault();
+    alert("Passwords do not match!");
+  }
 });
 </script>
 
