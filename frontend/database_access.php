@@ -78,8 +78,8 @@ body::before {
 .login__input { border: none; border-bottom: 2px solid #D1D1D4; background: none; padding: 10px 10px 10px 24px; font-weight: 700; width: 100%; transition: .2s; color: #fff; }
 .login__input:focus, .login__input:hover { outline: none; border-bottom-color: #e7d25bff; }
 
-.eye-icon { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); cursor: pointer; color: #fff; font-size: 18px; }
-
+.eye-icon { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); cursor: pointer; color: #e7d25bff; font-size: 18px; }
+.eye-icon:hover { color: #fff; cursor: pointer;  transition: color 0.2s ease; }
 .login__submit {
   padding: 15px 25px; border: 0; border-radius: 15px; color: #6d611bff; z-index: 1;
   background: #e8e8e8; font-weight: 1000; font-size: 17px;
@@ -87,7 +87,7 @@ body::before {
   margin-left: 105px; margin-top: 20px; overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.login__submit:hover { color: #e8e8e8; }
+.login__submit:hover { color: #e8e8e8; background-color: #e7d25bff; transition: 0.2s;}
 .login__submit:active { transform: scale(0.8); }
 
 .extra-links { margin-top: 1px; text-align: center; }

@@ -56,6 +56,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
 <meta charset="UTF-8">
 <title>DB User Reset Password - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+
 <style>
 body {
   height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -63,6 +64,8 @@ body {
   background: url('images/beehive.jpeg') no-repeat center center/cover;
   position: relative; margin: 0;
 }
+h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; }
+
 body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.7); }
 .container {
   position: relative; z-index: 1;
@@ -70,7 +73,6 @@ body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0
   border-radius: 20px; padding: 40px; width: 360px;
   box-shadow: 0 0 24px #ceae1fff; text-align: center;
 }
-h2 { color: #fff; margin-bottom: 20px; }
 .input-wrapper { position: relative; }
 input { width: 100%; padding: 12px; margin: 12px 0; border-radius: 10px;
   border: none; background: rgba(255,255,255,0.2); color: #fff; }

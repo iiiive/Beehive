@@ -58,9 +58,12 @@ body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; botto
 .login__icon { position: absolute; top: 30px; color: #e7d25bff; }
 .login__input { border: none; border-bottom: 2px solid #D1D1D4; background: none; padding: 10px 10px 10px 30px; font-weight: 700; width: 100%; transition: .2s; color: #fff; }
 .login__input:focus, .login__input:hover { outline: none; border-bottom-color: #e7d25bff; }
-.eye-icon { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #fff; font-size: 18px; }
-.login__submit { padding: 15px 25px; border: 0; border-radius: 15px; color: #6d611bff; z-index: 1; background: #e8e8e8; font-weight: 1000; font-size: 17px; box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27); transition: all 250ms; margin-left: 85px; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
-.login__submit:hover { color: #e8e8e8; }
+.eye-icon { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #e7d25bff; font-size: 18px;
+}
+.eye-icon:hover { color: #fff; cursor: pointer;  transition: color 0.2s ease;
+}
+.login__submit { padding: 15px 25px; border: 0; border-radius: 15px; color: #6d611bff; z-index: 1; background: #e8e8e8; font-weight: 1000; font-size: 17px; box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27); transition: all 250ms; margin-left: 102px; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
+.login__submit:hover { color: #fff; background-color: #e7d25bff; cursor: pointer;}
 .extra-links { margin-top: 10px; text-align: center; }
 .extra-links a { display: block; color: #e7d25bff; text-decoration: underline; margin: 8px 0; transition: color 0.3s ease; }
 .extra-links a:hover { color: #fff; }
@@ -91,7 +94,7 @@ body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; botto
           <span class="eye-icon" onclick="togglePassword()">&#128065;</span>
         </div>
         <button type="submit" class="button login__submit">
-          <span class="button__text">Log In Now </span>
+          <span class="button__text">Log In</span>
           <i class="button__icon fas fa-chevron-right"></i>
         </button>        
       </form>

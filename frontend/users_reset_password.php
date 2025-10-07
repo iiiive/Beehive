@@ -64,7 +64,7 @@ body {
   position: relative; margin: 0;
 }
 body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.7); }
-h2{ color: #e1b941; }
+h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; }
 .container {
   position: relative; z-index: 1;
   background: rgba(255,255,255,0.1); backdrop-filter: blur(15px);
@@ -86,7 +86,7 @@ button:hover { background: #cdbd49; color: #000; }
 </head>
 <body>
 <div class="container">
-  <h2>Reset Password</h2>
+  <h2>User Reset Password</h2>
   <?php if ($showForm) { ?>
   <form method="POST">
     <div class="input-wrapper">
