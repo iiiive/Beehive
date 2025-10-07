@@ -42,14 +42,14 @@ if ($result && mysqli_num_rows($result) > 0) {
     }
 
     // Optional weight alert
-    // $prev_sql = "SELECT weight FROM beehive_readings ORDER BY timestamp DESC LIMIT 1,1";
-    // $prev_result = mysqli_query($link, $prev_sql);
-    // if ($prev_result && mysqli_num_rows($prev_result) > 0) {
-    //     $prev_weight = mysqli_fetch_assoc($prev_result)['weight'];
-    //     if (($prev_weight - $weight) > 2) {
-    //         $alerts[] = "⚠️ Sudden weight drop detected! Previous: {$prev_weight}kg, Now: {$weight}kg at {$timestamp}";
-    //     }
-    // }
+    $prev_sql = "SELECT weight FROM beehive_readings ORDER BY timestamp DESC LIMIT 1,1";
+     $prev_result = mysqli_query($link, $prev_sql);
+    if ($prev_result && mysqli_num_rows($prev_result) > 0) {
+         $prev_weight = mysqli_fetch_assoc($prev_result)['weight'];
+         if (($prev_weight - $weight) > 2) {
+            $alerts[] = "⚠️ Sudden weight drop detected! Previous: {$prev_weight}kg, Now: {$weight}kg at {$timestamp}";
+}
+    }
 
     // Send alerts to Discord
     foreach ($alerts as $alert) {

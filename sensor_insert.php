@@ -53,6 +53,14 @@ if (mysqli_query($link, $sql_insert)) {
             $alerts[] = "⚠️ **Beehive too light!** Possible hive loss. Weight: {$weight}kg at {$timestamp}";
         }
 
+         $prev_sql = "SELECT weight FROM beehive_readings ORDER BY timestamp DESC LIMIT 1,1";
+     $prev_result = mysqli_query($link, $prev_sql);
+    if ($prev_result && mysqli_num_rows($prev_result) > 0) {
+         $prev_weight = mysqli_fetch_assoc($prev_result)['weight'];
+         if (($prev_weight - $weight) > 2) {
+            $alerts[] = "⚠️ Sudden weight drop detected! Previous: {$prev_weight}kg, Now: {$weight}kg at {$timestamp}";
+}
+    }
         // === 5. Send alerts to Discord ===
         if (!empty($alerts)) {
             $webhookurl = "https://discord.com/api/webhooks/1416997260431982674/H2otdDl8uB6uXYdbaAfSS8HqquYhgkjz2eNe58jaaZybra5V4H3i1M2pPYBKf5H7t6JD";
