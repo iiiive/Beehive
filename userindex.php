@@ -17,8 +17,8 @@ $order = " ORDER BY created_at DESC";
 if (!empty($filter)) {
     if ($filter == "active") {
         $where = " WHERE status = 'active'";
-    } elseif ($filter == "disabled") {
-        $where = " WHERE status = 'disabled'";
+    } elseif ($filter == "inactive") {
+        $where = " WHERE status = 'inactive'";
     } elseif ($filter == "pending") {
         $where = " WHERE status = 'pending'";
     } elseif ($filter == "recent") {
@@ -266,10 +266,22 @@ $total_pages = ceil($total_rows / $limit);
 <a href="userindex.php" class="btn">
   <i class="bi bi-arrow-counterclockwise"></i> <span>Reset</span>
 </a>
+ <!-- Filter dropdown -->
+              <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" id="filterDropdown"
+        data-bs-toggle="dropdown" aria-expanded="false">
+  <i class="bi bi-funnel"></i> <span>Filters</span>
+</button>
 
+                <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                  <li><a class="dropdown-item" href="?filter=active">Status: Active</a></li>
+                  <li><a class="dropdown-item" href="?filter=inactive">Status: Inactive</a></li>
+                </ul>
+              </div>
  <a href="userinfoCSV.php" class="btn">
   <i class="bi bi-file-earmark-arrow-down-fill"></i> <span>Get a Copy</span>
 </a>
+
 
 
                     </form>
