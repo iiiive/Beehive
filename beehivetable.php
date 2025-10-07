@@ -23,6 +23,10 @@ if (!empty($filter)) {
         $sql = "SELECT * FROM beehive_readings WHERE humidity < 65 ORDER BY timestamp DESC";
     } elseif ($filter == "normalHumidity") {
         $sql = "SELECT * FROM beehive_readings WHERE humidity BETWEEN 65 AND 85 ORDER BY timestamp DESC";
+    } elseif ($filter == "HighWeight") {
+        $sql = "SELECT * FROM beehive_readings WHERE weight >= 5 ORDER BY timestamp DESC";
+    } elseif ($filter == "LowWeight") {
+        $sql = "SELECT * FROM beehive_readings WHERE weight <= 2 ORDER BY timestamp DESC";
     } elseif ($filter == "fanOn") {
         $sql = "SELECT * FROM beehive_readings WHERE fan_status = 1 ORDER BY timestamp DESC";
     } elseif ($filter == "fanOff") {

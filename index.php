@@ -252,6 +252,9 @@
                   <li><a class="dropdown-item" href="?filter=lowHumidity">Low Humidity</a></li>
                   <li><a class="dropdown-item" href="?filter=normalHumidity">Normal Humidity</a></li>
                   <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item" href="?filter=HighWeight">Heavy Weight</a></li>
+                  <li><a class="dropdown-item" href="?filter=LowWeight">Light Weight</a></li>
+                  <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="?filter=fanOn">Fan Status: ON</a></li>
                   <li><a class="dropdown-item" href="?filter=fanOff">Fan Status: OFF</a></li>
                   <li><hr class="dropdown-divider"></li>
