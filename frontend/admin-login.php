@@ -32,8 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (isset($stmt)) $stmt->close();
 }
-
-
 ?>
 
 <!DOCTYPE html>
@@ -148,6 +146,18 @@ body::before {
   border-bottom-color: #e7d25bff;
 }
 
+#togglePassword {
+  position: absolute;
+  right: 10px;
+  top: 30px;
+  color: #e7d25bff;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+#togglePassword:hover {
+  color: #fff;
+}
+
 .login__submit {
   padding: 15px 25px;
   border: 0;
@@ -216,7 +226,7 @@ body::before {
   margin-top: 0px;
   font-size: 0.9rem;
 }
-   .back-btn {
+.back-btn {
   position: absolute;
   top: 20px;
   left: 20px;
@@ -255,10 +265,14 @@ body::before {
           <i class="login__icon fas fa-user-shield"></i>
           <input type="text" name="username" class="login__input" placeholder="Admin Username" required>
         </div>
+
+        <!-- Password Field with Eye Icon -->
         <div class="login__field">
           <i class="login__icon fas fa-lock"></i>
-          <input type="password" name="password" class="login__input" placeholder="Password" required>
+          <input type="password" name="password" id="password" class="login__input" placeholder="Password" required>
+          <i class="fa-solid fa-eye" id="togglePassword"></i>
         </div>
+
         <button type="submit" class="button login__submit">
           <span class="button__text">Log In</span>
           <i class="button__icon fas fa-chevron-right"></i>
@@ -274,11 +288,21 @@ body::before {
         <div class="error"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
-
-      
     </div>
   </div>
 </div>
+
+<!-- Password toggle script -->
+<script>
+const togglePassword = document.querySelector('#togglePassword');
+const password = document.querySelector('#password');
+
+togglePassword.addEventListener('click', function () {
+  const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+  password.setAttribute('type', type);
+  this.classList.toggle('fa-eye-slash');
+});
+</script>
 
 </body>
 </html>

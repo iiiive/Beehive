@@ -33,6 +33,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
     if ($password !== $confirm) {
         $message = "Passwords do not match.";
         $messageClass = "error";
+    } elseif (strlen($password) < 8) {
+        $message = "Password must be at least 8 characters.";
+        $messageClass = "error";
     } else {
         $newPass = password_hash($password, PASSWORD_DEFAULT);
         $update = $link->prepare("UPDATE db_access SET password_hash = ?, reset_token = NULL, reset_expires = NULL WHERE db_id = ?");
@@ -68,9 +71,11 @@ body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0
   box-shadow: 0 0 24px #ceae1fff; text-align: center;
 }
 h2 { color: #fff; margin-bottom: 20px; }
+.input-wrapper { position: relative; }
 input { width: 100%; padding: 12px; margin: 12px 0; border-radius: 10px;
   border: none; background: rgba(255,255,255,0.2); color: #fff; }
 input::placeholder { color: #eee; }
+.eye-icon { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); cursor: pointer; color: #fff; font-size: 18px; }
 button { width: 100%; padding: 14px; border: none; border-radius: 12px;
   background: #e7d25b; color: #6d611b; font-weight: bold; cursor: pointer; transition: 0.3s; }
 button:hover { background: #cdbd49; color: #000; }
@@ -84,12 +89,25 @@ button:hover { background: #cdbd49; color: #000; }
   <h2>DB User Reset Password</h2>
   <?php if ($showForm) { ?>
   <form method="POST">
-    <input type="password" name="password" placeholder="Enter new password" minlength="8" required>
-    <input type="password" name="confirm_password" placeholder="Confirm new password" minlength="8" required>
+    <div class="input-wrapper">
+      <input type="password" name="password" id="password" placeholder="Enter new password" minlength="8" required>
+      <span class="eye-icon" onclick="togglePassword('password')">&#128065;</span>
+    </div>
+    <div class="input-wrapper">
+      <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm new password" minlength="8" required>
+      <span class="eye-icon" onclick="togglePassword('confirm_password')">&#128065;</span>
+    </div>
     <button type="submit">Reset Password</button>
   </form>
   <?php } ?>
   <?php if (!empty($message)) echo "<p class='message $messageClass'>$message</p>"; ?>
 </div>
+
+<script>
+function togglePassword(id) {
+  const input = document.getElementById(id);
+  input.type = input.type === "password" ? "text" : "password";
+}
+</script>
 </body>
 </html>
