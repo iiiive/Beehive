@@ -437,8 +437,8 @@ Feeding History</a>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
-    <div id="temp-status" class="<?php echo ($latestTemp>36||$latestTemp<32)?'status-bad':'status-good';?>">
-  <?php echo ($latestTemp>32||$latestTemp<20)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    <div id="temp-status" class="<?php echo ($latestTemp>25.90||$latestTemp<22.30)?'status-bad':'status-good';?>">
+  <?php echo ($latestTemp>25.90||$latestTemp<22.30)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
 </div>
     <canvas id="tempChart"></canvas>
   </div>
@@ -447,8 +447,8 @@ Feeding History</a>
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
-    <div id="hum-status" class="<?php echo ($latestHum>=40&&$latestHum<=55)?'status-good':'status-bad';?>">
-  <?php echo ($latestHum>=65&&$latestHum<=80)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div id="hum-status" class="<?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'status-good':'status-bad';?>">
+  <?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
 </div>
     <canvas id="humChart"></canvas>
   </div>
@@ -576,8 +576,8 @@ async function reloadValues() {
     }
 
     // Update status conditions
-    updateStatus("temp-value", data.temperature >= 32 && data.temperature <= 36, "Temperature is Good ✔", "Temperature is Bad ✖");
-    updateStatus("hum-value", data.humidity >= 40 && data.humidity <= 55, "Humidity is Good ✔", "Humidity is Bad ✖");
+    updateStatus("temp-value", data.temperature >= 25.90 && data.temperature <= 22.30, "Temperature is Good ✔", "Temperature is Bad ✖");
+    updateStatus("hum-value", data.humidity >= 79.20 && data.humidity <= 86.40, "Humidity is Good ✔", "Humidity is Bad ✖");
     updateStatus("weight-value", data.weight >= 5, "The Hive is Heavy!", "The Hive is still Light ✖");
 
   } catch (err) {

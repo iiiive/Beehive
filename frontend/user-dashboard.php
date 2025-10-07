@@ -427,8 +427,8 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
-    <div id="temp-status" class="<?php echo ($latestTemp>36||$latestTemp<32)?'status-bad':'status-good';?>">
-  <?php echo ($latestTemp>36||$latestTemp<32)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    <div id="temp-status" class="<?php echo ($latestTemp>25.90||$latestTemp<22.30)?'status-bad':'status-good';?>">
+  <?php echo ($latestTemp>25.90||$latestTemp<22.30)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
 </div>
     <canvas id="tempChart"></canvas>
   </div>
@@ -437,8 +437,8 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
-    <div id="hum-status" class="<?php echo ($latestHum>=40&&$latestHum<=55)?'status-good':'status-bad';?>">
-  <?php echo ($latestHum>=40&&$latestHum<=55)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div id="hum-status" class="<?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'status-good':'status-bad';?>">
+  <?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
 </div>
     <canvas id="humChart"></canvas>
   </div>
@@ -577,13 +577,13 @@ async function reloadValues() {
 
     // Update statuses dynamically
     updateStatus("temp-status",
-      (data.temperature >= 32 && data.temperature <= 36) ?
+      (data.temperature >= 22.30 && data.temperature <= 25.90) ?
       {text:"Temperature is Good ✔", cls:"status-good"} :
       {text:"Temperature is Bad ✖", cls:"status-bad"}
     );
 
     updateStatus("hum-status",
-      (data.humidity >=40 && data.humidity <= 55) ?
+      (data.humidity >=79.20 && data.humidity <= 86.40) ?
       {text:"Humidity is Good ✔", cls:"status-good"} :
       {text:"Humidity is Bad ✖", cls:"status-bad"}
     );
