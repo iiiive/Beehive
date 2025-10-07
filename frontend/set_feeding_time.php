@@ -184,7 +184,7 @@ button:active {
     </div>
     <div class="form-group">
       <label>Minutes</label>
-      <input type="number" name="minutes" min="0" max="59" value="30" placeholder="Enter minutes">
+      <input type="number" name="minutes" min="0" max="59" value="0" placeholder="Enter minutes">
     </div>
     <button type="submit">Set Schedule</button>
   </form>
