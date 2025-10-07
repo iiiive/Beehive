@@ -15,12 +15,30 @@ $types = "";
 
 // === FILTER HANDLING ===
 if (!empty($filter)) {
-    if ($filter == "fed") {
-        $whereClauses[] = "f.fed_at IS NOT NULL";
-    } elseif ($filter == "notfed") {
-        $whereClauses[] = "f.fed_at IS NULL";
+    switch ($filter) {
+        case "thisweek":
+            // Monday to Sunday of the current week
+            $whereClauses[] = "YEARWEEK(f.fed_at, 1) = YEARWEEK(CURDATE(), 1)";
+            break;
+
+        case "lastweek":
+            // Monday to Sunday of last week
+            $whereClauses[] = "YEARWEEK(f.fed_at, 1) = YEARWEEK(CURDATE(), 1) - 1";
+            break;
+
+        case "weekbeforelast":
+            // Monday to Sunday of two weeks ago
+            $whereClauses[] = "YEARWEEK(f.fed_at, 1) = YEARWEEK(CURDATE(), 1) - 2";
+            break;
+
+        case "lastmonth":
+            // Whole last month (1st to end of previous month)
+            $whereClauses[] = "MONTH(f.fed_at) = MONTH(CURDATE() - INTERVAL 1 MONTH)
+                               AND YEAR(f.fed_at) = YEAR(CURDATE() - INTERVAL 1 MONTH)";
+            break;
     }
 }
+
 
 // === SEARCH HANDLING ===
 if (!empty($search)) {
@@ -37,7 +55,7 @@ if (!empty($whereClauses)) {
 }
 
 // === Sorting and Pagination ===
-$orderSQL = ($filter == "recent") ? "ORDER BY f.created_at DESC" : "";
+$orderSQL = "ORDER BY f.created_at DESC";
 $limitSQL = "LIMIT ? OFFSET ?";
 $typesForMain = $types . "ii";
 $paramsForMain = array_merge($params, [$limit, $offset]);
@@ -74,6 +92,7 @@ $result = mysqli_stmt_get_result($stmt);
 // === Pagination Calculation ===
 $totalPages = ($totalRows > 0) ? ceil($totalRows / $limit) : 1;
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -219,6 +238,20 @@ h2 {
             </div>
             <button type="submit" class="btn"><i class="bi bi-search"></i> Search</button>
             <a href="<?php echo basename($_SERVER['PHP_SELF']); ?>" class="btn"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            <div class="dropdown">
+                <button class="btn dropdown-toggle" type="button" id="filterDropdown"
+        data-bs-toggle="dropdown" aria-expanded="false">
+  <i class="bi bi-funnel"></i> <span>Filters</span>
+</button>
+
+                <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+  <li><a class="dropdown-item" href="?filter=thisweek">Fed This Week</a></li>
+  <li><a class="dropdown-item" href="?filter=lastweek">Fed Last Week</a></li>
+  <li><a class="dropdown-item" href="?filter=weekbeforelast">Fed Two Weeks Ago</a></li>
+  <li><a class="dropdown-item" href="?filter=lastmonth">Fed Last Month</a></li>
+</ul>
+
+              </div>
             <a href="FeedingCSV.php" class="btn"><i class="bi bi-file-earmark-arrow-down-fill"></i> Get a Copy</a>
           </form>
         </div>
