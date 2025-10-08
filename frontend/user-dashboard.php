@@ -409,8 +409,15 @@ canvas { margin-top:20px; height:120px !important; }
   <!-- Actions aligned to the right -->
 
   <div class="header-actions">
+    <a href="https://discord.com/channels/1416994358464483481/1425437614458273792" 
+   class="logout-btn" 
+   target="_blank" 
+   rel="noopener noreferrer">
+   <i class="bi bi-chat-dots"></i> Need help?
+</a>
+
     <a href="set_feeding_time.php" class="logout-btn">
-      <i class="bi bi-calendar-event"></i> Set Feeding Time
+      <i class="bi bi-clock-fill"></i> Set Feeding Time
     </a>
     <a href="user-profile.php" class="settings-btn">
       <i class="bi bi-person-fill"></i> Edit Profile
