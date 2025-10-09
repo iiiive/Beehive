@@ -34,8 +34,7 @@ if (mysqli_query($link, $sql_insert)) {
         $alerts = [];
 
         if ($temperature > 25.90) {
-            $alerts[] = "🔥 **Hive too hot!** Temperature: {$temperature}°C at {$timestamp}";
-            $alerts[] = "🌀 Fan is ON! at {$timestamp}";
+            $alerts[] = "🔥 **Hive too hot!** 🌀**Fan turned On!** Temperature: {$temperature}°C at {$timestamp}";
 
         } elseif ($temperature < 22.30) {
             $alerts[] = "❄️ **Hive too cold!** Temperature: {$temperature}°C at {$timestamp}";
