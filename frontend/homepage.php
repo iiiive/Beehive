@@ -6,156 +6,135 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HiveCare</title>
+  <!-- Montserrat Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Verdana', sans-serif;
+    * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      background-image: url('images/background.jpg');
-      background-attachment: fixed;
-      background-size: cover;
-      display: flex;
-      flex-direction: column;
-      justify-content: center; 
-      align-items: center;
-      min-height: 100vh;
     }
 
-    .header {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: url('images/background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
 
-.header img {
-  width: 150px;
-  height: 150px;
-  margin: 0; /* no space around the logo */
-  padding: 0;
-}
-
-h1 {
-  font-family: 'Cursive', 'Brush Script MT', sans-serif;
-  font-weight: 100;
-  font-size: clamp(3rem, 10vw, 12rem);
-  color: #333;
-  margin: -10px 0 0 0; /* pull text closer to logo */
-  padding: 0;
-}
-
-
-    h2 {
-      font-size: 1.5rem;
-      color: #333;
-      margin: 10px 0; /* tighten spacing */
-      text-align: center;
+    /* Overlay */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 0;
     }
 
     .container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin: 10px 0; /* reduce spacing above cards */
-    }
-
-    .card {
-      border-radius: 20px;
-      padding: 20px;
-      width: 160px;
-      height: 170px;
-      background: linear-gradient(145deg, #dfdccb, #fffff1);
-      box-shadow: 10px 10px 20px #74512d,
-                  -10px -10px 20px #74512d;
-      transition: transform 0.3s ease, background 0.3s ease;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-decoration: none;
-    }
-
-    .card:hover {
-      transform: scale(1.05);
-      background: linear-gradient(145deg, #fff7d1, #feba17);
-    }
-
-    .card img {
-      width: 80px;
-      height: 80px;
-      margin-bottom: 10px;
-    }
-
-    .label {
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #333;
-    }
-
-    .back-btn {
-      display: inline-block;
-      padding: 12px 25px;
-      font-size: 1rem;
-      font-weight: bold;
+      position: relative;
+      z-index: 1;
+      text-align: center;
       color: #fff;
-      background: #74512d;
-      border-radius: 25px;
-      text-decoration: none;
-      box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
-      transition: background 0.3s ease, transform 0.2s ease;
-      margin-top: 15px; /* tighter spacing */
+      padding: 50px 30px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      animation: fadeInUp 1s ease forwards;
     }
 
-    .back-btn:hover {
-      background: #feba17;
-      color: #333;
-      transform: scale(1.05);
+    @keyframes fadeInUp {
+      0% { opacity: 0; transform: translateY(30px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      color: #FFD166;
+      text-shadow: 1px 1px 5px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 400;
+      margin-bottom: 30px;
+      color: #fff;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 15px 45px;
+      margin: 10px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      text-decoration: none;
+      color: #fff;
+      background: linear-gradient(135deg, #FEE440, #F8961E);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.4);
+      background: linear-gradient(135deg, #F8961E, #FEE440);
+      color: #000;
+    }
+
+    .btn-back {
+      background: transparent;
+      border: 2px solid #fff;
+      color: #fff;
+    }
+
+    .btn-back:hover {
+      background: #fff;
+      color: #000;
+      transform: translateY(-5px);
+      border-color: #FFD166;
     }
 
     @media (max-width: 600px) {
-      h1 {
-        font-size: 3rem;
-      }
-      .card {
-        width: 130px;
-        height: 150px;
-      }
-      .card img {
-        width: 60px;
-        height: 60px;
-      }
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1rem; }
+      .btn { padding: 12px 35px; font-size: 1rem; }
+      .logo { width: 100px; height: 100px; }
     }
+
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <img src="images/bee.png" alt="Bee Logo"/>
-    <h1>HiveCare</h1>
-  </div>
-
-  <h2>Select your role to continue</h2>
-
   <div class="container">
-    <a href="guest-dashboard.php" class="card">
-      <img src="images/guest.png" alt="Guest Icon"/>
-      <div class="label">GUEST</div>
-    </a>
+    <img src="images/bee.png" alt="Bee Logo" class="logo"/>
+    <h1>Welcome to HiveCare!</h1>
+    <h2>Your smart beehive monitoring system is ready</h2>
 
-    <a href="user-login.php" class="card">
-      <img src="images/user.png" alt="User Icon"/>
-      <div class="label">USER</div>
-    </a>
-
-    <a href="admin-login.php" class="card">
-      <img src="images/admin.png" alt="Admin Icon"/>
-      <div class="label">ADMIN</div>
-    </a>
+    <a href="user-login.php" class="btn">Login to your Account</a>
+    <a href="frontindex.php" class="btn btn-back">⬅ Back</a>
   </div>
-
-  <a href="frontindex.php" class="back-btn">⬅ Back</a>
 
 </body>
 </html>
