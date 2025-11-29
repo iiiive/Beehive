@@ -127,8 +127,6 @@ button:active {
 }
 
 
-
-
     .info-section {
       padding: 80px 20px;
       background-color: #fffbee;
