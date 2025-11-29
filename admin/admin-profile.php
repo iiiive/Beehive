@@ -1,7 +1,13 @@
 <?php
 session_start();
 include("../config.php");
+session_start();
 
+// Check if admin is logged in
+if (!isset($_SESSION['admin_logged_in'])) {
+    header("Location: admin-login.php");
+    exit;
+}
 // Fallback for testing
 $admin_id = $_SESSION['admin_id'] ?? 1;
 

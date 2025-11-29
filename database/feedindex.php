@@ -221,7 +221,7 @@ h2 {
       <div class="col-md-12">
 
         <div class="mt-5 mb-3 d-flex align-items-center position-relative">
-          <a href="frontend/database.php" class="btn"><i class="bi bi-arrow-bar-left"></i> Back</a>
+          <a href="../admin/database.php" class="btn"><i class="bi bi-arrow-bar-left"></i> Back</a>
           <h2 class="mx-auto text-center">Bee Feeding Schedule</h2>
         </div>
 
