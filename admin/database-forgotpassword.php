@@ -65,7 +65,7 @@ display:flex;
 align-items:center; 
 justify-content:center; 
 font-family:Raleway, sans-serif; 
-background: url('images/beehive.jpeg') no-repeat center center/cover; margin:0; position:relative; }
+background: url('http://localhost/thesis/Beehive/frontend/images/beehive.jpeg') no-repeat center center/cover; margin:0; position:relative; }
 body::before { 
 content:""; 
 position:absolute; 

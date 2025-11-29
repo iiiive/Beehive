@@ -58,7 +58,7 @@ body {
 body::before {
   content: "";
   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: url('images/beehive.jpeg') no-repeat center center/cover;
+  background: url('http://localhost/thesis/Beehive/frontend/images/beehive.jpeg') no-repeat center center/cover;
   filter: brightness(20%);
   z-index: -1;
 }
@@ -117,7 +117,7 @@ body::before {
   <div class="screen">
     <div class="screen__content">
       <div class="login-header">
-        <img src="images/bee.png" alt="Bee Logo">
+        <img src="http://localhost/thesis/Beehive/frontend/images/bee.png" alt="Bee Logo">
         <h1>HiveCare Database Login</h1>
       </div>
 

@@ -20,7 +20,7 @@
 
     header {
       position: relative;
-      background-image: url('images/homepage.jpeg');
+      background-image: url('http://localhost/thesis/Beehive/frontend/images/homepage.jpeg');
       background-size: cover;
       background-position: center;
       height: 90vh;
@@ -125,6 +125,8 @@ button:hover .transition {
 button:active {
   transform: scale(0.97);
 }
+
+
 
 
     .info-section {
@@ -539,12 +541,6 @@ input:checked +.card > .card-img{
   color: #4e5052;
   text-transform: capitalize;
 }
-
-
-
-
-
-
 
   </style>
 </head>

@@ -103,18 +103,7 @@
       color: #000;
     }
 
-    .btn-back {
-      background: transparent;
-      border: 2px solid #fff;
-      color: #fff;
-    }
-
-    .btn-back:hover {
-      background: #fff;
-      color: #000;
-      transform: translateY(-5px);
-      border-color: #FFD166;
-    }
+ 
 
     @media (max-width: 600px) {
       h1 { font-size: 2.2rem; }
@@ -132,8 +121,7 @@
     <h1>Welcome to HiveCare!</h1>
     <h2>Your smart beehive monitoring system is ready</h2>
 
-    <a href="user-login.php" class="btn">Login to your Account</a>
-    <a href="frontindex.php" class="btn btn-back">⬅ Back</a>
+    <a href="admin-login.php" class="btn">Login to your Account</a>
   </div>
 
 </body>

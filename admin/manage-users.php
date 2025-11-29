@@ -71,7 +71,7 @@ body::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: url('images/profile_addusers.jpeg') no-repeat center center/cover;
+  background: url('http://localhost/thesis/Beehive/frontend/images/profile_addusers.jpeg') no-repeat center center/cover;
   filter: brightness(25%);
   z-index: -1;
 }

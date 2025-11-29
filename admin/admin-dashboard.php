@@ -426,7 +426,7 @@ canvas { margin-top:20px; height:120px !important; }
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="images/bee.png" alt="HiveCare Logo"> 
+    <img src="http://localhost/thesis/Beehive/frontend/images/bee.png" alt="HiveCare Logo"> 
     <span>HiveCare - Admin Dashboard</span>
   </div>
   <div>

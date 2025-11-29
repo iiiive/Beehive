@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
 body {
   height: 100vh; display: flex; align-items: center; justify-content: center;
   font-family: Raleway, sans-serif;
-  background: url('images/beehive.jpeg') no-repeat center center/cover;
+  background: url('http://localhost/thesis/Beehive/frontend/images/beehive.jpeg') no-repeat center center/cover;
   position: relative; margin: 0;
 }
 h2 { color: #e7d25bff; font-family: 'Cursive','Brush Script MT',sans-serif; font-size: 3rem; font-weight: 100; height: 100px; }
