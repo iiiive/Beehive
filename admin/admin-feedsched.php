@@ -1,6 +1,12 @@
 <?php
 require_once "../config.php";
+session_start();
 
+// Check if admin is logged in
+if (!isset($_SESSION['admin_logged_in'])) {
+    header("Location: admin-login.php");
+    exit;
+}
 $sql = "SELECT u.firstname, u.lastname, f.next_feed, f.fed_at
         FROM bee_feeding_schedule f
         JOIN users u ON f.fed_by_user_id = u.user_id

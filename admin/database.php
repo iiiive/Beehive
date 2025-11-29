@@ -177,22 +177,22 @@ h2 {
         <h2>HiveCare Monitoring Records</h2>
 
         <div class="container-cards">
-            <a href="../index.php" class="card-link">
+            <a href="../database/index.php" class="card-link">
                 <img src="images/bee2.png" alt="Beehive Icon">
                 <div class="label">Beehive Readings</div>
             </a>
 
-            <a href="../feedindex.php" class="card-link">
+            <a href="../database/feedindex.php" class="card-link">
                 <img src="images/info.png" alt="Feeding Icon">
                 <div class="label">Bee Feeding Information</div>
             </a>
 
-            <a href="../userindex.php" class="card-link">
+            <a href="../database/userindex.php" class="card-link">
                 <img src="images/user.png" alt="User Icon">
                 <div class="label">User Information</div>
             </a>
 
-            <a href="../adminindex.php" class="card-link">
+            <a href="../database/adminindex.php" class="card-link">
                 <img src="images/admin.png" alt="Admin Icon">
                 <div class="label">Admin Information</div>
             </a>

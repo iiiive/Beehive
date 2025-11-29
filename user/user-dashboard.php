@@ -1,8 +1,22 @@
 <?php
-require_once "../config.php";
 
-// Query 1: Get ALL readings for charts and latest values
-$sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status, status
+session_start();
+include("../config.php");
+
+// Ensure user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: user-login.php");
+    exit;
+}
+
+$user_id = $_SESSION['user_id'];
+$success = $error = "";
+require_once "../config.php";
+date_default_timezone_set('Asia/Manila');
+mysqli_query($link, "SET time_zone = '+08:00'");
+
+// === Hive readings ===
+$sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status 
             FROM beehive_readings 
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
@@ -11,59 +25,53 @@ $timestamps   = [];
 $temperatures = [];
 $humidities   = [];
 $weights      = [];
-$fan_statuses = [];
-$statuses     = [];
+$fans         = [];
 
 while ($row = mysqli_fetch_assoc($result_all)) {
     $timestamps[]   = $row['timestamp'];
     $temperatures[] = $row['temperature'];
     $humidities[]   = $row['humidity'];
     $weights[]      = $row['weight'];
-    $fan_statuses[] = $row['fan_status'];
-    $statuses[]     = $row['status'];
+    $fans[]         = $row['fan_status'];
 }
 
 $latestTemp   = end($temperatures);
 $latestHum    = end($humidities);
 $latestWeight = end($weights);
-$latestFan    = end($fan_statuses);
+$latestFan    = end($fans);
 
-// For charts
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
 
-// Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, status 
+// Get last 5 readings
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, status
               FROM beehive_readings 
               ORDER BY timestamp DESC 
-              LIMIT 6";  // get 6: latest + 5 previous
+              LIMIT 6";
 $result_last5 = mysqli_query($link, $sql_last5);
 
 $history_rows = [];
 while ($row = mysqli_fetch_assoc($result_last5)) {
     $history_rows[] = $row;
 }
-
-// Remove the very latest row (first row in DESC order)
 array_shift($history_rows);
-$sql = "SELECT u.username, f.last_fed, f.next_feed
-        FROM bee_feeding_schedule f
-        JOIN users u ON f.fed_by_user_id = u.user_id
-        ORDER BY f.id DESC
-        LIMIT 1"; // always get latest feed record
 
-$result = mysqli_query($link, $sql);
-$data = [];
 
-if ($row = mysqli_fetch_assoc($result)) {
-    $data = $row;
-}
+// fetch user feeding schedule
+$user_id = $_SESSION['user_id'] ?? 1;
+$sql_feed = "SELECT * FROM bee_feeding_schedule WHERE user_id=$user_id LIMIT 1";
+$result_feed = mysqli_query($link, $sql_feed);
+$feeding = mysqli_fetch_assoc($result_feed);
+
+$now = new DateTime();
+$next_feed = $feeding ? new DateTime($feeding['next_feed']) : null;
+$time_diff = $next_feed ? $next_feed->getTimestamp() - $now->getTimestamp() : null;
+$needs_feeding = ($time_diff <= 0);
 
 mysqli_close($link);
 
 ?>
-
 
 
 
@@ -72,7 +80,7 @@ mysqli_close($link);
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HiveCare - Admin Dashboard</title>
+<title>HiveCare - User Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -99,7 +107,6 @@ z-index: 1; }
 /* Header */
 .dashboard-header {
   width:100%; 
-  padding:15px 25px;
   display:flex; 
   justify-content:space-between; 
   align-items:center;
@@ -108,7 +115,9 @@ z-index: 1; }
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
 }
 .dashboard-header .title {
-  display:flex; align-items:center; gap:15px;
+  display:flex; 
+  align-items:center; 
+  gap:15px;
 }
 .dashboard-header .title span {
   font-family: 'Cursive','Brush Script MT',sans-serif;
@@ -210,6 +219,8 @@ canvas { margin-top:20px; height:120px !important; }
   background: #FEDE16 !important;
   transform: scale(1.01);
 }
+
+
 /* ================= RESPONSIVE FIXES ================= */
 
 /* Tablet */
@@ -319,97 +330,82 @@ canvas { margin-top:20px; height:120px !important; }
     min-width: 100px;
   }
 }
-/* 🐝 Bee Feeding Status Card */
+/* Feeding Scheduler Custom Design */
 .feeding-card {
-  background: linear-gradient(145deg, #FFF8DC, #EED484);
-  border: 2px solid #E3B23C;
+  background: linear-gradient(145deg, #FFF8DC, #f7d36c);
   border-radius: 25px;
-  box-shadow: 6px 6px 20px rgba(0,0,0,0.25);
-  transition: 0.3s ease;
-}
-
-#feeding-status-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 15px;
-}
-
-/* Inner card for each status */
-.feed-card {
-  padding: 20px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: 0.3s ease;
-  border-left: 6px solid;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   position: relative;
   overflow: hidden;
 }
 
-/* 🐝 Hungry Mode */
-.feed-hungry {
-  background: linear-gradient(145deg, #FFEAEA, #FFB6B6);
-  border-left-color: #E63946;
-  box-shadow: 4px 6px 16px rgba(230, 57, 70, 0.3);
-}
-
-.feed-hungry::before {
-  content: "⚠️ Hungry Alert!";
+/* Honey drip accent on top */
+.feeding-card::before {
+  content: "";
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-weight: 700;
-  color: #B22222;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: radial-gradient(circle at 10% 30%, #ffd93d, transparent 50%),
+              radial-gradient(circle at 30% 10%, #ffcc00, transparent 50%),
+              radial-gradient(circle at 60% 30%, #ffb703, transparent 50%),
+              radial-gradient(circle at 90% 20%, #fcbf49, transparent 50%);
+  opacity: 0.7;
+  animation: honeyMove 5s infinite linear;
 }
 
-/* 🍯 Eating Mode */
-.feed-eating {
-  background: linear-gradient(145deg, #E8FFE8, #C4F2C4);
-  border-left-color: #2A9D8F;
-  box-shadow: 4px 6px 16px rgba(42, 157, 143, 0.3);
+@keyframes honeyMove {
+  from { background-position: 0 0, 20px 0, 40px 0, 60px 0; }
+  to { background-position: 60px 0, 80px 0, 100px 0, 120px 0; }
 }
 
-.feed-eating::before {
-  content: "🍯 Feeding Time";
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-weight: 700;
-  color: #1E5631;
+/* Countdown text styling */
+.countdown-container {
+  margin-top: 10px;
 }
 
-/* Common text */
-.feed-card h6 {
+.countdown-text {
+  font-size: 2rem;
   font-weight: 800;
   color: #4B2E1E;
-  margin-bottom: 5px;
-}
-
-.feed-card p {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.feed-card small {
-  color: #4B2E1E;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
   display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
+  margin-top: 10px;
 }
 
-.countdown {
-  font-weight: bold;
+/* Feed Done Button */
+.feed-btn {
+  background: linear-gradient(145deg, #FFD93D, #E8C547);
+  border: none;
   color: #4B2E1E;
-  background: rgba(255,255,255,0.5);
-  padding: 4px 10px;
-  border-radius: 10px;
-  display: inline-block;
-  margin-top: 5px;
+  padding: 12px 25px;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 15px;
+  margin-top: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
 }
 
+.feed-btn:hover {
+  background: linear-gradient(145deg, #E8C547, #FFD93D);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+
+/* Status bubble */
+#feeding-status {
+  display: inline-block;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
 
 
 </style>
@@ -418,20 +414,33 @@ canvas { margin-top:20px; height:120px !important; }
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="images/bee.png" alt="HiveCare Logo"> 
-    <span>HiveCare - Admin Dashboard</span>
+    <img src="images/bee.png" alt="HiveCare Logo">
+    <span>HiveCare - User Dashboard</span>
   </div>
-  <div>
-        <a href="admin-feedsched.php" class="settings-btn"><i class="bi bi-calendar-event"></i>
-Feeding History</a>
 
-    <a href="database_access.php" class="settings-btn"><i class="bi bi-database"></i> Database</a>
-    <a href="manage-users.php" class="settings-btn"><i class="bi bi-person-lines-fill"></i> Manage Users</a>
-    <a href="admin-profile.php" class="settings-btn"><i class="bi bi-person-fill"></i> Edit Profile</a>
+  <!-- Actions aligned to the right -->
 
-    <a href="homepage.php" class="logout-btn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+  <div class="header-actions">
+    <a href="https://discord.com/channels/1416994358464483481/1425437614458273792" 
+   class="logout-btn" 
+   target="_blank" 
+   rel="noopener noreferrer">
+   <i class="bi bi-chat-dots"></i> Need help?
+</a>
+
+    <a href="set_feeding_time.php" class="logout-btn">
+      <i class="bi bi-clock-fill"></i> Set Feeding Time
+    </a>
+    <a href="user-profile.php" class="settings-btn">
+      <i class="bi bi-person-fill"></i> Edit Profile
+    </a>
+    <a href="homepage.php" class="logout-btn">
+      <i class="bi bi-box-arrow-right"></i> Logout
+    </a>
   </div>
 </div>
+
+
 <div class="container">
   <!-- Temperature -->
   <div class="card">
@@ -473,26 +482,26 @@ Feeding History</a>
 </div>
   </div>
 
-  
-<!-- 🐝 Bee Feeding Status Card -->
+  <!-- Feeding Scheduler Card -->
+<!-- Feeding Scheduler Card -->
 <div class="card feeding-card">
   <h5 class="card-title">
-    <i class="bi bi-check-circle-fill" style="color:#D2691E;"></i> Bee Feeding Status
+    <i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Feeding Scheduler
   </h5>
 
-  <div id="feeding-status-list"></div>
+  <div id="feeding-area">
+    <div id="feeding-status" class="status-good"></div>
+    <div class="countdown-container">
+      <span id="countdown" class="countdown-text"></span>
+    </div>
+    <button id="feed-done-btn" class="feed-btn" style="display:none;">
+      <i class="bi bi-check-circle"></i> Feed Done
+    </button>
+  </div>
 </div>
 
-
 </div>
 
-</div>
-
-
-
-
-
-    
 
 
 
@@ -507,104 +516,134 @@ Feeding History</a>
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
-          <th>Fan Status</th>
+          <th>Fan</th>
           <th>Status</th>
-          
         </tr>
       </thead>
       <tbody id="history-body">
-  <?php foreach ($history_rows as $row): ?>
-    <tr>
-      <td><?= $row['timestamp'] ?></td>
-      <td><?= $row['temperature'] ?> °C</td>
-      <td><?= $row['humidity'] ?> %</td>
-      <td><?= $row['weight'] ?> kg</td>
-<td><?php echo ($row['fan_status'] == 1 ? 'ON' : 'OFF'); ?></td>
-      <td><?= $row['status'] ?></td>
-    </tr>
-  <?php endforeach; ?>
-</tbody>
+        <?php foreach ($history_rows as $row): ?>
+          <tr>
+            <td><?= $row['timestamp'] ?></td>
+            <td><?= $row['temperature'] ?></td>
+            <td><?= $row['humidity'] ?></td>
+            <td><?= $row['weight'] ?></td>
+            <td><?= $row['fan_status'] > 0 ? "ON" : "OFF" ?></td>
+            <td><?= $row['status'] ?></td>
 
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
     </table>
   </div>
 </div>
 
 
 
-<script>
-const tempData = <?php echo json_encode(array_reverse($temperature_history)); ?>;
-const humData = <?php echo json_encode(array_reverse($humidity_history)); ?>;
-const weightData = <?php echo json_encode(array_reverse($weight_history)); ?>;
 
-function create3DChart(id,data,color){
-  new Chart(document.getElementById(id),{
+
+
+
+
+
+
+
+
+<script>
+
+  
+const tempData = <?php echo json_encode($temperature_history); ?>;
+const humData = <?php echo json_encode($humidity_history); ?>;
+const weightData = <?php echo json_encode($weight_history); ?>;
+
+function create3DChart(id, data, color) {
+  new Chart(document.getElementById(id), {
     type:'line',
-    data:{labels:data.map((_,i)=>i+1),datasets:[{data:data,borderColor:color,backgroundColor:color+'55',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:color,pointHoverRadius:6,borderWidth:3}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{beginAtZero:false}}}
+    data:{ labels:data.map((_,i)=>i+1),
+      datasets:[{ data, borderColor:color, backgroundColor:color+'55',
+        fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:color,
+        pointHoverRadius:6, borderWidth:3 }] },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{ x:{ display:false }, y:{ beginAtZero:false } } }
   });
 }
-create3DChart('tempChart',tempData,'#D2691E');
-create3DChart('humChart',humData,'#4B2E1E');
-create3DChart('weightChart',weightData,'#4B2E1E');
 
-function controlFan(action){
-  document.getElementById('fan-status').innerText = "Fan mode: "+(action==='auto'?'Automatic':action==='on'?'On':'Off');
-  console.log("Fan set to:", action);
+create3DChart('tempChart', tempData, '#D2691E');
+create3DChart('humChart', humData, '#4B2E1E');
+create3DChart('weightChart', weightData, '#4B2E1E');
+
+function controlFan(action, btn) {
+  document.querySelectorAll('.fan-btn').forEach(b => {
+    b.style.transform = 'scale(1)'; b.style.boxShadow = '';
+  });
+  btn.style.transform = 'scale(1.05)';
+  btn.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
+  document.getElementById('fan-status').innerText =
+    'Fan mode: ' + (action==='auto'?'Automatic':(action==='on'?'On':'Off'));
+  console.log('Fan set to:', action);
 }
 
-// ✅ Auto-refresh latest values
-// ✅ Auto-refresh latest values
 async function reloadValues() {
   try {
-    const response = await fetch("get_latest.php");
+    const response = await fetch("get_latest.php"); 
     const data = await response.json();
 
-    // Update main values
+    // Update numbers
     document.getElementById("temp-value").innerText   = data.temperature + " °C";
     document.getElementById("hum-value").innerText    = data.humidity + " %";
     document.getElementById("weight-value").innerText = data.weight + " kg";
+    document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
 
-    // ✅ Fan real-time update
-    document.getElementById("fan-value").innerText = (data.fan_status == 1) ? "ON" : "OFF";
-    const fanStatus = document.getElementById("fan-status");
-    if (data.fan_status == 1) {
-      fanStatus.className = "status-good";
-      fanStatus.innerText = "The Fan is Running ✔";
-    } else {
-      fanStatus.className = "status-bad";
-      fanStatus.innerText = "The Fan is Off ✖";
-    }
+    // Update statuses dynamically
+    updateStatus("temp-status",
+      (data.temperature >= 22.30 && data.temperature <= 25.90) ?
+      {text:"Temperature is Good ✔", cls:"status-good"} :
+      {text:"Temperature is Bad ✖", cls:"status-bad"}
+    );
 
-    // Update status conditions
-    updateStatus("temp-value", data.temperature >= 25.90 && data.temperature <= 22.30, "Temperature is Good ✔", "Temperature is Bad ✖");
-    updateStatus("hum-value", data.humidity >= 79.20 && data.humidity <= 86.40, "Humidity is Good ✔", "Humidity is Bad ✖");
-    updateStatus("weight-value", data.weight >= 5, "The Hive is Heavy!", "The Hive is still Light ✖");
+    updateStatus("hum-status",
+      (data.humidity >=79.20 && data.humidity <= 86.40) ?
+      {text:"Humidity is Good ✔", cls:"status-good"} :
+      {text:"Humidity is Bad ✖", cls:"status-bad"}
+    );
+
+    updateStatus("weight-status",
+      (data.weight >= 5) ?
+      {text:"The Hive is Heavy!", cls:"status-good"} :
+      {text:"The Hive is still Light", cls:"status-bad"}
+    );
+
+    updateStatus("fan-status",
+      (data.fan_status == 1) ?
+      {text:"The Fan is Running ✔", cls:"status-good"} :
+      {text:"The Fan is Off ✖", cls:"status-bad"}
+    );
 
   } catch (err) {
     console.error("Error fetching latest data:", err);
   }
 }
 
-
-function updateStatus(id, condition, goodText, badText) {
-  const el = document.getElementById(id).nextElementSibling; // status div is right after value div
-  if (condition) {
-    el.className = "status-good";
-    el.innerText = goodText;
-  } else {
-    el.className = "status-bad";
-    el.innerText = badText;
-  }
+// Helper function
+function updateStatus(id, obj) {
+  const el = document.getElementById(id);
+  el.className = obj.cls;
+  el.innerText = obj.text;
 }
 
-// ✅ Auto-refresh history log
+// Run immediately + every 5 seconds
+reloadValues();
+setInterval(reloadValues, 5000);
+
+
+
 async function reloadHistory() {
   try {
     const res = await fetch("get_history.php");
     const data = await res.json();
 
     const tbody = document.getElementById("history-body");
-    tbody.innerHTML = "";
+    tbody.innerHTML = ""; // clear old rows
 
     data.forEach(row => {
       const tr = document.createElement("tr");
@@ -623,122 +662,118 @@ async function reloadHistory() {
   }
 }
 
-// Run both immediately + every 5s
-reloadValues();
+// Run immediately + every 5s
 reloadHistory();
-setInterval(reloadValues, 5000);
 setInterval(reloadHistory, 5000);
 
+async function reloadFan() {
+  try {
+    const res = await fetch("get_fan.php");
+    const data = await res.json();
+    const fanStatusEl = document.getElementById("fan-status");
 
-
-
-function fetchFeedingStatus() {
-  fetch('get_feeding_status.php')
-    .then(response => response.json())
-    .then(data => {
-      const now = new Date();
-      const nextFeed = new Date(data.next_feed);
-      const isHungry = nextFeed <= now;
-
-      const cardClass = isHungry ? 'feed-card feed-hungry' : 'feed-card feed-eating';
-      const statusText = isHungry
-        ? `<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them now!</p>`
-        : `<p class="text-success fw-bold">🍯 Bees are eating happily!</p>
-           <p>Next feeding in: <span class="countdown"></span></p>`;
-
-      document.getElementById('feeding-status-list').innerHTML = `
-        <div class="${cardClass}">
-          <h6><i class="bi bi-person-fill"></i> ${data.username || 'Unknown User'}</h6>
-          ${statusText}
-          <small>
-            <i class="bi bi-clock-history"></i> Last fed: ${data.last_fed || 'Not yet fed'}<br>
-            <i class="bi bi-calendar-event"></i> Next feed: ${data.next_feed || 'N/A'}
-          </small>
-        </div>
-      `;
-
-      // ✅ Always start/update the countdown when not hungry
-      if (!isHungry && data.next_feed) {
-        updateCountdown(data.next_feed);
-      }
-    })
-    .catch(err => console.error('Fetch error:', err));
+    if (data.fan_status === 1) {
+      fanStatusEl.innerHTML = '<span style="color:green; font-weight:bold;">Fan is ON ✔</span>';
+    } else {
+      fanStatusEl.innerHTML = '<span style="color:red; font-weight:bold;">Fan is OFF ✖</span>';
+    }
+  } catch (err) {
+    console.error("Fan fetch error:", err);
+  }
 }
 
-let countdownInterval;
 
-function updateCountdown(nextFeedTime) {
-  const countdownElem = document.querySelector('.countdown');
-  if (!countdownElem) return;
+const feedingStatusEl = document.getElementById("feeding-status");
+const countdownEl = document.getElementById("countdown");
+const feedDoneBtn = document.getElementById("feed-done-btn");
 
-  const targetTime = new Date(nextFeedTime).getTime();
-  clearInterval(countdownInterval); // 🧹 stop previous countdown
+let timerInterval;
+let nextFeedTime = null;
+let lastFetchedFeed = null;
 
-  countdownInterval = setInterval(() => {
+// Function to fetch current feeding schedule every 1 second
+async function fetchFeedingData() {
+  const res = await fetch("get_next_feed.php");
+  const data = await res.json();
+
+  // Only update countdown if data changed
+  if (JSON.stringify(data) !== JSON.stringify(lastFetchedFeed)) {
+    lastFetchedFeed = data;
+    nextFeedTime = data.next_feed ? new Date(data.next_feed).getTime() : null;
+    updateDisplay(data);
+  }
+}
+
+// Function to update display
+function updateDisplay(data) {
+  clearInterval(timerInterval);
+  
+  const now = new Date().getTime();
+  const distance = data.next_feed ? new Date(data.next_feed).getTime() - now : 0;
+
+  if (distance <= 0) {
+    feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
+    feedingStatusEl.className = "status-bad";
+    feedDoneBtn.style.display = "inline-block";
+    countdownEl.innerText = "";
+    return;
+  }
+
+  feedDoneBtn.style.display = "none"; // hide button when countdown active
+  feedingStatusEl.innerText = "🍯 Bees are eating";
+
+  // Start countdown timer
+  function updateCountdown() {
     const now = new Date().getTime();
-    const diff = targetTime - now;
+    const dist = new Date(data.next_feed).getTime() - now;
 
-    if (diff <= 0) {
-      clearInterval(countdownInterval);
-      countdownElem.textContent = "🐝 Time to feed the bees!";
-      // Optional: trigger Discord webhook here if you like
+    if (dist <= 0) {
+      clearInterval(timerInterval);
+      feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
+      feedDoneBtn.style.display = "inline-block";
+      countdownEl.innerText = "";
+
+        alert("The bees are hungry! Time to feed them 🍯");
+        fetch("check_feeding_status.php");
+
+        
       return;
     }
 
-    const hrs = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+    const days = Math.floor(dist / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((dist % (1000 * 60)) / 1000);
 
-    countdownElem.textContent = `${hrs}h ${mins}m ${secs}s`;
-  }, 1);
+    countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  updateCountdown();
+  timerInterval = setInterval(updateCountdown, 1000);
 }
 
-// Auto-refresh every 1 second
-setInterval(fetchFeedingStatus, 1000);
-fetchFeedingStatus(); // Initial load
-
-// Function to load live feeding data
-function loadFeedingStatus() {
-  fetch("live_feeding_status.php")
-    .then(res => res.json())
-    .then(data => {
-      const now = new Date();
-      const nextFeed = new Date(data.next_feed);
-      const isHungry = nextFeed <= now;
-
-      const statusDiv = document.getElementById("feeding-status");
-      const feedBtn = document.getElementById("feed-done-btn");
-      const countdown = document.getElementById("countdown");
-
-      if (isHungry) {
-        statusDiv.textContent = "🐝 Bees are hungry! Feed them.";
-        feedBtn.style.display = "inline-block";
-        countdown.textContent = "";
-      } else {
-        statusDiv.textContent = "🍯 Bees are eating.";
-        feedBtn.style.display = "none";
-
-        const diff = Math.max(0, (nextFeed - now) / 1000);
-        countdown.textContent = `Next feed in ${Math.floor(diff / 60)}m ${Math.floor(diff % 60)}s`;
-      }
-    });
-}
-
-// Auto refresh every second
-setInterval(loadFeedingStatus, 1000);
-
-// When clicking feed done
-document.getElementById("feed-done-btn").addEventListener("click", () => {
-  fetch("feed_done.php", { method: "POST" })
-    .then(res => res.json())
-    .then(data => {
-      console.log(data.message);
-      loadFeedingStatus();
-    });
+// Feed Done button
+feedDoneBtn.addEventListener("click", async () => {
+  feedDoneBtn.disabled = true;
+  await fetch("feed_done.php", { method: "POST" });
+  await fetchFeedingData(); // immediately refresh data
+  feedDoneBtn.disabled = false;
 });
 
+// Poll every 1 second to sync between users
+setInterval(fetchFeedingData, 1000);
+
 // Initial load
-loadFeedingStatus();
+fetchFeedingData();
+
+
+
+
+
+
+
+
+
 
 </script>
 
