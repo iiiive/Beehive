@@ -143,7 +143,7 @@ $totalPages = ceil($totalRows / $limit);
             <div class="col-md-12">
 
                 <div class="mt-5 mb-3 d-flex align-items-center position-relative">
-<a href="frontend/database.php" class="btn">
+<a href="../admin/database.php" class="btn">
   <i class="bi bi-arrow-bar-left"></i> <span>Back</span>
 </a>                    <h2 class="mx-auto text-center">Admin Account Records</h2>
                 </div>

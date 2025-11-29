@@ -209,7 +209,7 @@
         <div class="col-md-12">
 
           <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
-           <a href="frontend/database.php" class="btn">
+           <a href="../admin/database.php" class="btn">
   <i class="bi bi-arrow-bar-left"></i> <span>Back</span>
 </a>
 
