@@ -1,14 +1,17 @@
 <?php
 session_start();
 include("../config.php");
-session_start();
+
 
 // Check if admin is logged in
 if (!isset($_SESSION['admin_logged_in'])) {
     header("Location: admin-login.php");
     exit;
 }
-$error = "";
+// Fallback for testing
+$admin_id = $_SESSION['admin_id'] ?? 1;
+
+$success = $error = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username']);
@@ -47,7 +50,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>HiveCare Admin Database Login</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap" rel="stylesheet">
+
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Raleway, sans-serif; }
 
@@ -58,7 +65,7 @@ body {
 body::before {
   content: "";
   position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  background: url('http://localhost/thesis/Beehive/frontend/images/beehive.jpeg') no-repeat center center/cover;
+  background: url('../frontend/images/beehive.jpeg') no-repeat center center/cover;
   filter: brightness(20%);
   z-index: -1;
 }
@@ -117,7 +124,7 @@ body::before {
   <div class="screen">
     <div class="screen__content">
       <div class="login-header">
-        <img src="http://localhost/thesis/Beehive/frontend/images/bee.png" alt="Bee Logo">
+        <img src="../frontend/images/bee.png" alt="Bee Logo">
         <h1>HiveCare Database Login</h1>
       </div>
 

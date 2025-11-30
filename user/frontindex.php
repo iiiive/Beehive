@@ -20,7 +20,7 @@
 
     header {
       position: relative;
-      background-image: url('http://localhost/thesis/Beehive/frontend/images/homepage.jpeg');
+      background-image: url('../frontend/images/frontindex.jpg');
       background-size: cover;
       background-position: center;
       height: 90vh;

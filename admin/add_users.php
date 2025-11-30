@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <style>
 * { box-sizing: border-box; margin:0; padding:0; font-family: Raleway, sans-serif; }
 body { height: 100vh; display:flex; align-items:center; justify-content:center; position:relative; }
-body::before { content:""; position:absolute; top:0; left:0; right:0; bottom:0; background:url('http://localhost/thesis/Beehive/frontend/images/profile_addusers.jpeg') no-repeat center/cover; filter: brightness(25%); z-index:-1; }
+body::before { content:""; position:absolute; top:0; left:0; right:0; bottom:0; background:url('../frontend/images/profile_addusers.jpeg') no-repeat center/cover; filter: brightness(25%); z-index:-1; }
 .container { width:480px; background: rgba(255,255,255,0.1); border-radius:20px; backdrop-filter: blur(15px); border:1px solid rgba(255,255,255,0.2); box-shadow:0 0 24px #ceae1fff; padding:30px; }
 h2 { text-align:center; color:#e7d25bff; margin-bottom:25px; font-size:26px; }
 form { display:flex; flex-direction:column; }

@@ -17,7 +17,7 @@
 
     body {
       font-family: 'Montserrat', sans-serif;
-      background: url('http://localhost/thesis/Beehive/frontend/images/background.jpg') no-repeat center center fixed;
+      background: url('../frontend/images/background.jpg') no-repeat center center fixed;
       background-size: cover;
       display: flex;
       justify-content: center;
@@ -128,7 +128,7 @@
 <body>
 
   <div class="container">
-    <img src="http://localhost/thesis/Beehive/frontend/images/bee.png" alt="Bee Logo" class="logo"/>
+    <img src="../frontend/images/bee.png" alt="Bee Logo" class="logo"/>
     <h1>Welcome to HiveCare!</h1>
     <h2>Your smart beehive monitoring system is ready</h2>
 

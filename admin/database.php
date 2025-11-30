@@ -178,22 +178,22 @@ h2 {
 
         <div class="container-cards">
             <a href="../database/index.php" class="card-link">
-                <img src="http://localhost/thesis/Beehive/frontend/images/bee2.png" alt="Beehive Icon">
+                <img src="../frontend/images/bee2.png" alt="Beehive Icon">
                 <div class="label">Beehive Readings</div>
             </a>
 
             <a href="../database/feedindex.php" class="card-link">
-                <img src="http://localhost/thesis/Beehive/frontend/images/info.png" alt="Feeding Icon">
+                <img src="../frontend/images/info.png" alt="Feeding Icon">
                 <div class="label">Bee Feeding Information</div>
             </a>
 
             <a href="../database/userindex.php" class="card-link">
-                <img src="http://localhost/thesis/Beehive/frontend/images/user.png" alt="User Icon">
+                <img src="../frontend/images/user.png" alt="User Icon">
                 <div class="label">User Information</div>
             </a>
 
             <a href="../database/adminindex.php" class="card-link">
-                <img src="http://localhost/thesis/Beehive/frontend/images/admin.png" alt="Admin Icon">
+                <img src="../frontend/images/admin.png" alt="Admin Icon">
                 <div class="label">Admin Information</div>
             </a>
         </div>
