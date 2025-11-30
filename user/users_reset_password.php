@@ -60,7 +60,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && $showForm) {
 body {
   height: 100vh; display: flex; align-items: center; justify-content: center;
   font-family: Raleway, sans-serif;
-  background: url('images/beehive.jpeg') no-repeat center center/cover;
+  background: url('../frontend/images/beehive.jpeg') no-repeat center center/cover;
   position: relative; margin: 0;
 }
 body::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.7); }

@@ -67,7 +67,7 @@ body { height: 100vh;
     align-items:center; 
     justify-content:center; 
     font-family:Raleway, sans-serif; 
-    background: url('images/beehive.jpeg') no-repeat center center/cover; 
+    background: url('../frontend/images/beehive.jpeg') no-repeat center center/cover; 
     margin:0; 
     position:relative; 
 }
