@@ -1470,8 +1470,8 @@ INSERT INTO `beehive_readings` (`reading_id`, `timestamp`, `temperature`, `humid
 --
 DELIMITER $$
 CREATE TRIGGER `set_beehive_status_before_insert` BEFORE INSERT ON `beehive_readings` FOR EACH ROW BEGIN
-    IF (NEW.temperature BETWEEN 32 AND 36)
-       AND (NEW.humidity BETWEEN 40 AND 55) THEN
+    IF (NEW.temperature BETWEEN 22.3 AND 25.9)
+       AND (NEW.humidity BETWEEN 79.2 AND 86.4) THEN
         SET NEW.status = 'Good';
     ELSE
         SET NEW.status = 'Bad';
@@ -1481,8 +1481,8 @@ $$
 DELIMITER ;
 DELIMITER $$
 CREATE TRIGGER `set_beehive_status_before_update` BEFORE UPDATE ON `beehive_readings` FOR EACH ROW BEGIN
-    IF (NEW.temperature BETWEEN 32 AND 36)
-       AND (NEW.humidity BETWEEN 40 AND 55) THEN
+    IF (NEW.temperature BETWEEN 22.3 AND 25.9)
+       AND (NEW.humidity BETWEEN 79.2 AND 86.4) THEN
         SET NEW.status = 'Good';
     ELSE
         SET NEW.status = 'Bad';
