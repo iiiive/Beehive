@@ -711,7 +711,7 @@ One of the earliest Europeans to record stingless bees and their honey in Brazil
         <div class="col-12 col-sm-6 col-md-4 col-lg-3">
       <div class="our-team">
         <div class="picture">
-          <img src="images/omar.webp">
+          <img src='../frontend/images/omar.webp'>
         </div>
                <div class="team-content">
   <h3 class="name"> Engr. Omar Anwar </h3>
