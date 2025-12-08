@@ -44,32 +44,174 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 <style>
 /* Your existing styles... */
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: Raleway, sans-serif; }
-body { height: 100vh; display: flex; align-items: center; justify-content: center; position: relative; margin: 0; }
-body::before { content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('../frontend/images/beehive.jpeg') no-repeat center center/cover; filter: brightness(20%); z-index: -1; }
-.container { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-.screen { position: relative; height: 550px; width: 360px; box-shadow: 0px 0px 24px #ceae1fff; border-radius: 20px; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); }
-.screen__content { z-index: 1; position: relative; height: 100%; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; }
-.login-header { text-align: center; margin-bottom: 40px; }
-.login-header img { width: 100px; height: auto; display: block; margin: 0 auto 10px; }
-.login-header h1 { color: #e7d25bff; font-family: 'Cursive', 'Brush Script MT', sans-serif; font-size: 3rem; font-weight: 100; }
-.login { width: 100%; }
-.login__field { padding: 20px 0px; position: relative; }
-.login__icon { position: absolute; top: 30px; color: #e7d25bff; }
-.login__input { border: none; border-bottom: 2px solid #D1D1D4; background: none; padding: 10px 10px 10px 30px; font-weight: 700; width: 100%; transition: .2s; color: #fff; }
-.login__input:focus, .login__input:hover { outline: none; border-bottom-color: #e7d25bff; }
-.eye-icon { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); cursor: pointer; color: #e7d25bff; font-size: 18px;
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+  font-family: Raleway, sans-serif; 
 }
-.eye-icon:hover { color: #fff; cursor: pointer;  transition: color 0.2s ease;
+body { 
+  height: 100vh; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  position: relative; 
+  margin: 0; 
 }
-.login__submit { padding: 15px 25px; border: 0; border-radius: 15px; color: #6d611bff; z-index: 1; background: #e8e8e8; font-weight: 1000; font-size: 17px; box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27); transition: all 250ms; margin-left: 102px; margin-top: 20px; display: flex; align-items: center; justify-content: center; }
-.login__submit:hover { color: #fff; background-color: #e7d25bff; cursor: pointer;}
-.extra-links { margin-top: 10px; text-align: center; }
-.extra-links a { display: block; color: #e7d25bff; text-decoration: underline; margin: 8px 0; transition: color 0.3s ease; }
-.extra-links a:hover { color: #fff; }
-.error { color: red; margin-top: 15px; text-align: center; }
-.back-btn { position: absolute; top: 20px; left: 20px; padding: 10px 20px; font-size: 1rem; font-weight: bold; color: #fff; background: #74512d; border-radius: 20px; text-decoration: none; box-shadow: 4px 4px 10px rgba(0,0,0,0.3); z-index: 1000; transition: background 0.3s ease, transform 0.2s ease; }
-.back-btn:hover { background: #feba17; color: #333; transform: scale(1.05); }
+body::before { 
+  content: ""; 
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0; 
+  background: url('../frontend/images/beehive.jpeg') no-repeat center center/cover; 
+  filter: brightness(20%); 
+  z-index: -1; 
+}
+.container { 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  min-height: 100vh; 
+}
+.screen { 
+  position: relative; 
+  height: 550px; 
+  width: 360px; 
+  box-shadow: 0px 0px 24px #ceae1fff; 
+  border-radius: 20px; 
+  background: rgba(255, 255, 255, 0.1); 
+  backdrop-filter: blur(15px); 
+  -webkit-backdrop-filter: blur(15px); 
+  border: 1px solid rgba(255,255,255,0.2); 
+}
+.screen__content { 
+  z-index: 1; 
+  position: relative; 
+  height: 100%; 
+  padding: 40px 20px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+}
+.login-header { 
+  text-align: center; 
+  margin-bottom: 40px; 
+}
+.login-header img { 
+  width: 100px; 
+  height: auto; 
+  display: block; 
+  margin: 0 auto 10px; 
+}
+.login-header h1 { 
+  color: #e7d25bff; 
+  font-family: 'Cursive', 'Brush Script MT', sans-serif; 
+  font-size: 3rem; 
+  font-weight: 100; 
+}
+.login { 
+  width: 100%; 
+}
+.login__field { 
+  padding: 20px 0px; 
+  position: relative; 
+}
+.login__icon { 
+  position: absolute; 
+  top: 30px; 
+  color: #e7d25bff; 
+}
+.login__input { 
+  border: none; 
+  border-bottom: 2px solid #D1D1D4; 
+  background: none; 
+  padding: 10px 10px 10px 30px; 
+  font-weight: 700; 
+  width: 100%; 
+  transition: .2s; 
+  color: #fff; 
+}
+.login__input:focus, .login__input:hover { 
+  outline: none; 
+  border-bottom-color: #e7d25bff; 
+}
+.eye-icon { 
+  position: absolute; 
+  top: 50%; 
+  right: 10px; 
+  transform: translateY(-50%); 
+  cursor: pointer; 
+  color: #e7d25bff; 
+  font-size: 18px;
+}
+.eye-icon:hover { 
+  color: #fff; 
+  cursor: pointer;  
+  transition: color 0.2s ease;
+}
+.login__submit { 
+  padding: 15px 25px; 
+  border: 0; 
+  border-radius: 15px; 
+  color: #6d611bff; 
+  z-index: 1; 
+  background: #e8e8e8; 
+  font-weight: 1000; 
+  font-size: 17px; 
+  box-shadow: 4px 8px 19px -3px rgba(0,0,0,0.27); 
+  transition: all 250ms; 
+  margin-left: 102px; 
+  margin-top: 20px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+}
+.login__submit:hover { 
+  color: #fff; 
+  background-color: #e7d25bff; 
+  cursor: pointer;
+}
+.extra-links { 
+  margin-top: 10px; 
+  text-align: center; 
+}
+.extra-links a { 
+  display: block; 
+  color: #e7d25bff; 
+  text-decoration: underline; 
+  margin: 8px 0; 
+  transition: color 0.3s ease; 
+}
+.extra-links a:hover { 
+  color: #fff; 
+}
+.error { 
+  color: red; 
+  margin-top: 10px; 
+  text-align: center; 
+}
+.back-btn { 
+  position: absolute; 
+  top: 20px; 
+  left: 20px; 
+  padding: 10px 20px; 
+  font-size: 1rem; 
+  font-weight: bold; 
+  color: #fff; 
+  background: #74512d; 
+  border-radius: 20px; 
+  text-decoration: none; 
+  box-shadow: 4px 4px 10px rgba(0,0,0,0.3); 
+  z-index: 1000; 
+  transition: background 0.3s ease, transform 0.2s ease; 
+}
+.back-btn:hover { 
+  background: #feba17; 
+  color: #333; 
+  transform: scale(1.05); 
+  }
 </style>
 </head>
 <body>
