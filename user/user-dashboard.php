@@ -40,6 +40,10 @@ $latestHum    = end($humidities);
 $latestWeight = end($weights);
 $latestFan    = end($fans);
 
+// placeholders for heater & mist (you can later load from DB if you add columns)
+$latestHeater = 0;
+$latestMist   = 0;
+
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
@@ -57,7 +61,6 @@ while ($row = mysqli_fetch_assoc($result_last5)) {
 }
 array_shift($history_rows);
 
-
 // fetch user feeding schedule
 $user_id = $_SESSION['user_id'] ?? 1;
 $sql_feed = "SELECT * FROM bee_feeding_schedule WHERE user_id=$user_id LIMIT 1";
@@ -67,13 +70,11 @@ $feeding = mysqli_fetch_assoc($result_feed);
 $now = new DateTime();
 $next_feed = $feeding ? new DateTime($feeding['next_feed']) : null;
 $time_diff = $next_feed ? $next_feed->getTimestamp() - $now->getTimestamp() : null;
-$needs_feeding = ($time_diff <= 0);
+$needs_feeding = ($time_diff !== null && $time_diff <= 0);
 
 mysqli_close($link);
 
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -101,8 +102,9 @@ body::before {
   z-index: 0;
 }
 .container, .dashboard-header, .card{ 
-position: relative; 
-z-index: 1; }
+  position: relative; 
+  z-index: 1; 
+}
 
 /* Header */
 .dashboard-header {
@@ -110,6 +112,7 @@ z-index: 1; }
   display:flex; 
   justify-content:space-between; 
   align-items:center;
+  padding: 10px 20px;
   background: linear-gradient(145deg, #eef104ff, #D4A373);
   border-radius:0 0 20px 20px;
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
@@ -126,11 +129,12 @@ z-index: 1; }
 .dashboard-header img { 
   height:70px; 
   width:70px; }
+
 /* Group buttons to the right */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 10px; /* space between edit & logout */
+  gap: 10px;
 }
 
 .settings-btn, .logout-btn {
@@ -149,6 +153,7 @@ z-index: 1; }
   background: #6B4226;
   transform: translateY(-2px) scale(1.03);
 }
+
 /* Layout */
 .container {
   max-width:1100px;
@@ -189,7 +194,6 @@ z-index: 1; }
 
 canvas { margin-top:20px; height:120px !important; }
 
-
 /* History Table */
 .history-table {
   width: 100%;
@@ -200,7 +204,6 @@ canvas { margin-top:20px; height:120px !important; }
   overflow: hidden;
   background: #fff8dc8c !important;
   box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-
 }
 .history-table thead {
   background: linear-gradient(135deg, #FFD93D, #E8C547) !important;
@@ -210,16 +213,13 @@ canvas { margin-top:20px; height:120px !important; }
   padding: 14px 12px !important;
   text-align: center;
   font-weight: bold;
-    border-right: 2px solid #4B2E1E; /* coffee tone for vertical lines */
-
-  
+  border-right: 2px solid #4B2E1E;
 }
 .history-table tbody tr:nth-child(even) { background: #FFF2A3 !important; }
 .history-table tbody tr:hover {
   background: #FEDE16 !important;
   transform: scale(1.01);
 }
-
 
 /* ================= RESPONSIVE FIXES ================= */
 
@@ -252,7 +252,7 @@ canvas { margin-top:20px; height:120px !important; }
     gap: 15px;
   }
   .card {
-    flex: 1 1 45%; /* 2 cards per row */
+    flex: 1 1 45%;
   }
 }
 
@@ -318,8 +318,6 @@ canvas { margin-top:20px; height:120px !important; }
   .value {
     font-size: 1.2rem;
   }
-
-  /* Make history table scrollable */
   .history-table {
     display: block;
     overflow-x: auto;
@@ -330,6 +328,7 @@ canvas { margin-top:20px; height:120px !important; }
     min-width: 100px;
   }
 }
+
 /* Feeding Scheduler Custom Design */
 .feeding-card {
   background: linear-gradient(145deg, #FFF8DC, #f7d36c);
@@ -406,8 +405,6 @@ canvas { margin-top:20px; height:120px !important; }
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
 }
-
-
 </style>
 </head>
 <body>
@@ -418,15 +415,13 @@ canvas { margin-top:20px; height:120px !important; }
     <span>HiveCare - User Dashboard</span>
   </div>
 
-  <!-- Actions aligned to the right -->
-
   <div class="header-actions">
     <a href="https://discord.com/channels/1416994358464483481/1425437614458273792" 
-   class="logout-btn" 
-   target="_blank" 
-   rel="noopener noreferrer">
-   <i class="bi bi-chat-dots"></i> Need help?
-</a>
+       class="logout-btn" 
+       target="_blank" 
+       rel="noopener noreferrer">
+       <i class="bi bi-chat-dots"></i> Need help?
+    </a>
 
     <a href="set_feeding_time.php" class="logout-btn">
       <i class="bi bi-clock-fill"></i> Set Feeding Time
@@ -440,15 +435,14 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 </div>
 
-
 <div class="container">
   <!-- Temperature -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
     <div id="temp-status" class="<?php echo ($latestTemp>25.90||$latestTemp<22.30)?'status-bad':'status-good';?>">
-  <?php echo ($latestTemp>25.90||$latestTemp<22.30)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
-</div>
+      <?php echo ($latestTemp>25.90||$latestTemp<22.30)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    </div>
     <canvas id="tempChart"></canvas>
   </div>
 
@@ -457,8 +451,8 @@ canvas { margin-top:20px; height:120px !important; }
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
     <div id="hum-status" class="<?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'status-good':'status-bad';?>">
-  <?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
-</div>
+      <?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    </div>
     <canvas id="humChart"></canvas>
   </div>
 
@@ -467,49 +461,69 @@ canvas { margin-top:20px; height:120px !important; }
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
     <div id="weight-value" class="value"><?php echo $latestWeight; ?> kg</div>
     <div id="weight-status" class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
-  <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
-</div>
+      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
+    </div>
     <canvas id="weightChart"></canvas>
   </div>
 
-  <!-- Fan -->
+  <!-- Exhaust Fan -->
   <div class="card">
-    <h5 class="card-title"><i class="bi bi-lightning-charge-fill" style="color:#FFD93D;"></i> Fan Status</h5>
-    <div id="fan-value" class="value"><?= ($latestFan==1)?"ON":"OFF" ?></div>
-    <!-- Fan -->
-<div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
-  <?= ($latestFan==1)?'The Fan is Running ✔':'The Fan is Off ✖' ?>
-</div>
+    <h5 class="card-title"><i class="bi bi-fan" style="color:#FFD93D;"></i> Exhaust Fan</h5>
+    <div id="fan-value" class="value">
+      <?= ($latestFan==1) ? "ON" : "OFF" ?>
+    </div>
+    <div class="small text-muted mb-2">
+    </div>
+    <div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
+      <?= ($latestFan==1)?'Exhaust Fan is Running ✔':'Exhaust Fan is Off ✖' ?>
+    </div>
+  </div>
+
+  <!-- Heater -->
+  <div class="card">
+    <h5 class="card-title"><i class="bi bi-fire" style="color:#D2691E;"></i> Heater</h5>
+    <div id="heater-value" class="value">
+      <?= ($latestHeater==1) ? "ON" : "OFF" ?>
+    </div>
+    <div id="heater-status" class="<?= ($latestHeater==1)?'status-good':'status-bad' ?>">
+      <?= ($latestHeater==1)?'Heater is ON ✔':'Heater is OFF ✖' ?>
+    </div>
+  </div>
+
+  <!-- Mist -->
+  <div class="card">
+    <h5 class="card-title"><i class="bi bi-cloud-rain-fill" style="color:#4B2E1E;"></i> Mist</h5>
+    <div id="mist-value" class="value">
+      <?= ($latestMist==1) ? "ON" : "OFF" ?>
+    </div>
+    <div id="mist-status" class="<?= ($latestMist==1)?'status-good':'status-bad' ?>">
+      <?= ($latestMist==1)?'Misting is Active ✔':'Misting is Off ✖' ?>
+    </div>
   </div>
 
   <!-- Feeding Scheduler Card -->
-<!-- Feeding Scheduler Card -->
-<div class="card feeding-card">
-  <h5 class="card-title">
-    <i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Feeding Scheduler
-  </h5>
+  <div class="card feeding-card">
+    <h5 class="card-title">
+      <i class="bi bi-hourglass-split" style="color:#FFD93D;"></i> Feeding Scheduler
+    </h5>
 
-  <div id="feeding-area">
-    <div id="feeding-status" class="status-good"></div>
-    <div class="countdown-container">
-      <span id="countdown" class="countdown-text"></span>
+    <div id="feeding-area">
+      <div id="feeding-status" class="status-good"></div>
+      <div class="countdown-container">
+        <span id="countdown" class="countdown-text"></span>
+      </div>
+      <button id="feed-done-btn" class="feed-btn" style="display:none;">
+        <i class="bi bi-check-circle"></i> Feed Done
+      </button>
     </div>
-    <button id="feed-done-btn" class="feed-btn" style="display:none;">
-      <i class="bi bi-check-circle"></i> Feed Done
-    </button>
   </div>
 </div>
-
-</div>
-
-
-
 
 <!-- History Log Section -->
 <div class="card p-4 mt-4">
   <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log </h4>
   <div class="table-responsive">
-<table class="history-table">
+    <table class="history-table">
       <thead class="table-warning">
         <tr>
           <th>Timestamp</th>
@@ -529,7 +543,6 @@ canvas { margin-top:20px; height:120px !important; }
             <td><?= $row['weight'] ?></td>
             <td><?= $row['fan_status'] > 0 ? "ON" : "OFF" ?></td>
             <td><?= $row['status'] ?></td>
-
           </tr>
         <?php endforeach; ?>
       </tbody>
@@ -537,34 +550,37 @@ canvas { margin-top:20px; height:120px !important; }
   </div>
 </div>
 
-
-
-
-
-
-
-
-
-
-
-
 <script>
-
-  
-const tempData = <?php echo json_encode($temperature_history); ?>;
-const humData = <?php echo json_encode($humidity_history); ?>;
+const tempData   = <?php echo json_encode($temperature_history); ?>;
+const humData    = <?php echo json_encode($humidity_history); ?>;
 const weightData = <?php echo json_encode($weight_history); ?>;
 
 function create3DChart(id, data, color) {
   new Chart(document.getElementById(id), {
     type:'line',
-    data:{ labels:data.map((_,i)=>i+1),
-      datasets:[{ data, borderColor:color, backgroundColor:color+'55',
-        fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:color,
-        pointHoverRadius:6, borderWidth:3 }] },
-    options:{ responsive:true, maintainAspectRatio:false,
+    data:{ 
+      labels:data.map((_,i)=>i+1),
+      datasets:[{
+        data,
+        borderColor:color,
+        backgroundColor:color+'55',
+        fill:true,
+        tension:0.4,
+        pointRadius:4,
+        pointBackgroundColor:color,
+        pointHoverRadius:6,
+        borderWidth:3
+      }]
+    },
+    options:{ 
+      responsive:true,
+      maintainAspectRatio:false,
       plugins:{ legend:{ display:false } },
-      scales:{ x:{ display:false }, y:{ beginAtZero:false } } }
+      scales:{ 
+        x:{ display:false }, 
+        y:{ beginAtZero:false } 
+      } 
+    }
   });
 }
 
@@ -572,15 +588,11 @@ create3DChart('tempChart', tempData, '#D2691E');
 create3DChart('humChart', humData, '#4B2E1E');
 create3DChart('weightChart', weightData, '#4B2E1E');
 
-function controlFan(action, btn) {
-  document.querySelectorAll('.fan-btn').forEach(b => {
-    b.style.transform = 'scale(1)'; b.style.boxShadow = '';
-  });
-  btn.style.transform = 'scale(1.05)';
-  btn.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
-  document.getElementById('fan-status').innerText =
-    'Fan mode: ' + (action==='auto'?'Automatic':(action==='on'?'On':'Off'));
-  console.log('Fan set to:', action);
+function updateStatus(id, obj) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = obj.cls;
+  el.innerText = obj.text;
 }
 
 async function reloadValues() {
@@ -589,53 +601,85 @@ async function reloadValues() {
     const data = await response.json();
 
     // Update numbers
-    document.getElementById("temp-value").innerText   = data.temperature + " °C";
-    document.getElementById("hum-value").innerText    = data.humidity + " %";
-    document.getElementById("weight-value").innerText = data.weight + " kg";
-    document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
+    if (document.getElementById("temp-value") && data.temperature !== undefined)
+      document.getElementById("temp-value").innerText   = data.temperature + " °C";
+    if (document.getElementById("hum-value") && data.humidity !== undefined)
+      document.getElementById("hum-value").innerText    = data.humidity + " %";
+    if (document.getElementById("weight-value") && data.weight !== undefined)
+      document.getElementById("weight-value").innerText = data.weight + " kg";
+    if (document.getElementById("fan-value") && data.fan_status !== undefined)
+      document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "EXHAUST ON" : "EXHAUST OFF");
 
-    // Update statuses dynamically
-    updateStatus("temp-status",
-      (data.temperature >= 22.30 && data.temperature <= 25.90) ?
-      {text:"Temperature is Good ✔", cls:"status-good"} :
-      {text:"Temperature is Bad ✖", cls:"status-bad"}
-    );
+    // Temperature status
+    if (data.temperature !== undefined) {
+      updateStatus("temp-status",
+        (data.temperature >= 22.30 && data.temperature <= 25.90)
+          ? {text:"Temperature is Good ✔", cls:"status-good"}
+          : {text:"Temperature is Bad ✖",  cls:"status-bad"}
+      );
+    }
 
-    updateStatus("hum-status",
-      (data.humidity >=79.20 && data.humidity <= 86.40) ?
-      {text:"Humidity is Good ✔", cls:"status-good"} :
-      {text:"Humidity is Bad ✖", cls:"status-bad"}
-    );
+    // Humidity status
+    if (data.humidity !== undefined) {
+      updateStatus("hum-status",
+        (data.humidity >=79.20 && data.humidity <= 86.40)
+          ? {text:"Humidity is Good ✔", cls:"status-good"}
+          : {text:"Humidity is Bad ✖",  cls:"status-bad"}
+      );
+    }
 
-    updateStatus("weight-status",
-      (data.weight >= 5) ?
-      {text:"The Hive is Heavy!", cls:"status-good"} :
-      {text:"The Hive is still Light", cls:"status-bad"}
-    );
+    // Weight status
+    if (data.weight !== undefined) {
+      updateStatus("weight-status",
+        (data.weight >= 5)
+          ? {text:"The Hive is Heavy!", cls:"status-good"}
+          : {text:"The Hive is still Light", cls:"status-bad"}
+      );
+    }
 
-    updateStatus("fan-status",
-      (data.fan_status == 1) ?
-      {text:"The Fan is Running ✔", cls:"status-good"} :
-      {text:"The Fan is Off ✖", cls:"status-bad"}
-    );
+    // Exhaust Fan status
+    if (data.fan_status !== undefined) {
+      updateStatus("fan-status",
+        (data.fan_status == 1)
+          ? {text:"Exhaust Fan is Running ✔", cls:"status-good"}
+          : {text:"Exhaust Fan is Off ✖", cls:"status-bad"}
+      );
+    }
+
+    // Heater status (expects data.heater_status from backend)
+    if (data.heater_status !== undefined) {
+      if (document.getElementById("heater-value")) {
+        document.getElementById("heater-value").innerText =
+          (data.heater_status == 1 ? "ON" : "OFF");
+      }
+      updateStatus("heater-status",
+        (data.heater_status == 1)
+          ? {text:"Heater is ON ✔", cls:"status-good"}
+          : {text:"Heater is OFF ✖", cls:"status-bad"}
+      );
+    }
+
+    // Mist status (expects data.mist_status from backend)
+    if (data.mist_status !== undefined) {
+      if (document.getElementById("mist-value")) {
+        document.getElementById("mist-value").innerText =
+          (data.mist_status == 1 ? "ON" : "OFF");
+      }
+      updateStatus("mist-status",
+        (data.mist_status == 1)
+          ? {text:"Misting is Active ✔", cls:"status-good"}
+          : {text:"Misting is Off ✖", cls:"status-bad"}
+      );
+    }
 
   } catch (err) {
     console.error("Error fetching latest data:", err);
   }
 }
 
-// Helper function
-function updateStatus(id, obj) {
-  const el = document.getElementById(id);
-  el.className = obj.cls;
-  el.innerText = obj.text;
-}
-
 // Run immediately + every 5 seconds
 reloadValues();
 setInterval(reloadValues, 5000);
-
-
 
 async function reloadHistory() {
   try {
@@ -673,19 +717,18 @@ async function reloadFan() {
     const fanStatusEl = document.getElementById("fan-status");
 
     if (data.fan_status === 1) {
-      fanStatusEl.innerHTML = '<span style="color:green; font-weight:bold;">Fan is ON ✔</span>';
+      fanStatusEl.innerHTML = '<span style="color:green; font-weight:bold;">Exhaust Fan is ON ✔</span>';
     } else {
-      fanStatusEl.innerHTML = '<span style="color:red; font-weight:bold;">Fan is OFF ✖</span>';
+      fanStatusEl.innerHTML = '<span style="color:red; font-weight:bold;">Exhaust Fan is OFF ✖</span>';
     }
   } catch (err) {
     console.error("Fan fetch error:", err);
   }
 }
 
-
 const feedingStatusEl = document.getElementById("feeding-status");
-const countdownEl = document.getElementById("countdown");
-const feedDoneBtn = document.getElementById("feed-done-btn");
+const countdownEl     = document.getElementById("countdown");
+const feedDoneBtn     = document.getElementById("feed-done-btn");
 
 let timerInterval;
 let nextFeedTime = null;
@@ -693,14 +736,17 @@ let lastFetchedFeed = null;
 
 // Function to fetch current feeding schedule every 1 second
 async function fetchFeedingData() {
-  const res = await fetch("get_next_feed.php");
-  const data = await res.json();
+  try {
+    const res  = await fetch("get_next_feed.php");
+    const data = await res.json();
 
-  // Only update countdown if data changed
-  if (JSON.stringify(data) !== JSON.stringify(lastFetchedFeed)) {
-    lastFetchedFeed = data;
-    nextFeedTime = data.next_feed ? new Date(data.next_feed).getTime() : null;
-    updateDisplay(data);
+    if (JSON.stringify(data) !== JSON.stringify(lastFetchedFeed)) {
+      lastFetchedFeed = data;
+      nextFeedTime = data.next_feed ? new Date(data.next_feed).getTime() : null;
+      updateDisplay(data);
+    }
+  } catch (e) {
+    console.error("Feeding fetch error:", e);
   }
 }
 
@@ -711,7 +757,7 @@ function updateDisplay(data) {
   const now = new Date().getTime();
   const distance = data.next_feed ? new Date(data.next_feed).getTime() - now : 0;
 
-  if (distance <= 0) {
+  if (!data.next_feed || distance <= 0) {
     feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
     feedingStatusEl.className = "status-bad";
     feedDoneBtn.style.display = "inline-block";
@@ -719,10 +765,10 @@ function updateDisplay(data) {
     return;
   }
 
-  feedDoneBtn.style.display = "none"; // hide button when countdown active
+  feedDoneBtn.style.display = "none";
   feedingStatusEl.innerText = "🍯 Bees are eating";
+  feedingStatusEl.className = "status-good";
 
-  // Start countdown timer
   function updateCountdown() {
     const now = new Date().getTime();
     const dist = new Date(data.next_feed).getTime() - now;
@@ -730,18 +776,18 @@ function updateDisplay(data) {
     if (dist <= 0) {
       clearInterval(timerInterval);
       feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
+      feedingStatusEl.className = "status-bad";
       feedDoneBtn.style.display = "inline-block";
       countdownEl.innerText = "";
 
-        alert("The bees are hungry! Time to feed them 🍯");
-        fetch("check_feeding_status.php");
+      alert("The bees are hungry! Time to feed them 🍯");
+      fetch("check_feeding_status.php");
 
-        
       return;
     }
 
-    const days = Math.floor(dist / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const days    = Math.floor(dist / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutes = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((dist % (1000 * 60)) / 1000);
 
@@ -756,7 +802,7 @@ function updateDisplay(data) {
 feedDoneBtn.addEventListener("click", async () => {
   feedDoneBtn.disabled = true;
   await fetch("feed_done.php", { method: "POST" });
-  await fetchFeedingData(); // immediately refresh data
+  await fetchFeedingData();
   feedDoneBtn.disabled = false;
 });
 
@@ -765,16 +811,6 @@ setInterval(fetchFeedingData, 1000);
 
 // Initial load
 fetchFeedingData();
-
-
-
-
-
-
-
-
-
-
 </script>
 
 </body>
