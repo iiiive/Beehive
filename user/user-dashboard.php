@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 include("../config.php");
 
@@ -9,14 +8,14 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = isset($_SESSION['user_id']) ? (int)$_SESSION['user_id'] : 1;
 $success = $error = "";
-require_once "../config.php";
+
 date_default_timezone_set('Asia/Manila');
 mysqli_query($link, "SET time_zone = '+08:00'");
 
-// === Hive readings ===
-$sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status 
+// === Hive readings (for charts + latest values) ===
+$sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status, mist_status, heater_status
             FROM beehive_readings 
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
@@ -26,6 +25,8 @@ $temperatures = [];
 $humidities   = [];
 $weights      = [];
 $fans         = [];
+$mists        = [];
+$heaters      = [];
 
 while ($row = mysqli_fetch_assoc($result_all)) {
     $timestamps[]   = $row['timestamp'];
@@ -33,23 +34,24 @@ while ($row = mysqli_fetch_assoc($result_all)) {
     $humidities[]   = $row['humidity'];
     $weights[]      = $row['weight'];
     $fans[]         = $row['fan_status'];
+    $mists[]        = $row['mist_status'];
+    $heaters[]      = $row['heater_status'];
 }
 
 $latestTemp   = end($temperatures);
 $latestHum    = end($humidities);
 $latestWeight = end($weights);
 $latestFan    = end($fans);
-
-// placeholders for heater & mist (you can later load from DB if you add columns)
-$latestHeater = 0;
-$latestMist   = 0;
+$latestMist   = end($mists);
+$latestHeater = end($heaters);
 
 $temperature_history = $temperatures;
 $humidity_history    = $humidities;
 $weight_history      = $weights;
 
-// Get last 5 readings
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, status
+// === Last 5 readings for history table (excluding latest) ===
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, 
+                     fan_status, mist_status, heater_status, status
               FROM beehive_readings 
               ORDER BY timestamp DESC 
               LIMIT 6";
@@ -59,21 +61,19 @@ $history_rows = [];
 while ($row = mysqli_fetch_assoc($result_last5)) {
     $history_rows[] = $row;
 }
-array_shift($history_rows);
+array_shift($history_rows); // remove very latest row (already shown in cards)
 
-// fetch user feeding schedule
-$user_id = $_SESSION['user_id'] ?? 1;
-$sql_feed = "SELECT * FROM bee_feeding_schedule WHERE user_id=$user_id LIMIT 1";
+// === Fetch user feeding schedule ===
+$sql_feed = "SELECT * FROM bee_feeding_schedule WHERE user_id = $user_id LIMIT 1";
 $result_feed = mysqli_query($link, $sql_feed);
 $feeding = mysqli_fetch_assoc($result_feed);
 
 $now = new DateTime();
-$next_feed = $feeding ? new DateTime($feeding['next_feed']) : null;
-$time_diff = $next_feed ? $next_feed->getTimestamp() - $now->getTimestamp() : null;
+$next_feed   = $feeding ? new DateTime($feeding['next_feed']) : null;
+$time_diff   = $next_feed ? $next_feed->getTimestamp() - $now->getTimestamp() : null;
 $needs_feeding = ($time_diff !== null && $time_diff <= 0);
 
 mysqli_close($link);
-
 ?>
 
 <!DOCTYPE html>
@@ -130,13 +130,12 @@ body::before {
   height:70px; 
   width:70px; }
 
-/* Group buttons to the right */
+/* Header actions */
 .header-actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .settings-btn, .logout-btn {
   padding: 10px 20px;
   border-radius: 15px;
@@ -148,7 +147,6 @@ body::before {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   transition: 0.3s;
 }
-
 .settings-btn:hover, .logout-btn:hover {
   background: #6B4226;
   transform: translateY(-2px) scale(1.03);
@@ -174,7 +172,6 @@ body::before {
   box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .card-title {
   font-weight:700; font-size:1.5rem; margin-bottom:15px;
   display:flex; justify-content:center; align-items:center; gap:10px;
@@ -190,7 +187,7 @@ body::before {
   display:inline-block; box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
 .status-good { background:#ffd83dd8; color:#4b2e1e; }
-.status-bad { background:#d2691ed2; color:#FFF; }
+.status-bad  { background:#d2691ed2; color:#FFF; }
 
 canvas { margin-top:20px; height:120px !important; }
 
@@ -222,8 +219,6 @@ canvas { margin-top:20px; height:120px !important; }
 }
 
 /* ================= RESPONSIVE FIXES ================= */
-
-/* Tablet */
 @media (max-width: 992px) {
   .dashboard-header {
     flex-direction: column;
@@ -231,13 +226,8 @@ canvas { margin-top:20px; height:120px !important; }
     text-align: center;
     gap: 15px;
   }
-  .dashboard-header img {
-    height: 60px;
-    width: 60px;
-  }
-  .dashboard-header .title span {
-    font-size: 2rem;
-  }
+  .dashboard-header img { height: 60px; width: 60px; }
+  .dashboard-header .title span { font-size: 2rem; }
   .header-actions {
     flex-wrap: wrap;
     justify-content: center;
@@ -251,12 +241,9 @@ canvas { margin-top:20px; height:120px !important; }
     margin: 20px auto;
     gap: 15px;
   }
-  .card {
-    flex: 1 1 45%;
-  }
+  .card { flex: 1 1 45%; }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 10px;
@@ -266,10 +253,7 @@ canvas { margin-top:20px; height:120px !important; }
     flex-direction: column;
     gap: 5px;
   }
-  .dashboard-header img {
-    height: 50px;
-    width: 50px;
-  }
+  .dashboard-header img { height: 50px; width: 50px; }
   .header-actions {
     flex-direction: column;
     width: 100%;
@@ -288,42 +272,27 @@ canvas { margin-top:20px; height:120px !important; }
     width: 95%;
     min-width: unset;
   }
-  .card-title {
-    font-size: 1.2rem;
-  }
-  .value {
-    font-size: 1.5rem;
-  }
+  .card-title { font-size: 1.2rem; }
+  .value      { font-size: 1.5rem; }
   .history-table th, .history-table td {
     font-size: 0.85rem;
     padding: 8px;
   }
 }
 
-/* Extra Small Phones */
 @media (max-width: 480px) {
-  .dashboard-header .title span {
-    font-size: 1.4rem;
-  }
-  .dashboard-header img {
-    height: 40px;
-    width: 40px;
-  }
-  .card {
-    padding: 15px;
-  }
-  .card-title {
-    font-size: 1rem;
-  }
-  .value {
-    font-size: 1.2rem;
-  }
+  .dashboard-header .title span { font-size: 1.4rem; }
+  .dashboard-header img { height: 40px; width: 40px; }
+  .card { padding: 15px; }
+  .card-title { font-size: 1rem; }
+  .value      { font-size: 1.2rem; }
   .history-table {
     display: block;
     overflow-x: auto;
     white-space: nowrap;
   }
-  .history-table thead, .history-table tbody, .history-table tr, .history-table th, .history-table td {
+  .history-table thead, .history-table tbody,
+  .history-table tr, .history-table th, .history-table td {
     display: inline-block;
     min-width: 100px;
   }
@@ -339,8 +308,6 @@ canvas { margin-top:20px; height:120px !important; }
   position: relative;
   overflow: hidden;
 }
-
-/* Honey drip accent on top */
 .feeding-card::before {
   content: "";
   position: absolute;
@@ -355,17 +322,11 @@ canvas { margin-top:20px; height:120px !important; }
   opacity: 0.7;
   animation: honeyMove 5s infinite linear;
 }
-
 @keyframes honeyMove {
   from { background-position: 0 0, 20px 0, 40px 0, 60px 0; }
-  to { background-position: 60px 0, 80px 0, 100px 0, 120px 0; }
+  to   { background-position: 60px 0, 80px 0, 100px 0, 120px 0; }
 }
-
-/* Countdown text styling */
-.countdown-container {
-  margin-top: 10px;
-}
-
+.countdown-container { margin-top: 10px; }
 .countdown-text {
   font-size: 2rem;
   font-weight: 800;
@@ -374,8 +335,6 @@ canvas { margin-top:20px; height:120px !important; }
   display: block;
   margin-top: 10px;
 }
-
-/* Feed Done Button */
 .feed-btn {
   background: linear-gradient(145deg, #FFD93D, #E8C547);
   border: none;
@@ -388,14 +347,11 @@ canvas { margin-top:20px; height:120px !important; }
   box-shadow: 0 5px 10px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
 }
-
 .feed-btn:hover {
   background: linear-gradient(145deg, #E8C547, #FFD93D);
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 8px 15px rgba(0,0,0,0.3);
 }
-
-/* Status bubble */
 #feeding-status {
   display: inline-block;
   padding: 10px 20px;
@@ -422,7 +378,6 @@ canvas { margin-top:20px; height:120px !important; }
        rel="noopener noreferrer">
        <i class="bi bi-chat-dots"></i> Need help?
     </a>
-
     <a href="set_feeding_time.php" class="logout-btn">
       <i class="bi bi-clock-fill"></i> Set Feeding Time
     </a>
@@ -471,8 +426,6 @@ canvas { margin-top:20px; height:120px !important; }
     <h5 class="card-title"><i class="bi bi-fan" style="color:#FFD93D;"></i> Exhaust Fan</h5>
     <div id="fan-value" class="value">
       <?= ($latestFan==1) ? "ON" : "OFF" ?>
-    </div>
-    <div class="small text-muted mb-2">
     </div>
     <div id="fan-status" class="<?= ($latestFan==1)?'status-good':'status-bad' ?>">
       <?= ($latestFan==1)?'Exhaust Fan is Running ✔':'Exhaust Fan is Off ✖' ?>
@@ -530,7 +483,9 @@ canvas { margin-top:20px; height:120px !important; }
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
-          <th>Fan</th>
+          <th>Exhaust Fan</th>
+          <th>Mist</th>
+          <th>Heater</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -541,7 +496,9 @@ canvas { margin-top:20px; height:120px !important; }
             <td><?= $row['temperature'] ?></td>
             <td><?= $row['humidity'] ?></td>
             <td><?= $row['weight'] ?></td>
-            <td><?= $row['fan_status'] > 0 ? "ON" : "OFF" ?></td>
+            <td><?= $row['fan_status']   == 1 ? 'ON' : 'OFF'; ?></td>
+            <td><?= $row['mist_status']  == 1 ? 'ON' : 'OFF'; ?></td>
+            <td><?= $row['heater_status']== 1 ? 'ON' : 'OFF'; ?></td>
             <td><?= $row['status'] ?></td>
           </tr>
         <?php endforeach; ?>
@@ -584,8 +541,8 @@ function create3DChart(id, data, color) {
   });
 }
 
-create3DChart('tempChart', tempData, '#D2691E');
-create3DChart('humChart', humData, '#4B2E1E');
+create3DChart('tempChart', tempData,   '#D2691E');
+create3DChart('humChart',  humData,    '#4B2E1E');
 create3DChart('weightChart', weightData, '#4B2E1E');
 
 function updateStatus(id, obj) {
@@ -600,7 +557,7 @@ async function reloadValues() {
     const response = await fetch("get_latest.php"); 
     const data = await response.json();
 
-    // Update numbers
+    // numeric values
     if (document.getElementById("temp-value") && data.temperature !== undefined)
       document.getElementById("temp-value").innerText   = data.temperature + " °C";
     if (document.getElementById("hum-value") && data.humidity !== undefined)
@@ -608,7 +565,7 @@ async function reloadValues() {
     if (document.getElementById("weight-value") && data.weight !== undefined)
       document.getElementById("weight-value").innerText = data.weight + " kg";
     if (document.getElementById("fan-value") && data.fan_status !== undefined)
-      document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "EXHAUST ON" : "EXHAUST OFF");
+      document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
 
     // Temperature status
     if (data.temperature !== undefined) {
@@ -642,11 +599,11 @@ async function reloadValues() {
       updateStatus("fan-status",
         (data.fan_status == 1)
           ? {text:"Exhaust Fan is Running ✔", cls:"status-good"}
-          : {text:"Exhaust Fan is Off ✖", cls:"status-bad"}
+          : {text:"Exhaust Fan is Off ✖",    cls:"status-bad"}
       );
     }
 
-    // Heater status (expects data.heater_status from backend)
+    // Heater status
     if (data.heater_status !== undefined) {
       if (document.getElementById("heater-value")) {
         document.getElementById("heater-value").innerText =
@@ -659,7 +616,7 @@ async function reloadValues() {
       );
     }
 
-    // Mist status (expects data.mist_status from backend)
+    // Mist status
     if (data.mist_status !== undefined) {
       if (document.getElementById("mist-value")) {
         document.getElementById("mist-value").innerText =
@@ -668,7 +625,7 @@ async function reloadValues() {
       updateStatus("mist-status",
         (data.mist_status == 1)
           ? {text:"Misting is Active ✔", cls:"status-good"}
-          : {text:"Misting is Off ✖", cls:"status-bad"}
+          : {text:"Misting is Off ✖",    cls:"status-bad"}
       );
     }
 
@@ -693,10 +650,12 @@ async function reloadHistory() {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${row.timestamp}</td>
-        <td>${row.temperature} °C</td>
-        <td>${row.humidity} %</td>
-        <td>${row.weight} kg</td>
-        <td>${row.fan_status > 0 ? "ON" : "OFF"}</td>
+        <td>${row.temperature}</td>
+        <td>${row.humidity}</td>
+        <td>${row.weight}</td>
+        <td>${row.fan_status == 1 ? "ON" : "OFF"}</td>
+        <td>${row.mist_status == 1 ? "ON" : "OFF"}</td>
+        <td>${row.heater_status == 1 ? "ON" : "OFF"}</td>
         <td>${row.status}</td>
       `;
       tbody.appendChild(tr);
@@ -706,25 +665,8 @@ async function reloadHistory() {
   }
 }
 
-// Run immediately + every 5s
 reloadHistory();
 setInterval(reloadHistory, 5000);
-
-async function reloadFan() {
-  try {
-    const res = await fetch("get_fan.php");
-    const data = await res.json();
-    const fanStatusEl = document.getElementById("fan-status");
-
-    if (data.fan_status === 1) {
-      fanStatusEl.innerHTML = '<span style="color:green; font-weight:bold;">Exhaust Fan is ON ✔</span>';
-    } else {
-      fanStatusEl.innerHTML = '<span style="color:red; font-weight:bold;">Exhaust Fan is OFF ✖</span>';
-    }
-  } catch (err) {
-    console.error("Fan fetch error:", err);
-  }
-}
 
 const feedingStatusEl = document.getElementById("feeding-status");
 const countdownEl     = document.getElementById("countdown");
@@ -734,7 +676,7 @@ let timerInterval;
 let nextFeedTime = null;
 let lastFetchedFeed = null;
 
-// Function to fetch current feeding schedule every 1 second
+// Fetch current feeding schedule
 async function fetchFeedingData() {
   try {
     const res  = await fetch("get_next_feed.php");
@@ -750,7 +692,6 @@ async function fetchFeedingData() {
   }
 }
 
-// Function to update display
 function updateDisplay(data) {
   clearInterval(timerInterval);
   
@@ -808,9 +749,7 @@ feedDoneBtn.addEventListener("click", async () => {
 
 // Poll every 1 second to sync between users
 setInterval(fetchFeedingData, 1000);
-
-// Initial load
-fetchFeedingData();
+fetchFeedingData(); // Initial load
 </script>
 
 </body>

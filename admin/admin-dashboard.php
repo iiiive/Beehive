@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 // Check if admin is logged in
@@ -49,10 +48,10 @@ $humidity_history    = $humidities;
 $weight_history      = $weights;
 
 // Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
-$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, status 
+$sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, mist_status, heater_status, status 
               FROM beehive_readings 
               ORDER BY timestamp DESC 
-              LIMIT 6";  // get 6: latest + 5 previous
+              LIMIT 6";
 $result_last5 = mysqli_query($link, $sql_last5);
 
 $history_rows = [];
@@ -80,7 +79,6 @@ if ($row = mysqli_fetch_assoc($result)) {
 }
 
 mysqli_close($link);
-
 ?>
 
 <!DOCTYPE html>
@@ -134,8 +132,8 @@ body::before {
 .dashboard-header img { 
   height:70px; 
   width:70px; }
+
 /* Group buttons to the right */
-.header-actions,
 .dashboard-header > div:last-child {
   display: flex;
   align-items: center;
@@ -199,11 +197,11 @@ body::before {
 
 canvas { margin-top:20px; height:120px !important; }
 
-/* History Table */
+/* RESTORED — Original History Log Design */
 .history-table {
   width: 100%;
   border-collapse: separate;
-  border-spacing: 5;
+  border-spacing: 5px;
   margin-top: 20px;
   border-radius: 30px;
   overflow: hidden;
@@ -214,21 +212,22 @@ canvas { margin-top:20px; height:120px !important; }
   background: linear-gradient(135deg, #FFD93D, #E8C547) !important;
   color: #4B2E1E !important;
 }
-.history-table th, .history-table td {
+.history-table th,
+.history-table td {
   padding: 14px 12px !important;
   text-align: center;
   font-weight: bold;
-  border-right: 2px solid #4B2E1E;
+  border-right: 2px solid #4B2E1E; 
 }
-.history-table tbody tr:nth-child(even) { background: #FFF2A3 !important; }
+.history-table tbody tr:nth-child(even) {
+  background: #FFF2A3 !important;
+}
 .history-table tbody tr:hover {
   background: #FEDE16 !important;
   transform: scale(1.01);
 }
 
 /* ================= RESPONSIVE FIXES ================= */
-
-/* Tablet */
 @media (max-width: 992px) {
   .dashboard-header {
     flex-direction: column;
@@ -261,7 +260,6 @@ canvas { margin-top:20px; height:120px !important; }
   }
 }
 
-/* Mobile */
 @media (max-width: 768px) {
   .dashboard-header {
     padding: 10px;
@@ -305,7 +303,6 @@ canvas { margin-top:20px; height:120px !important; }
   }
 }
 
-/* Extra Small Phones */
 @media (max-width: 480px) {
   .dashboard-header .title span {
     font-size: 1.4rem;
@@ -342,15 +339,12 @@ canvas { margin-top:20px; height:120px !important; }
   box-shadow: 6px 6px 20px rgba(0,0,0,0.25);
   transition: 0.3s ease;
 }
-
 #feeding-status-list {
   display: flex;
   flex-direction: column;
   gap: 15px;
   margin-top: 15px;
 }
-
-/* Inner card for each status */
 .feed-card {
   padding: 20px;
   border-radius: 20px;
@@ -362,14 +356,11 @@ canvas { margin-top:20px; height:120px !important; }
   position: relative;
   overflow: hidden;
 }
-
-/* 🐝 Hungry Mode */
 .feed-hungry {
   background: linear-gradient(145deg, #FFEAEA, #FFB6B6);
   border-left-color: #E63946;
   box-shadow: 4px 6px 16px rgba(230, 57, 70, 0.3);
 }
-
 .feed-hungry::before {
   content: "⚠️ Hungry Alert!";
   position: absolute;
@@ -378,14 +369,11 @@ canvas { margin-top:20px; height:120px !important; }
   font-weight: 700;
   color: #B22222;
 }
-
-/* 🍯 Eating Mode */
 .feed-eating {
   background: linear-gradient(145deg, #E8FFE8, #C4F2C4);
   border-left-color: #2A9D8F;
   box-shadow: 4px 6px 16px rgba(42, 157, 143, 0.3);
 }
-
 .feed-eating::before {
   content: "🍯 Feeding Time";
   position: absolute;
@@ -394,27 +382,22 @@ canvas { margin-top:20px; height:120px !important; }
   font-weight: 700;
   color: #1E5631;
 }
-
-/* Common text */
 .feed-card h6 {
   font-weight: 800;
   color: #4B2E1E;
   margin-bottom: 5px;
 }
-
 .feed-card p {
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
 }
-
 .feed-card small {
   color: #4B2E1E;
   display: block;
   font-weight: 600;
   font-size: 0.9rem;
 }
-
 .countdown {
   font-weight: bold;
   color: #4B2E1E;
@@ -527,7 +510,7 @@ canvas { margin-top:20px; height:120px !important; }
 
 <!-- History Log Section -->
 <div class="card p-4 mt-4">
-  <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log</.h4>
+  <h4 class="card-title"><i class="bi bi-clock-history"></i> History Log</h4>
   <div class="table-responsive">
     <table class="history-table">
       <thead class="table-warning">
@@ -536,7 +519,9 @@ canvas { margin-top:20px; height:120px !important; }
           <th>Temperature (°C)</th>
           <th>Humidity (%)</th>
           <th>Weight (kg)</th>
-          <th>Fan Status</th>
+          <th>Exhaust Fan</th>
+          <th>Mist</th>
+          <th>Heater</th>
           <th>Status</th>
         </tr>
       </thead>
@@ -548,6 +533,8 @@ canvas { margin-top:20px; height:120px !important; }
             <td><?= $row['humidity'] ?> %</td>
             <td><?= $row['weight'] ?> kg</td>
             <td><?= ($row['fan_status'] == 1 ? 'ON' : 'OFF'); ?></td>
+            <td><?= ($row['mist_status'] == 1 ? 'ON' : 'OFF'); ?></td>
+            <td><?= ($row['heater_status'] == 1 ? 'ON' : 'OFF'); ?></td>
             <td><?= $row['status'] ?></td>
           </tr>
         <?php endforeach; ?>
@@ -601,7 +588,7 @@ function setStatusById(id, isGood, goodText, badText) {
 // 🔁 Auto-refresh metrics + devices
 async function reloadValues() {
   try {
-    // Same API as user dashboard
+    // reuse user API
     const response = await fetch("../user/get_latest.php");
     const data = await response.json();
 
@@ -644,7 +631,7 @@ async function reloadValues() {
       const fanStatusDiv = document.getElementById("fan-status");
 
       if (fanVal) {
-        fanVal.innerText = (data.fan_status == 1 ? "EXHAUST ON" : "EXHAUST OFF");
+        fanVal.innerText = (data.fan_status == 1 ? "ON" : "OFF");
       }
 
       if (fanStatusDiv) {
@@ -721,6 +708,8 @@ async function reloadHistory() {
         <td>${row.humidity} %</td>
         <td>${row.weight} kg</td>
         <td>${row.fan_status > 0 ? "ON" : "OFF"}</td>
+        <td>${row.mist_status > 0 ? "ON" : "OFF"}</td>
+        <td>${row.heater_status > 0 ? "ON" : "OFF"}</td>
         <td>${row.status}</td>
       `;
       tbody.appendChild(tr);
