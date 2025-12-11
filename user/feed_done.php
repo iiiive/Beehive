@@ -1,31 +1,51 @@
 <?php
-require_once "../config.php";
 session_start();
+require_once "../config.php";
+
+header('Content-Type: application/json');
 date_default_timezone_set('Asia/Manila');
-mysqli_query($link, "SET time_zone = '+08:00'");
 
-$user_id = $_SESSION['user_id'] ?? 1;
-$fed_by_user_id = $user_id;
+$user_id = $_SESSION['user_id'] ?? 0;
+if (!$user_id) {
+    http_response_code(401);
+    echo json_encode(['ok' => false, 'error' => 'Not logged in']);
+    exit;
+}
 
-// Fetch last feeding interval for this user (if any)
-$sql = "SELECT interval_minutes FROM bee_feeding_schedule WHERE user_id = $user_id ORDER BY id DESC LIMIT 1";
+// get interval
+$sql = "SELECT interval_minutes FROM bee_feeding_schedule WHERE user_id = $user_id LIMIT 1";
 $res = mysqli_query($link, $sql);
-$row = mysqli_fetch_assoc($res);
 
-$interval = $row['interval_minutes'] ?? 30; // default 30 mins
-$next_feed = date('Y-m-d H:i:s', strtotime("+$interval minutes"));
+if ($row = mysqli_fetch_assoc($res)) {
+    $interval = (int)$row['interval_minutes'];
+    if ($interval <= 0) {
+        echo json_encode(['ok' => false, 'error' => 'No interval set']);
+        exit;
+    }
 
-// ✅ Insert new record (keep history)
-$insert_sql = "
-    INSERT INTO bee_feeding_schedule (user_id, fed_by_user_id, last_fed, fed_at, next_feed, interval_minutes)
-    VALUES ($user_id, $fed_by_user_id, NOW(), NOW(), '$next_feed', $interval)
-";
+    $now  = new DateTime('now', new DateTimeZone('Asia/Manila'));
+    $next = clone $now;
+    $next->modify('+' . $interval . ' minutes');
 
-if (mysqli_query($link, $insert_sql)) {
-    echo "Feeding recorded successfully.";
+    $last_fed  = $now->format('Y-m-d H:i:s');
+    $next_feed = $next->format('Y-m-d H:i:s');
+
+    mysqli_query(
+        $link,
+        "UPDATE bee_feeding_schedule
+         SET last_fed = '$last_fed',
+             next_feed = '$next_feed'
+         WHERE user_id = $user_id"
+    );
+
+    echo json_encode([
+        'ok'        => true,
+        'last_fed'  => $last_fed,
+        'next_feed' => $next_feed
+    ]);
+
 } else {
-    echo "Error: " . mysqli_error($link);
+    echo json_encode(['ok' => false, 'error' => 'No schedule found']);
 }
 
 mysqli_close($link);
-?>

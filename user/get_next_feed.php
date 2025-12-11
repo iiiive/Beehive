@@ -1,30 +1,35 @@
 <?php
-require_once "../config.php";
 session_start();
-date_default_timezone_set('Asia/Manila');
-mysqli_query($link, "SET time_zone = '+08:00'");
+require_once "../config.php";
 
-$user_id = $_SESSION['user_id'] ?? 1;
+header('Content-Type: application/json');
 
-// ✅ Fetch the *latest* feeding record for this user
-$sql = "
-    SELECT u.username, f.last_fed, f.next_feed
-    FROM bee_feeding_schedule f
-    JOIN users u ON f.fed_by_user_id = u.user_id
-    WHERE f.user_id = $user_id
-    ORDER BY f.id DESC
-    LIMIT 1
-";
+$user_id = $_SESSION['user_id'] ?? 0;
+if (!$user_id) {
+    echo json_encode([]);
+    exit;
+}
 
-$result = mysqli_query($link, $sql);
-$data = [];
+$sql = "SELECT interval_minutes, last_fed, next_feed
+        FROM bee_feeding_schedule
+        WHERE user_id = $user_id
+        LIMIT 1";
 
-if ($row = mysqli_fetch_assoc($result)) {
-    $data = $row;
+$res = mysqli_query($link, $sql);
+
+if ($row = mysqli_fetch_assoc($res)) {
+    $next = $row['next_feed'];
+    if ($next === '0000-00-00 00:00:00') {
+        $next = null;
+    }
+
+    echo json_encode([
+        'interval_minutes' => (int)$row['interval_minutes'],
+        'last_fed'         => $row['last_fed'] ?: null,
+        'next_feed'        => $next ?: null,
+    ]);
+} else {
+    echo json_encode([]);
 }
 
 mysqli_close($link);
-
-header('Content-Type: application/json');
-echo json_encode($data);
-?>

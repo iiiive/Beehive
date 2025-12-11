@@ -673,18 +673,74 @@ const countdownEl     = document.getElementById("countdown");
 const feedDoneBtn     = document.getElementById("feed-done-btn");
 
 let timerInterval;
-let nextFeedTime = null;
-let lastFetchedFeed = null;
+let lastDataJson = null;
+
+function safeParseTimestamp(str) {
+  if (!str) return NaN;
+  const ts = Date.parse(str);
+  return isNaN(ts) ? NaN : ts;
+}
+
+function updateDisplay(data) {
+  clearInterval(timerInterval);
+
+  const rawNext   = data.next_feed || null;
+  const targetTs  = safeParseTimestamp(rawNext);
+  const now       = Date.now();
+  const distance  = (!rawNext || isNaN(targetTs)) ? 0 : (targetTs - now);
+
+  // 🐝 No valid next feed OR already passed → bees are hungry
+  if (!rawNext || isNaN(targetTs) || distance <= 0) {
+    feedingStatusEl.innerText  = "🐝 Bees are hungry! Feed them now.";
+    feedingStatusEl.className  = "status-bad";
+    feedDoneBtn.style.display  = "inline-block";
+    countdownEl.innerText      = "";
+    return;
+  }
+
+  // 🍯 Valid future next_feed → show countdown
+  feedDoneBtn.style.display = "none";
+  feedingStatusEl.innerText = "🍯 Bees are eating";
+  feedingStatusEl.className = "status-good";
+
+  function tick() {
+    const now  = Date.now();
+    const diff = targetTs - now;
+
+    if (diff <= 0) {
+      clearInterval(timerInterval);
+      feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
+      feedingStatusEl.className = "status-bad";
+      feedDoneBtn.style.display = "inline-block";
+      countdownEl.innerText     = "";
+
+      alert("The bees are hungry! Time to feed them 🍯");
+      fetch("check_feeding_status.php").catch(() => {});
+      return;
+    }
+
+    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+    countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+  }
+
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
 
 // Fetch current feeding schedule
 async function fetchFeedingData() {
   try {
     const res  = await fetch("get_next_feed.php");
     const data = await res.json();
+    const jsonStr = JSON.stringify(data);
 
-    if (JSON.stringify(data) !== JSON.stringify(lastFetchedFeed)) {
-      lastFetchedFeed = data;
-      nextFeedTime = data.next_feed ? new Date(data.next_feed).getTime() : null;
+    // only re-render if data actually changed
+    if (jsonStr !== lastDataJson) {
+      lastDataJson = jsonStr;
       updateDisplay(data);
     }
   } catch (e) {
@@ -692,64 +748,23 @@ async function fetchFeedingData() {
   }
 }
 
-function updateDisplay(data) {
-  clearInterval(timerInterval);
-  
-  const now = new Date().getTime();
-  const distance = data.next_feed ? new Date(data.next_feed).getTime() - now : 0;
-
-  if (!data.next_feed || distance <= 0) {
-    feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
-    feedingStatusEl.className = "status-bad";
-    feedDoneBtn.style.display = "inline-block";
-    countdownEl.innerText = "";
-    return;
-  }
-
-  feedDoneBtn.style.display = "none";
-  feedingStatusEl.innerText = "🍯 Bees are eating";
-  feedingStatusEl.className = "status-good";
-
-  function updateCountdown() {
-    const now = new Date().getTime();
-    const dist = new Date(data.next_feed).getTime() - now;
-
-    if (dist <= 0) {
-      clearInterval(timerInterval);
-      feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
-      feedingStatusEl.className = "status-bad";
-      feedDoneBtn.style.display = "inline-block";
-      countdownEl.innerText = "";
-
-      alert("The bees are hungry! Time to feed them 🍯");
-      fetch("check_feeding_status.php");
-
-      return;
-    }
-
-    const days    = Math.floor(dist / (1000 * 60 * 60 * 24));
-    const hours   = Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((dist % (1000 * 60)) / 1000);
-
-    countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  }
-
-  updateCountdown();
-  timerInterval = setInterval(updateCountdown, 1000);
-}
-
-// Feed Done button
+// Feed Done button → start next countdown
 feedDoneBtn.addEventListener("click", async () => {
-  feedDoneBtn.disabled = true;
-  await fetch("feed_done.php", { method: "POST" });
-  await fetchFeedingData();
-  feedDoneBtn.disabled = false;
+  try {
+    feedDoneBtn.disabled = true;
+    await fetch("feed_done.php", { method: "POST" });
+    await fetchFeedingData();
+  } catch (e) {
+    console.error("Feed done error:", e);
+  } finally {
+    feedDoneBtn.disabled = false;
+  }
 });
 
-// Poll every 1 second to sync between users
+// Poll every 1 second to sync between tabs/users
+fetchFeedingData();
 setInterval(fetchFeedingData, 1000);
-fetchFeedingData(); // Initial load
+
 </script>
 
 </body>

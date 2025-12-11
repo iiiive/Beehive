@@ -1,28 +1,51 @@
 <?php
 require_once "../config.php";
 session_start();
-$user_id = $_SESSION['user_id'] ?? 1; // replace with actual session user_id
+$user_id = $_SESSION['user_id'] ?? 0; // actual logged in user
+
+if (!$user_id) {
+    header("Location: user-login.php");
+    exit;
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $days    = intval($_POST['days']);
     $hours   = intval($_POST['hours']);
     $minutes = intval($_POST['minutes']);
-    
+
     // convert all to minutes
-    $total_minutes = ($days*24*60) + ($hours*60) + $minutes;
-    $next_feed = date('Y-m-d H:i:s', strtotime("+$total_minutes minutes"));
-
-    // check if user already has a schedule
-    $check = mysqli_query($link, "SELECT * FROM bee_feeding_schedule WHERE user_id=$user_id");
-    if(mysqli_num_rows($check) > 0){
-        mysqli_query($link, "UPDATE bee_feeding_schedule SET next_feed='$next_feed', interval_minutes=$total_minutes WHERE user_id=$user_id");
+    $total_minutes = ($days * 24 * 60) + ($hours * 60) + $minutes;
+    if ($total_minutes <= 0) {
+        $success = "";
+        $error   = "Please set a feeding interval greater than 0.";
     } else {
-        mysqli_query($link, "INSERT INTO bee_feeding_schedule (user_id, next_feed, interval_minutes) VALUES ($user_id, '$next_feed', $total_minutes)");
-    }
+        // check if user already has a schedule
+        $check = mysqli_query($link, "SELECT id FROM bee_feeding_schedule WHERE user_id = $user_id LIMIT 1");
 
-    $success = "Feeding schedule updated successfully!";
+        if (mysqli_num_rows($check) > 0) {
+            // 🐝 Only update interval, reset next_feed and last_fed
+            $sql = "UPDATE bee_feeding_schedule 
+                    SET interval_minutes = $total_minutes,
+                        next_feed       = NULL,
+                        last_fed        = NULL
+                    WHERE user_id = $user_id";
+        } else {
+            // 🐝 New row with just interval set; countdown will wait for Feed Done
+            $sql = "INSERT INTO bee_feeding_schedule (user_id, interval_minutes, next_feed, last_fed)
+                    VALUES ($user_id, $total_minutes, NULL, NULL)";
+        }
+
+        if (mysqli_query($link, $sql)) {
+            $success = "Feeding schedule updated successfully!";
+            $error   = "";
+        } else {
+            $error   = "Error saving schedule.";
+            $success = "";
+        }
+    }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,8 +70,8 @@ body::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
-background: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png") 
-  no-repeat center center / cover;
+  background: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png") 
+    no-repeat center center / cover;
   filter: brightness(25%);
   z-index: -1;
 }
@@ -85,8 +108,7 @@ form label {
   color: #47300cff;
   font-weight: bold;
   margin-bottom: 6px;
-    font-size:20px;
-
+  font-size:20px;
   display: block;
 }
 form input {
@@ -124,7 +146,6 @@ button {
 button:hover {
   background: #cdbd49;
   color: #000;
-
   transform: translateY(-2px);
 }
 button:active {
@@ -136,11 +157,11 @@ button:active {
   font-weight: bold;
 }
 .success { 
-    color: #299b29ff; 
-    margin-bottom: 30px; 
+  color: #299b29ff; 
+  margin-bottom: 30px; 
 }
 .error { 
-    color: #ec2f2fff; 
+  color: #ec2f2fff; 
 }
 .back-btn {
   position: absolute;
@@ -171,7 +192,13 @@ button:active {
 <div class="container">
   <h2>Set Feeding Schedule</h2>
 
-  <?php if(isset($success)) echo "<div class='success'>$success</div>"; ?>
+  <?php if (!empty($success)): ?>
+    <div class="success"><?= htmlspecialchars($success) ?></div>
+  <?php endif; ?>
+
+  <?php if (!empty($error)): ?>
+    <div class="error"><?= htmlspecialchars($error) ?></div>
+  <?php endif; ?>
 
   <form method="POST">
     <div class="form-group">
