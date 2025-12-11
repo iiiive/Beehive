@@ -541,8 +541,8 @@ function create3DChart(id, data, color) {
   });
 }
 
-create3DChart('tempChart', tempData,   '#D2691E');
-create3DChart('humChart',  humData,    '#4B2E1E');
+create3DChart('tempChart',   tempData,   '#D2691E');
+create3DChart('humChart',    humData,    '#4B2E1E');
 create3DChart('weightChart', weightData, '#4B2E1E');
 
 function updateStatus(id, obj) {
@@ -668,17 +668,49 @@ async function reloadHistory() {
 reloadHistory();
 setInterval(reloadHistory, 5000);
 
+/* ==================== FEEDING SCHEDULER ==================== */
+
 const feedingStatusEl = document.getElementById("feeding-status");
 const countdownEl     = document.getElementById("countdown");
 const feedDoneBtn     = document.getElementById("feed-done-btn");
 
 let timerInterval;
-let lastDataJson = null;
+let lastDataJson      = null;
+let hungerAlertInterval = null;  // 🔔 repeat reminder timer
 
 function safeParseTimestamp(str) {
   if (!str) return NaN;
-  const ts = Date.parse(str);
+
+  // Make MySQL "YYYY-MM-DD HH:MM:SS" safer for Date.parse
+  const normalized = str.replace(" ", "T");
+  const ts = Date.parse(normalized);
   return isNaN(ts) ? NaN : ts;
+}
+
+// 🔔 Single hungry notification (alert + Discord)
+function notifyHungryOnce() {
+  alert("The bees are hungry! Time to feed them 🍯");
+  fetch("check_feeding_status.php").catch(() => {});
+}
+
+// Start repeated "bees are hungry" alerts every 10 minutes
+function startHungerAlerts() {
+  // avoid stacking intervals
+  if (hungerAlertInterval) return;
+
+  // immediate notification when they first become hungry
+  notifyHungryOnce();
+
+  hungerAlertInterval = setInterval(() => {
+    notifyHungryOnce(); // alert + Discord every 10 mins
+  }, 600000); // 10 minutes
+}
+
+function stopHungerAlerts() {
+  if (hungerAlertInterval) {
+    clearInterval(hungerAlertInterval);
+    hungerAlertInterval = null;
+  }
 }
 
 function updateDisplay(data) {
@@ -695,10 +727,15 @@ function updateDisplay(data) {
     feedingStatusEl.className  = "status-bad";
     feedDoneBtn.style.display  = "inline-block";
     countdownEl.innerText      = "";
+
+    // 🔔 start/keep reminders (alert + Discord)
+    startHungerAlerts();
     return;
   }
 
-  // 🍯 Valid future next_feed → show countdown
+  // 🍯 Valid future next_feed → show countdown and stop alerts
+  stopHungerAlerts(); // ✅ no reminders while countdown running
+
   feedDoneBtn.style.display = "none";
   feedingStatusEl.innerText = "🍯 Bees are eating";
   feedingStatusEl.className = "status-good";
@@ -714,8 +751,8 @@ function updateDisplay(data) {
       feedDoneBtn.style.display = "inline-block";
       countdownEl.innerText     = "";
 
-      alert("The bees are hungry! Time to feed them 🍯");
-      fetch("check_feeding_status.php").catch(() => {});
+      // 🔔 when it hits 0, begin reminders (alert + Discord)
+      startHungerAlerts();
       return;
     }
 
@@ -748,11 +785,12 @@ async function fetchFeedingData() {
   }
 }
 
-// Feed Done button → start next countdown
+// Feed Done button → start next countdown & stop reminders
 feedDoneBtn.addEventListener("click", async () => {
   try {
     feedDoneBtn.disabled = true;
     await fetch("feed_done.php", { method: "POST" });
+    stopHungerAlerts();      // ✅ stop alerts once beekeeper confirms feeding
     await fetchFeedingData();
   } catch (e) {
     console.error("Feed done error:", e);
@@ -766,6 +804,7 @@ fetchFeedingData();
 setInterval(fetchFeedingData, 1000);
 
 </script>
+
 
 </body>
 </html>
