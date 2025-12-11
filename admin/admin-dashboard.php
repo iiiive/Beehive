@@ -758,17 +758,11 @@ function updateCountdown(nextFeedTime) {
   const countdownElem = document.querySelector('.countdown');
   if (!countdownElem) return;
 
-  // Use a safer parse (handles "YYYY-MM-DD HH:MM:SS")
   const targetTime = new Date(nextFeedTime.replace(' ', 'T')).getTime();
-  if (isNaN(targetTime)) {
-    countdownElem.textContent = "Countdown error";
-    return;
-  }
-
   clearInterval(countdownInterval);
 
   function tick() {
-    const now  = Date.now();
+    const now = Date.now();
     const diff = targetTime - now;
 
     if (diff <= 0) {
@@ -777,16 +771,19 @@ function updateCountdown(nextFeedTime) {
       return;
     }
 
-    const hrs  = Math.floor(diff / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+    // Convert ms → d/h/m/s
+    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    countdownElem.textContent = `${hrs}h ${mins}m ${secs}s`;
+    countdownElem.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
   }
 
-  tick(); // 🔥 update immediately
+  tick(); // update immediately
   countdownInterval = setInterval(tick, 1000);
 }
+
 
 
 // Run everything
