@@ -12,13 +12,15 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
             if (mysqli_num_rows($result) == 1) {
                 $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
 
-                // Assign values
-                $timestamp   = $row["timestamp"];
-                $temperature = $row["temperature"];
-                $humidity    = $row["humidity"];
-                $weight      = $row["weight"];
-                $fan_status  = $row["fan_status"];
-                $status      = $row["status"];
+                // Assign values (with new fields)
+                $timestamp    = $row["timestamp"];
+                $temperature  = $row["temperature"];
+                $humidity     = $row["humidity"];
+                $weight       = $row["weight"];
+                $fan_status   = $row["fan_status"] ?? 0;    // exhaust fan
+                $mist_status  = $row["mist_status"] ?? 0;
+                $heater_status= $row["heater_status"] ?? 0;
+                $status       = $row["status"];
 
             } else {
                 header("location: error.php");
@@ -34,6 +36,11 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
     header("location: error.php");
     exit();
 }
+
+// Convert numeric to human-readable labels
+$fanLabel    = ($fan_status == 1)    ? 'ON' : 'OFF';
+$mistLabel   = ($mist_status == 1)   ? 'ON' : 'OFF';
+$heaterLabel = ($heater_status == 1) ? 'ON' : 'OFF';
 ?>
 
 <!DOCTYPE html>
@@ -54,7 +61,7 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
             margin: 0;
             padding: 0;
             height: 100%;
-            overflow: hidden; /* 🚫 disables scrolling */
+            overflow: hidden; /* no scroll (like your original) */
         }
         body {
             font-family: 'Raleway', sans-serif;
@@ -202,27 +209,35 @@ if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
         <ul class="card__list">
             <li class="card__list_item">
                 <span>Timestamp:</span>
-                <span><?php echo $timestamp; ?></span>
+                <span><?php echo htmlspecialchars($timestamp); ?></span>
             </li>
             <li class="card__list_item">
                 <span>Temperature (°C):</span>
-                <span><?php echo $temperature; ?></span>
+                <span><?php echo htmlspecialchars($temperature); ?></span>
             </li>
             <li class="card__list_item">
                 <span>Humidity (%):</span>
-                <span><?php echo $humidity; ?></span>
+                <span><?php echo htmlspecialchars($humidity); ?></span>
             </li>
             <li class="card__list_item">
                 <span>Weight (kg):</span>
-                <span><?php echo $weight; ?></span>
+                <span><?php echo htmlspecialchars($weight); ?></span>
             </li>
             <li class="card__list_item">
-                <span>Fan Status:</span>
-                <span><?php echo $fan_status; ?></span>
+                <span>Exhaust Fan:</span>
+                <span><?php echo $fanLabel; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Mist:</span>
+                <span><?php echo $mistLabel; ?></span>
+            </li>
+            <li class="card__list_item">
+                <span>Heater:</span>
+                <span><?php echo $heaterLabel; ?></span>
             </li>
             <li class="card__list_item">
                 <span>Status:</span>
-                <span><?php echo $status; ?></span>
+                <span><?php echo htmlspecialchars($status); ?></span>
             </li>
         </ul>
 
