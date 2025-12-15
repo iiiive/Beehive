@@ -705,7 +705,7 @@ function startHungerAlerts() {
     notifyHungryOnce(); // alert + Discord every 10 mins
   }, 600000); // 10 minutes
 }
-sadas
+
 function stopHungerAlerts() {
   if (hungerAlertInterval) {
     clearInterval(hungerAlertInterval);
