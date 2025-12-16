@@ -468,6 +468,20 @@ canvas { margin-top:20px; height:120px !important; }
       <button id="feed-done-btn" class="feed-btn" style="display:none;">
         <i class="bi bi-check-circle"></i> Feed Done
       </button>
+      <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
+  <button id="pause-btn" class="feed-btn" type="button" style="display:none;">
+    <i class="bi bi-pause-circle"></i> Pause
+  </button>
+
+  <button id="resume-btn" class="feed-btn" type="button" style="display:none;">
+    <i class="bi bi-play-circle"></i> Resume
+  </button>
+
+  <button id="stop-btn" class="feed-btn" type="button" style="display:none;">
+    <i class="bi bi-stop-circle"></i> Stop
+  </button>
+</div>
+
     </div>
   </div>
 </div>
@@ -674,14 +688,51 @@ const feedingStatusEl = document.getElementById("feeding-status");
 const countdownEl     = document.getElementById("countdown");
 const feedDoneBtn     = document.getElementById("feed-done-btn");
 
-let timerInterval;
-let lastDataJson      = null;
-let hungerAlertInterval = null;  // 🔔 repeat reminder timer
+const pauseBtn  = document.getElementById("pause-btn");
+const resumeBtn = document.getElementById("resume-btn");
+const stopBtn   = document.getElementById("stop-btn");
+
+let hungerAlertInterval = null;
+
+// ---- Persistent keys ----
+const FEED_KEY = "hivecare_feed_state_v1"; 
+// stored shape:
+// {
+//   mode: "running" | "paused" | "stopped",
+//   pausedRemainingMs: number|null,
+//   stoppedForNextFeed: string|null,  // the next_feed string we stopped on
+// }
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(FEED_KEY));
+    if (!s || !s.mode) return { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
+    return {
+      mode: s.mode,
+      pausedRemainingMs: typeof s.pausedRemainingMs === "number" ? s.pausedRemainingMs : null,
+      stoppedForNextFeed: typeof s.stoppedForNextFeed === "string" ? s.stoppedForNextFeed : null
+    };
+  } catch {
+    return { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
+  }
+}
+
+function saveState(obj) {
+  localStorage.setItem(FEED_KEY, JSON.stringify(obj));
+}
+
+let state = loadState();
+
+// ---- Timer runtime ----
+let targetTs = null;           // ms timestamp end time (when running)
+let pausedRemainingMs = state.pausedRemainingMs ?? 0;
+
+let latestNextFeedStr = null;  // raw string from API
+let lastShownSec = null;       // used to update UI only when second changes
 
 function safeParseTimestamp(str) {
   if (!str) return NaN;
-
-  // Make MySQL "YYYY-MM-DD HH:MM:SS" safer for Date.parse
+  // MySQL "YYYY-MM-DD HH:MM:SS" -> safer ISO-like
   const normalized = str.replace(" ", "T");
   const ts = Date.parse(normalized);
   return isNaN(ts) ? NaN : ts;
@@ -693,16 +744,11 @@ function notifyHungryOnce() {
   fetch("check_feeding_status.php").catch(() => {});
 }
 
-// Start repeated "bees are hungry" alerts every 10 minutes
 function startHungerAlerts() {
-  // avoid stacking intervals
   if (hungerAlertInterval) return;
-
-  // immediate notification when they first become hungry
   notifyHungryOnce();
-
   hungerAlertInterval = setInterval(() => {
-    notifyHungryOnce(); // alert + Discord every 10 mins
+    notifyHungryOnce();
   }, 600000); // 10 minutes
 }
 
@@ -713,95 +759,289 @@ function stopHungerAlerts() {
   }
 }
 
-function updateDisplay(data) {
-  clearInterval(timerInterval);
+function showControls({ pause, resume, stop, feedDone }) {
+  pauseBtn.style.display   = pause ? "inline-block" : "none";
+  resumeBtn.style.display  = resume ? "inline-block" : "none";
+  stopBtn.style.display    = stop ? "inline-block" : "none";
+  feedDoneBtn.style.display= feedDone ? "inline-block" : "none";
+}
 
-  const rawNext   = data.next_feed || null;
-  const targetTs  = safeParseTimestamp(rawNext);
-  const now       = Date.now();
-  const distance  = (!rawNext || isNaN(targetTs)) ? 0 : (targetTs - now);
+function renderSeconds(diffMs) {
+  const diff = Math.max(0, diffMs);
 
-  // 🐝 No valid next feed OR already passed → bees are hungry
-  if (!rawNext || isNaN(targetTs) || distance <= 0) {
-    feedingStatusEl.innerText  = "🐝 Bees are hungry! Feed them now.";
-    feedingStatusEl.className  = "status-bad";
-    feedDoneBtn.style.display  = "inline-block";
-    countdownEl.innerText      = "";
+  const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-    // 🔔 start/keep reminders (alert + Discord)
-    startHungerAlerts();
-    return;
-  }
+  countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
 
-  // 🍯 Valid future next_feed → show countdown and stop alerts
-  stopHungerAlerts(); // ✅ no reminders while countdown running
+// -------------------- UI Modes --------------------
 
-  feedDoneBtn.style.display = "none";
+function setNoScheduleUI() {
+  feedingStatusEl.innerText = "⚠ No feeding schedule set.";
+  feedingStatusEl.className = "status-bad";
+  countdownEl.innerText = "";
+  showControls({ pause:false, resume:false, stop:false, feedDone:false });
+  stopHungerAlerts();
+}
+
+function setStoppedUI() {
+  feedingStatusEl.innerText = "🐝 Timer stopped. Click Feed Done after feeding.";
+  feedingStatusEl.className = "status-bad";
+  countdownEl.innerText = "";
+
+  // ONLY Feed Done (no Stop / Pause / Resume)
+  showControls({ pause:false, resume:false, stop:false, feedDone:true });
+
+  stopHungerAlerts();
+}
+
+
+
+function setPausedUI() {
+  feedingStatusEl.innerText = "⏸ Feeding timer paused";
+  feedingStatusEl.className = "status-bad";
+  showControls({ pause:false, resume:true, stop:true, feedDone:false });
+  renderSeconds(pausedRemainingMs);
+  stopHungerAlerts();
+}
+
+function setRunningUI(diffMs) {
   feedingStatusEl.innerText = "🍯 Bees are eating";
   feedingStatusEl.className = "status-good";
 
-  function tick() {
-    const now  = Date.now();
-    const diff = targetTs - now;
+  // Stop only visible while running
+  showControls({ pause:true, resume:false, stop:true, feedDone:false });
 
-    if (diff <= 0) {
-      clearInterval(timerInterval);
-      feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
-      feedingStatusEl.className = "status-bad";
-      feedDoneBtn.style.display = "inline-block";
-      countdownEl.innerText     = "";
+  renderSeconds(diffMs);
+  stopHungerAlerts();
+}
 
-      // 🔔 when it hits 0, begin reminders (alert + Discord)
-      startHungerAlerts();
+
+function setHungryUI() {
+  feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
+  feedingStatusEl.className = "status-bad";
+  countdownEl.innerText = "";
+
+  // Only Feed Done when hungry
+  showControls({ pause:false, resume:false, stop:false, feedDone:true });
+
+  startHungerAlerts();
+}
+
+
+// -------------------- Stable Ticker (NO restarting intervals) --------------------
+// This runs continuously and updates the UI only when the displayed SECOND changes.
+function tick() {
+  // STOP mode: do nothing unless DB schedule changes (handled in fetch sync)
+  if (state.mode === "stopped") {
+    setStoppedUI();
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  // no schedule
+  if (!latestNextFeedStr) {
+    setNoScheduleUI();
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  // if paused
+  if (state.mode === "paused") {
+    const showSec = Math.floor(pausedRemainingMs / 1000);
+    if (showSec !== lastShownSec) {
+      lastShownSec = showSec;
+      setPausedUI();
+    }
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  // running
+  if (!targetTs) {
+    // if we have next feed but no targetTs yet
+    const parsed = safeParseTimestamp(latestNextFeedStr);
+    if (!isNaN(parsed)) targetTs = parsed;
+  }
+
+  if (!targetTs) {
+    setNoScheduleUI();
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  const diffMs = targetTs - Date.now();
+  const showSec = Math.floor(diffMs / 1000);
+
+  if (diffMs <= 0) {
+    if (lastShownSec !== 0) {
+      lastShownSec = 0;
+      setHungryUI();
+    }
+    requestAnimationFrame(tick);
+    return;
+  }
+
+  if (showSec !== lastShownSec) {
+    lastShownSec = showSec;
+    setRunningUI(diffMs);
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// -------------------- Fetch Sync --------------------
+// IMPORTANT: Poll less often. 1s polling causes jitter + unnecessary load.
+// 5s is enough. Your countdown stays smooth because tick() runs locally.
+async function fetchFeedingData() {
+  try {
+    const res = await fetch("get_next_feed.php");
+    const data = await res.json();
+
+    const nextStr = data.next_feed || null;
+
+    // No schedule from server
+    if (!nextStr) {
+      latestNextFeedStr = null;
+      targetTs = null;
+
+      // if stopped/paused, keep them but UI will show no schedule
       return;
     }
 
-    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-  }
-
-  tick();
-  timerInterval = setInterval(tick, 1000);
-}
-
-// Fetch current feeding schedule
-async function fetchFeedingData() {
-  try {
-    const res  = await fetch("get_next_feed.php");
-    const data = await res.json();
-    const jsonStr = JSON.stringify(data);
-
-    // only re-render if data actually changed
-    if (jsonStr !== lastDataJson) {
-      lastDataJson = jsonStr;
-      updateDisplay(data);
+    // If user STOPPED the timer, keep it stopped UNTIL server next_feed changes
+    // (meaning user set a new schedule)
+    if (state.mode === "stopped") {
+      if (state.stoppedForNextFeed && nextStr === state.stoppedForNextFeed) {
+        latestNextFeedStr = nextStr; // keep for comparison
+        return; // remain stopped
+      } else {
+        // server schedule changed -> auto-unstop
+        state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
+        saveState(state);
+      }
     }
+
+    latestNextFeedStr = nextStr;
+
+    // Only sync targetTs from server if NOT paused
+    if (state.mode !== "paused") {
+      const parsed = safeParseTimestamp(nextStr);
+      if (!isNaN(parsed)) targetTs = parsed;
+    }
+
   } catch (e) {
     console.error("Feeding fetch error:", e);
   }
 }
 
-// Feed Done button → start next countdown & stop reminders
+async function notifyDiscord(msg) {
+  try {
+    await fetch("discord_alertfeed.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ message: msg })
+    });
+  } catch (e) {
+    console.error("Discord notify failed:", e);
+  }
+}
+
+
+// -------------------- Buttons --------------------
+
+pauseBtn.addEventListener("click", async () => {
+  if (state.mode !== "running") return;
+  if (!targetTs) return;
+
+  pausedRemainingMs = Math.max(0, targetTs - Date.now());
+  state = { mode: "paused", pausedRemainingMs, stoppedForNextFeed: null };
+  saveState(state);
+  lastShownSec = null;
+
+  alert("⏸ Feeding timer was paused.");
+  await notifyDiscord("⏸ Feeding timer was PAUSED by the user.");
+});
+
+
+resumeBtn.addEventListener("click", async () => {
+  if (state.mode !== "paused") return;
+
+  targetTs = Date.now() + pausedRemainingMs;
+  state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
+  saveState(state);
+  lastShownSec = null;
+
+  alert("▶ Feeding timer resumed.");
+  await notifyDiscord("▶ Feeding timer was RESUMED by the user.");
+});
+
+
+stopBtn.addEventListener("click", async () => {
+  alert("⏹ Feeding timer was stopped.");
+  await notifyDiscord("⏹ Feeding timer was STOPPED by the user.");
+
+  state = {
+    mode: "stopped",
+    pausedRemainingMs: null,
+    stoppedForNextFeed: latestNextFeedStr || null
+  };
+  saveState(state);
+
+  targetTs = null;
+  pausedRemainingMs = 0;
+  lastShownSec = null;
+  stopHungerAlerts();
+
+  // ✅ force immediate UI: show Feed Done only, hide Stop/Pause/Resume
+  setStoppedUI();
+});
+
+
+
+
+// Feed Done button → stop alerts + trigger backend update
 feedDoneBtn.addEventListener("click", async () => {
   try {
     feedDoneBtn.disabled = true;
-    await fetch("feed_done.php", { method: "POST" });
-    stopHungerAlerts();      // ✅ stop alerts once beekeeper confirms feeding
+
+    // Update backend first
+    const res = await fetch("feed_done.php", { method: "POST" });
+
+    // optional: if feed_done.php returns non-200, catch it
+    if (!res.ok) throw new Error("feed_done.php failed");
+
+    stopHungerAlerts();
+
+    // Notify Discord ✅
+    alert("✅ Feeding marked as done.");
+    await notifyDiscord("✅ Feed Done was clicked. Feeding has been completed by the user.");
+
+    // Reset local state to running (server should set next_feed)
+    state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
+    saveState(state);
+
     await fetchFeedingData();
+    lastShownSec = null;
+
   } catch (e) {
     console.error("Feed done error:", e);
+    alert("❌ Feed Done failed. Check console.");
   } finally {
     feedDoneBtn.disabled = false;
   }
 });
 
-// Poll every 1 second to sync between tabs/users
+
+// ---- Start ----
 fetchFeedingData();
-setInterval(fetchFeedingData, 1000);
+setInterval(fetchFeedingData, 5000); // ✅ less jitter, less load
+requestAnimationFrame(tick);
+
+
 
 </script>
 
