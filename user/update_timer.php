@@ -2,34 +2,67 @@
 session_start();
 require_once "../config.php";
 
-if (!isset($_SESSION['user_id']) && !isset($_SESSION['admin_logged_in'])) {
-    http_response_code(401);
-    echo json_encode(["success" => false, "message" => "Unauthorized"]);
-    exit;
-}
-
 $state = $_POST['state'] ?? null;
+$now   = time();
 
-$allowed = ['running', 'paused', 'stopped'];
-if (!in_array($state, $allowed)) {
-    http_response_code(400);
-    echo json_encode(["success" => false, "message" => "Invalid state"]);
-    exit;
+if (!in_array($state, ['running','paused','stopped'])) {
+  echo json_encode(["success"=>false]);
+  exit;
 }
 
-// ✅ Update ONLY the latest schedule row
-$sql = "
-  UPDATE bee_feeding_schedule
-  SET timer_state = ?
+// Get latest row
+$q = mysqli_query($link, "
+  SELECT id, next_feed, remaining_seconds, timer_state
+  FROM bee_feeding_schedule
   ORDER BY id DESC
   LIMIT 1
-";
+");
+$row = mysqli_fetch_assoc($q);
 
-$stmt = mysqli_prepare($link, $sql);
-mysqli_stmt_bind_param($stmt, "s", $state);
-$ok = mysqli_stmt_execute($stmt);
+$id = $row['id'];
 
-echo json_encode([
-    "success" => $ok,
-    "state"   => $state
-]);
+if ($state === 'paused') {
+  // 🔒 Freeze remaining time
+  $remaining = strtotime($row['next_feed']) - $now;
+  if ($remaining < 0) $remaining = 0;
+
+  mysqli_query($link, "
+    UPDATE bee_feeding_schedule
+    SET timer_state='paused',
+        remaining_seconds=$remaining
+    WHERE id=$id
+  ");
+}
+
+elseif ($state === 'running') {
+  // ▶ Resume from remaining time
+  if ($row['remaining_seconds'] !== null) {
+    $newNextFeed = date('Y-m-d H:i:s', $now + $row['remaining_seconds']);
+
+    mysqli_query($link, "
+      UPDATE bee_feeding_schedule
+      SET timer_state='running',
+          next_feed='$newNextFeed',
+          remaining_seconds=NULL
+      WHERE id=$id
+    ");
+  } else {
+    // normal resume
+    mysqli_query($link, "
+      UPDATE bee_feeding_schedule
+      SET timer_state='running'
+      WHERE id=$id
+    ");
+  }
+}
+
+elseif ($state === 'stopped') {
+  mysqli_query($link, "
+    UPDATE bee_feeding_schedule
+    SET timer_state='stopped',
+        remaining_seconds=NULL
+    WHERE id=$id
+  ");
+}
+
+echo json_encode(["success"=>true,"state"=>$state]);
