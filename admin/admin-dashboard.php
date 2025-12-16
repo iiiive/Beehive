@@ -718,52 +718,33 @@ async function reloadHistory() {
     console.error("History fetch error:", err);
   }
 }
+let countdownInterval;
+let pausedDiff = null; // stores remaining ms when paused/stopped
 
-// Feeding status (Bee Feeding Status card)
-function fetchFeedingStatus() {
-  fetch('get_feeding_status.php')
-    .then(response => response.json())
-    .then(data => {
-      const now      = new Date();
-      const nextFeed = data.next_feed ? new Date(data.next_feed) : null;
-      const isHungry = nextFeed ? (nextFeed <= now) : true;
-
-      const cardClass = isHungry ? 'feed-card feed-hungry' : 'feed-card feed-eating';
-      const statusText = isHungry
-        ? `<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them now!</p>`
-        : `<p class="text-success fw-bold">🍯 Bees are eating happily!</p>
-           <p>Next feeding in: <span class="countdown"></span></p>`;
-
-      document.getElementById('feeding-status-list').innerHTML = `
-        <div class="${cardClass}">
-          <h6><i class="bi bi-person-fill"></i> ${data.username || 'Unknown User'}</h6>
-          ${statusText}
-          <small>
-            <i class="bi bi-clock-history"></i> Last fed: ${data.last_fed || 'Not yet fed'}<br>
-            <i class="bi bi-calendar-event"></i> Next feed: ${data.next_feed || 'N/A'}
-          </small>
-        </div>
-      `;
-
-      if (!isHungry && data.next_feed) {
-        updateCountdown(data.next_feed);
-      }
-    })
-    .catch(err => console.error('Fetch error:', err));
+function formatDiff(diff) {
+  const d = Math.max(0, diff);
+  const days    = Math.floor(d / (1000 * 60 * 60 * 24));
+  const hours   = Math.floor((d % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((d % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((d % (1000 * 60)) / 1000);
+  return `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
-let countdownInterval;
+function showFrozenCountdown(diff) {
+  const el = document.querySelector(".countdown");
+  if (!el) return;
+  el.textContent = formatDiff(diff);
+}
 
-function updateCountdown(nextFeedTime) {
-  const countdownElem = document.querySelector('.countdown');
+function startCountdown(nextFeedTime) {
+  const countdownElem = document.querySelector(".countdown");
   if (!countdownElem) return;
 
-  const targetTime = new Date(nextFeedTime.replace(' ', 'T')).getTime();
+  const targetTime = new Date(nextFeedTime.replace(" ", "T")).getTime();
   clearInterval(countdownInterval);
 
   function tick() {
-    const now = Date.now();
-    const diff = targetTime - now;
+    const diff = targetTime - Date.now();
 
     if (diff <= 0) {
       clearInterval(countdownInterval);
@@ -771,17 +752,82 @@ function updateCountdown(nextFeedTime) {
       return;
     }
 
-    // Convert ms → d/h/m/s
-    const days    = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours   = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-    countdownElem.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    countdownElem.textContent = formatDiff(diff);
   }
 
-  tick(); // update immediately
+  tick();
   countdownInterval = setInterval(tick, 1000);
+}
+
+function fetchFeedingStatus() {
+  fetch("get_feeding_status.php")
+    .then(r => r.json())
+    .then(data => {
+      const nextFeed = data.next_feed ? new Date(data.next_feed.replace(" ", "T")) : null;
+      const timerState = (data.timer_state || "running").toLowerCase();
+
+      const stateBadge = {
+        running: "🟢 RUNNING",
+        paused:  "🟡 PAUSED",
+        stopped: "🔴 STOPPED"
+      }[timerState] || "🟢 RUNNING";
+
+      // compute diff ONCE per fetch
+      const diff = nextFeed ? (nextFeed.getTime() - Date.now()) : 0;
+
+      // store frozen value when paused/stopped (so it doesn't change)
+      if (timerState === "paused" || timerState === "stopped") {
+        if (pausedDiff === null) pausedDiff = diff; // capture only once
+      } else {
+        pausedDiff = null; // running = reset frozen storage
+      }
+
+      // ALWAYS include the countdown span
+      const cardClass =
+        timerState === "running"
+          ? "feed-card feed-eating"
+          : "feed-card feed-hungry";
+
+      const statusText =
+        timerState === "stopped"
+          ? `<p class="text-danger fw-bold">🔴 Timer STOPPED by user</p>
+             <p>Next feeding in: <span class="countdown"></span></p>`
+        : timerState === "paused"
+          ? `<p class="text-warning fw-bold">🟡 Timer PAUSED by user</p>
+             <p>Next feeding in: <span class="countdown"></span></p>`
+        : (diff <= 0
+            ? `<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them now!</p>
+               <p>Next feeding in: <span class="countdown"></span></p>`
+            : `<p class="text-success fw-bold">🍯 Feeding schedule running</p>
+               <p>Next feeding in: <span class="countdown"></span></p>`);
+
+      document.getElementById("feeding-status-list").innerHTML = `
+        <div class="${cardClass}">
+          <h6><i class="bi bi-person-fill"></i> ${data.username || "Unknown User"}</h6>
+          <p class="fw-bold">${stateBadge}</p>
+          ${statusText}
+          <small>
+            <i class="bi bi-clock-history"></i> Last fed: ${data.last_fed || "Not yet fed"}<br>
+            <i class="bi bi-calendar-event"></i> Next feed: ${data.next_feed || "N/A"}
+          </small>
+        </div>
+      `;
+
+      // Control the countdown behavior
+      if (!data.next_feed) {
+        clearInterval(countdownInterval);
+        showFrozenCountdown(0);
+        return;
+      }
+
+      if (timerState === "running") {
+        startCountdown(data.next_feed);
+      } else {
+        clearInterval(countdownInterval);
+        showFrozenCountdown(pausedDiff ?? diff);
+      }
+    })
+    .catch(err => console.error("Fetch error:", err));
 }
 
 

@@ -950,6 +950,16 @@ async function notifyDiscord(msg) {
   }
 }
 
+async function updateTimerState(state) {
+  await fetch("update_timer.php", {
+    method: "POST",
+    headers: {"Content-Type":"application/x-www-form-urlencoded"},
+    body: "state=" + encodeURIComponent(state)
+  });
+}
+
+
+
 
 // -------------------- Buttons --------------------
 
@@ -961,6 +971,8 @@ pauseBtn.addEventListener("click", async () => {
   state = { mode: "paused", pausedRemainingMs, stoppedForNextFeed: null };
   saveState(state);
   lastShownSec = null;
+  await updateTimerState("paused");
+
 
   alert("⏸ Feeding timer was paused.");
   await notifyDiscord("⏸ Feeding timer was PAUSED by the user.");
@@ -974,6 +986,10 @@ resumeBtn.addEventListener("click", async () => {
   state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
   saveState(state);
   lastShownSec = null;
+  await updateTimerState("running");
+
+
+
 
   alert("▶ Feeding timer resumed.");
   await notifyDiscord("▶ Feeding timer was RESUMED by the user.");
@@ -983,6 +999,8 @@ resumeBtn.addEventListener("click", async () => {
 stopBtn.addEventListener("click", async () => {
   alert("⏹ Feeding timer was stopped.");
   await notifyDiscord("⏹ Feeding timer was STOPPED by the user.");
+  await updateTimerState("stopped");
+
 
   state = {
     mode: "stopped",
@@ -1008,32 +1026,25 @@ feedDoneBtn.addEventListener("click", async () => {
   try {
     feedDoneBtn.disabled = true;
 
-    // Update backend first
-    const res = await fetch("feed_done.php", { method: "POST" });
+    await fetch("feed_done.php", { method: "POST" });
 
-    // optional: if feed_done.php returns non-200, catch it
-    if (!res.ok) throw new Error("feed_done.php failed");
+    await updateTimerState("running");                 // ✅ NEW
+    await notifyDiscord("✅ Feeding marked as DONE."); // ✅ NEW
 
     stopHungerAlerts();
 
-    // Notify Discord ✅
-    alert("✅ Feeding marked as done.");
-    await notifyDiscord("✅ Feed Done was clicked. Feeding has been completed by the user.");
-
-    // Reset local state to running (server should set next_feed)
     state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
     saveState(state);
 
     await fetchFeedingData();
     lastShownSec = null;
-
   } catch (e) {
     console.error("Feed done error:", e);
-    alert("❌ Feed Done failed. Check console.");
   } finally {
     feedDoneBtn.disabled = false;
   }
 });
+
 
 
 // ---- Start ----
