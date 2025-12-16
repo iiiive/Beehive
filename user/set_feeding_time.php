@@ -25,14 +25,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (mysqli_num_rows($check) > 0) {
             // 🐝 Only update interval, reset next_feed and last_fed
             $sql = "UPDATE bee_feeding_schedule 
-                    SET interval_minutes = $total_minutes,
-                        next_feed       = NULL,
-                        last_fed        = NULL
-                    WHERE user_id = $user_id";
+        SET interval_minutes   = $total_minutes,
+            next_feed          = NULL,
+            last_fed           = NULL,
+            timer_state        = 'stopped',
+            remaining_seconds  = " . ($total_minutes * 60) . ",
+            paused_at          = NULL
+        WHERE user_id = $user_id";
+
         } else {
             // 🐝 New row with just interval set; countdown will wait for Feed Done
-            $sql = "INSERT INTO bee_feeding_schedule (user_id, interval_minutes, next_feed, last_fed)
-                    VALUES ($user_id, $total_minutes, NULL, NULL)";
+            $sql = "INSERT INTO bee_feeding_schedule 
+          (user_id, interval_minutes, next_feed, last_fed, timer_state, remaining_seconds, paused_at)
+        VALUES
+          ($user_id, $total_minutes, NULL, NULL, 'stopped', " . ($total_minutes * 60) . ", NULL)";
+
         }
 
         if (mysqli_query($link, $sql)) {

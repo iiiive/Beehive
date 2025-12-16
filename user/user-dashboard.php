@@ -842,6 +842,12 @@ function tick() {
     return;
   }
 
+  if (state.mode === "hungry") {
+  setHungryUI();
+  requestAnimationFrame(tick);
+  return;
+}
+
   // no schedule
   if (!latestNextFeedStr) {
     setNoScheduleUI();
@@ -897,46 +903,37 @@ function tick() {
 // IMPORTANT: Poll less often. 1s polling causes jitter + unnecessary load.
 // 5s is enough. Your countdown stays smooth because tick() runs locally.
 async function fetchFeedingData() {
-  try {
-    const res = await fetch("get_next_feed.php");
-    const data = await res.json();
+  const res = await fetch("get_next_feed.php");
+  const data = await res.json();
 
-    const nextStr = data.next_feed || null;
-
-    // No schedule from server
-    if (!nextStr) {
-      latestNextFeedStr = null;
-      targetTs = null;
-
-      // if stopped/paused, keep them but UI will show no schedule
-      return;
-    }
-
-    // If user STOPPED the timer, keep it stopped UNTIL server next_feed changes
-    // (meaning user set a new schedule)
-    if (state.mode === "stopped") {
-      if (state.stoppedForNextFeed && nextStr === state.stoppedForNextFeed) {
-        latestNextFeedStr = nextStr; // keep for comparison
-        return; // remain stopped
-      } else {
-        // server schedule changed -> auto-unstop
-        state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
-        saveState(state);
-      }
-    }
-
-    latestNextFeedStr = nextStr;
-
-    // Only sync targetTs from server if NOT paused
-    if (state.mode !== "paused") {
-      const parsed = safeParseTimestamp(nextStr);
-      if (!isNaN(parsed)) targetTs = parsed;
-    }
-
-  } catch (e) {
-    console.error("Feeding fetch error:", e);
+  if (!data.has_schedule) {
+    latestNextFeedStr = null;
+    targetTs = null;
+    setNoScheduleUI();
+    return;
   }
+
+  latestNextFeedStr = data.next_feed;
+
+  if (data.timer_state === "paused" || data.timer_state === "stopped") {
+    pausedRemainingMs = (data.remaining_seconds || 0) * 1000;
+    state.mode = data.timer_state; // paused/stopped
+    targetTs = null;               // IMPORTANT: don't rebuild from next_feed
+    return;
+  }
+
+  if (data.timer_state === "hungry") {
+    state.mode = "hungry";
+    targetTs = null;
+    return;
+  }
+
+  // running
+  state.mode = "running";
+  targetTs = safeParseTimestamp(data.next_feed);
 }
+
+
 
 async function notifyDiscord(msg) {
   try {
@@ -950,13 +947,17 @@ async function notifyDiscord(msg) {
   }
 }
 
-async function updateTimerState(state) {
+async function updateTimerState(state, remainingSeconds = 0) {
   await fetch("update_timer.php", {
     method: "POST",
     headers: {"Content-Type":"application/x-www-form-urlencoded"},
-    body: "state=" + encodeURIComponent(state)
+    body: new URLSearchParams({
+      state,
+      remaining_seconds: remainingSeconds
+    })
   });
 }
+
 
 
 
@@ -964,59 +965,56 @@ async function updateTimerState(state) {
 // -------------------- Buttons --------------------
 
 pauseBtn.addEventListener("click", async () => {
-  if (state.mode !== "running") return;
-  if (!targetTs) return;
+  if (state.mode !== "running" || !targetTs) return;
 
-  pausedRemainingMs = Math.max(0, targetTs - Date.now());
-  state = { mode: "paused", pausedRemainingMs, stoppedForNextFeed: null };
-  saveState(state);
+  const remainingSeconds = Math.max(0, Math.ceil((targetTs - Date.now()) / 1000));
+  await updateTimerState("paused", remainingSeconds);
+
+  await fetchFeedingData();
   lastShownSec = null;
-  await updateTimerState("paused");
-
 
   alert("⏸ Feeding timer was paused.");
   await notifyDiscord("⏸ Feeding timer was PAUSED by the user.");
 });
 
 
+
 resumeBtn.addEventListener("click", async () => {
   if (state.mode !== "paused") return;
 
-  targetTs = Date.now() + pausedRemainingMs;
-  state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
-  saveState(state);
+  const remainingSeconds = Math.max(0, Math.ceil(pausedRemainingMs / 1000));
+  await updateTimerState("running", remainingSeconds);
+
+  await fetchFeedingData();
   lastShownSec = null;
-  await updateTimerState("running");
-
-
-
 
   alert("▶ Feeding timer resumed.");
   await notifyDiscord("▶ Feeding timer was RESUMED by the user.");
 });
 
 
+
+
+
 stopBtn.addEventListener("click", async () => {
+  let remainingSeconds = 0;
+
+  if (state.mode === "running" && targetTs) {
+    remainingSeconds = Math.max(0, Math.ceil((targetTs - Date.now()) / 1000));
+  } else if (state.mode === "paused") {
+    remainingSeconds = Math.max(0, Math.ceil(pausedRemainingMs / 1000));
+  }
+
+  await updateTimerState("stopped", remainingSeconds);
+
+  await fetchFeedingData();
+  lastShownSec = null;
+
   alert("⏹ Feeding timer was stopped.");
   await notifyDiscord("⏹ Feeding timer was STOPPED by the user.");
-  await updateTimerState("stopped");
-
-
-  state = {
-    mode: "stopped",
-    pausedRemainingMs: null,
-    stoppedForNextFeed: latestNextFeedStr || null
-  };
-  saveState(state);
-
-  targetTs = null;
-  pausedRemainingMs = 0;
-  lastShownSec = null;
-  stopHungerAlerts();
-
-  // ✅ force immediate UI: show Feed Done only, hide Stop/Pause/Resume
-  setStoppedUI();
 });
+
+
 
 
 
@@ -1026,24 +1024,24 @@ feedDoneBtn.addEventListener("click", async () => {
   try {
     feedDoneBtn.disabled = true;
 
-    await fetch("feed_done.php", { method: "POST" });
-
-    await updateTimerState("running");                 // ✅ NEW
-    await notifyDiscord("✅ Feeding marked as DONE."); // ✅ NEW
+    const res = await fetch("feed_done.php", { method: "POST" });
+    const out = await res.json();
+    if (!out.ok) throw new Error(out.error || "Feed done failed");
 
     stopHungerAlerts();
+    await notifyDiscord("✅ Feeding marked as DONE.");
 
-    state = { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
-    saveState(state);
-
-    await fetchFeedingData();
+    await fetchFeedingData(); // re-sync from DB
     lastShownSec = null;
+
   } catch (e) {
     console.error("Feed done error:", e);
+    alert("Feed Done failed: " + e.message);
   } finally {
     feedDoneBtn.disabled = false;
   }
 });
+
 
 
 
