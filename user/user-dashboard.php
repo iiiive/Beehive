@@ -287,81 +287,68 @@ canvas { margin-top:20px; height:120px !important; }
     padding: 6px 10px;
   }
 }
-/* 🐝 Bee Feeding Status Card */
+/* Feeding Scheduler Custom Design */
 .feeding-card {
-  background: linear-gradient(145deg, #FFF8DC, #EED484);
-  border: 2px solid #E3B23C;
+  background: linear-gradient(145deg, #FFF8DC, #f7d36c);
   border-radius: 25px;
-  box-shadow: 6px 6px 20px rgba(0,0,0,0.25);
-  transition: 0.3s ease;
-}
-#feeding-status-list {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  margin-top: 15px;
-}
-.feed-card {
-  padding: 20px;
-  border-radius: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  transition: 0.3s ease;
-  border-left: 6px solid;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   position: relative;
   overflow: hidden;
 }
-.feed-hungry {
-  background: linear-gradient(145deg, #FFEAEA, #FFB6B6);
-  border-left-color: #E63946;
-  box-shadow: 4px 6px 16px rgba(230, 57, 70, 0.3);
-}
-.feed-hungry::before {
-  content: "⚠️ Hungry Alert!";
+.feeding-card::before {
+  content: "";
   position: absolute;
-  top: 10px;
-  right: 15px;
-  font-weight: 700;
-  color: #B22222;
+  top: -20px;
+  left: 0;
+  width: 100%;
+  height: 40px;
+  background: radial-gradient(circle at 10% 30%, #ffd93d, transparent 50%),
+              radial-gradient(circle at 30% 10%, #ffcc00, transparent 50%),
+              radial-gradient(circle at 60% 30%, #ffb703, transparent 50%),
+              radial-gradient(circle at 90% 20%, #fcbf49, transparent 50%);
+  opacity: 0.7;
+  animation: honeyMove 5s infinite linear;
 }
-.feed-eating {
-  background: linear-gradient(145deg, #E8FFE8, #C4F2C4);
-  border-left-color: #2A9D8F;
-  box-shadow: 4px 6px 16px rgba(42, 157, 143, 0.3);
+@keyframes honeyMove {
+  from { background-position: 0 0, 20px 0, 40px 0, 60px 0; }
+  to   { background-position: 60px 0, 80px 0, 100px 0, 120px 0; }
 }
-.feed-eating::before {
-  content: "🍯 Feeding Time";
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  font-weight: 700;
-  color: #1E5631;
-}
-.feed-card h6 {
+.countdown-container { margin-top: 10px; }
+.countdown-text {
+  font-size: 2rem;
   font-weight: 800;
   color: #4B2E1E;
-  margin-bottom: 5px;
-}
-.feed-card p {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-.feed-card small {
-  color: #4B2E1E;
+  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
   display: block;
-  font-weight: 600;
-  font-size: 0.9rem;
+  margin-top: 10px;
 }
-.countdown {
-  font-weight: bold;
+.feed-btn {
+  background: linear-gradient(145deg, #FFD93D, #E8C547);
+  border: none;
   color: #4B2E1E;
-  background: rgba(255,255,255,0.5);
-  padding: 4px 10px;
-  border-radius: 10px;
+  padding: 12px 25px;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 15px;
+  margin-top: 15px;
+  box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+.feed-btn:hover {
+  background: linear-gradient(145deg, #E8C547, #FFD93D);
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.3);
+}
+#feeding-status {
   display: inline-block;
-  margin-top: 5px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1.1rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
 }
 </style>
 </head>
