@@ -73,6 +73,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <title>Create Worker Account</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 * { box-sizing: border-box; margin:0; padding:0; font-family: Raleway, sans-serif; }
 body { height: 100vh; display:flex; align-items:center; justify-content:center; position:relative; }
@@ -93,6 +95,80 @@ button:hover { background:#cdbd49; color:#000; transform:translateY(-2px); }
 .eye-icon:hover { color:#fff; }
 .back-btn { position:absolute; top:20px; left:20px; padding:10px 20px; font-size:1rem; font-weight:bold; color:#333; background:#e7d25bff; border-radius:20px; text-decoration:none; box-shadow:4px4px10px rgba(0,0,0,0.3); z-index:1000; transition:background 0.3s ease, transform 0.2s ease; }
 .back-btn:hover { transform:scale(1.05); }
+
+/* =========================
+   RESPONSIVE DESIGN (MOBILE)
+   ========================= */
+
+/* Tablets & small laptops */
+@media (max-width: 768px) {
+    .container {
+        width: 90%;
+        padding: 25px;
+    }
+
+    h2 {
+        font-size: 22px;
+    }
+
+    button {
+        font-size: 15px;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+    body {
+        padding: 15px;
+        align-items: flex-start;
+    }
+
+    .container {
+        width: 100%;
+        padding: 20px;
+        border-radius: 15px;
+        margin-top: 60px;
+    }
+
+    h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    form input,
+    form textarea {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    textarea {
+        min-height: 80px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 14px;
+    }
+
+    .eye-icon {
+        right: 8px;
+        font-size: 14px;
+    }
+
+    .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        border-radius: 15px;
+    }
+
+    .success,
+    .error {
+        font-size: 14px;
+    }
+}
+
 </style>
 </head>
 <body>

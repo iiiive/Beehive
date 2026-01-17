@@ -90,6 +90,8 @@ mysqli_close($link);
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 * { box-sizing:border-box; margin:0; padding:0; font-family:Raleway,sans-serif; }
 body {
@@ -111,51 +113,77 @@ body::before {
   z-index: 1; 
 }
 
-/* Header */
+/* =========================
+   DASHBOARD HEADER (FIXED)
+   ========================= */
+
 .dashboard-header {
-  width:100%; 
-  padding:15px 25px;
-  display:flex; 
-  justify-content:space-between; 
-  align-items:center;
+  width: 100%;
+  padding: 12px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
   background: linear-gradient(145deg, #eef104ff, #D4A373);
-  border-radius:0 0 20px 20px;
+  border-radius: 0 0 20px 20px;
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
 }
-.dashboard-header .title {
-  display:flex; align-items:center; gap:15px;
-}
-.dashboard-header .title span {
-  font-family: 'Cursive','Brush Script MT',sans-serif;
-  font-size: 2.5rem; color:#212121;
-}
-.dashboard-header img { 
-  height:70px; 
-  width:70px; }
 
-/* Group buttons to the right */
-.dashboard-header > div:last-child {
+.dashboard-header .title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
-.settings-btn, .logout-btn {
-  padding: 10px 20px;
-  border-radius: 15px;
+.dashboard-header img {
+  width: 60px;
+  height: 60px;
+  flex-shrink: 0;
+}
+
+.dashboard-header .title span {
+  font-family: 'Brush Script MT', cursive, sans-serif;
+  font-size: 2.2rem;
+  font-weight: 500;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Action buttons */
+.dashboard-header .actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.settings-btn,
+.logout-btn {
+  padding: 8px 16px;
+  border-radius: 14px;
   font-weight: 700;
+  font-size: 0.9rem;
   color: #fff;
   background: #4B2E1E;
   border: none;
   text-decoration: none;
+  white-space: nowrap;
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   transition: 0.3s;
 }
 
-.settings-btn:hover, .logout-btn:hover {
+.settings-btn:hover,
+.logout-btn:hover {
   background: #6B4226;
   transform: translateY(-2px) scale(1.03);
 }
+
 
 /* Layout */
 .container {
@@ -226,80 +254,32 @@ canvas { margin-top:20px; height:120px !important; }
   background: #FEDE16 !important;
   transform: scale(1.01);
 }
-
-/* ================= RESPONSIVE FIXES ================= */
-@media (max-width: 992px) {
-  .dashboard-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 15px;
-  }
-  .dashboard-header img {
-    height: 60px;
-    width: 60px;
-  }
-  .dashboard-header .title span {
-    font-size: 2rem;
-  }
-  .dashboard-header > div:last-child {
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-  }
-  .settings-btn, .logout-btn {
-    padding: 8px 15px;
-    font-size: 0.9rem;
-  }
-  .container {
-    margin: 20px auto;
-    gap: 15px;
-  }
-  .card {
-    flex: 1 1 45%;
-  }
-}
+/* =========================
+   HEADER MOBILE FIX
+   ========================= */
 
 @media (max-width: 768px) {
   .dashboard-header {
-    padding: 10px;
-    gap: 10px;
+    flex-direction: column;
+    align-items: stretch;
   }
+
   .dashboard-header .title {
-    flex-direction: column;
-    gap: 5px;
+    justify-content: center;
   }
-  .dashboard-header img {
-    height: 50px;
-    width: 50px;
-  }
-  .dashboard-header > div:last-child {
-    flex-direction: column;
-    width: 100%;
-  }
-  .settings-btn, .logout-btn {
-    width: 100%;
+
+  .dashboard-header .title span {
+    font-size: 1.7rem;
     text-align: center;
   }
-  .container {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
+
+  .dashboard-header img {
+    width: 50px;
+    height: 50px;
   }
-  .card {
-    flex: 1 1 100%;
-    width: 95%;
-    min-width: unset;
-  }
-  .card-title {
-    font-size: 1.2rem;
-  }
-  .value {
-    font-size: 1.5rem;
-  }
-  .history-table th, .history-table td {
-    font-size: 0.85rem;
-    padding: 8px;
+
+  .dashboard-header .actions {
+    justify-content: center;
   }
 }
 
@@ -307,27 +287,11 @@ canvas { margin-top:20px; height:120px !important; }
   .dashboard-header .title span {
     font-size: 1.4rem;
   }
-  .dashboard-header img {
-    height: 40px;
-    width: 40px;
-  }
-  .card {
-    padding: 15px;
-  }
-  .card-title {
-    font-size: 1rem;
-  }
-  .value {
-    font-size: 1.2rem;
-  }
-  .history-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  .history-table thead, .history-table tbody, .history-table tr, .history-table th, .history-table td {
-    display: inline-block;
-    min-width: 100px;
+
+  .settings-btn,
+  .logout-btn {
+    font-size: 0.8rem;
+    padding: 7px 12px;
   }
 }
 
@@ -414,9 +378,11 @@ canvas { margin-top:20px; height:120px !important; }
 <div class="dashboard-header">
   <div class="title">
     <img src="../frontend/images/bee.png" alt="HiveCare Logo"> 
-    <span>HiveCare - Super Admin Dashboard</span>
+    <span>HiveCare – Admin Dashboard</span>
   </div>
-  <div>
+
+  <div class="actions">
+
     <a href="admin-feedsched.php" class="settings-btn">
       <i class="bi bi-calendar-event"></i> Feeding History
     </a>
