@@ -47,14 +47,14 @@ body::before {
   z-index: -1;
 }
 .container {
-  width: 85%;
-  max-width: 900px;
+  width: min(92%, 900px);
   background: #fff7c3ff;
-  border-radius: 20px;
+  border-radius: clamp(14px, 4vw, 20px);
   box-shadow: 0px 0px 24px #ceae1fff;
-  padding: 30px 40px;
+  padding: clamp(16px, 4vw, 30px) clamp(16px, 5vw, 40px);
   animation: fadeIn 1s ease-in-out;
 }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -62,9 +62,10 @@ body::before {
 h2 {
   text-align: center;
   color: #47300cff;
-  font-size: 35px;
-  margin-bottom: 25px;
+  font-size: clamp(22px, 5vw, 35px);
+  margin-bottom: 20px;
 }
+
 .table {
   width: 100%;
   border-collapse: collapse;
@@ -72,11 +73,13 @@ h2 {
   border-radius: 15px;
   overflow: hidden;
 }
-.table th, .table td {
-  padding: 15px 18px;
-  text-align: center;
-  font-size: 18px;
+.table th,
+.table td {
+  padding: clamp(10px, 3vw, 15px);
+  font-size: clamp(13px, 3.5vw, 18px);
+  white-space: nowrap;
 }
+
 .table thead {
   background-color: #e7d25bff;
   color: #47300cff;
@@ -92,12 +95,17 @@ h2 {
   color: #47300cff;
   font-weight: 600;
 }
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
 .back-btn {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  padding: 10px 20px;
-  font-size: 1rem;
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  padding: 8px 16px;
+  font-size: clamp(14px, 3.5vw, 16px);
   font-weight: bold;
   color: #333;
   background: #e7d25bff;
@@ -107,11 +115,18 @@ h2 {
   transition: background 0.3s ease, transform 0.2s ease;
   z-index: 1000;
 }
+
 .back-btn:hover {
   background: #cdbd49;
   color: #000;
   transform: scale(1.05);
 }
+@media (max-width: 480px) {
+  body {
+    padding: 70px 0 30px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -121,6 +136,7 @@ h2 {
 <div class="container">
   <h2>Feeding History</h2>
 
+<div class="table-wrapper">
   <table class="table">
     <thead>
       <tr>
@@ -129,6 +145,7 @@ h2 {
         <th>Next Feed</th>
       </tr>
     </thead>
+
     <tbody>
       <?php if ($res && mysqli_num_rows($res) > 0): ?>
         <?php while($row = mysqli_fetch_assoc($res)): ?>
@@ -145,6 +162,8 @@ h2 {
       <?php endif; ?>
     </tbody>
   </table>
+</div>
+
 </div>
 
 </body>

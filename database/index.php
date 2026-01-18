@@ -18,12 +18,16 @@
       font-family: Arial, sans-serif;
     }
     .wrapper { width: 95%; margin: auto; }
-    h2 {
-      font-family: 'Cursive', 'Brush Script MT', sans-serif;
-      font-size: 4rem; margin-bottom: 40px; 
-      color: #FEDE16;
-      text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
-    }
+   h2 {
+    font-family: 'Cursive', 'Brush Script MT', sans-serif;
+    font-size: clamp(2rem, 6vw, 4rem);
+    margin-bottom: 30px;
+    text-align: center;
+    color: #FEDE16;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    line-height: 1.1;
+    word-break: break-word;
+  }
     .btn {
       padding: 0.6rem 1.2rem; font-weight: 700; background: #FFF2A3;
       color: #0B0806; border-radius: 0.5rem; border: 2px solid #74512D;
@@ -66,6 +70,7 @@
     .cta svg {
         fill: #74512D;
     }
+    
 
     /* Pagination styling */
     .pagination .page-item .page-link {
@@ -98,10 +103,36 @@
     }
 
     /* Make forms and filters wrap nicely */
-    .d-flex.flex-wrap.gap-2 {
-      gap: 10px;
-    }
+  .d-flex.flex-wrap.gap-2 {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+}
+/* WRAP FORM ITEMS RESPONSIVELY */
+.d-flex.flex-wrap.gap-2 form {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 10px;
+}
 
+/* FORM GROUP & INPUT */
+.group {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 220px;
+    max-width: 100%;
+}
+
+.input {
+    width: 100%;
+    height: 45px;
+    padding-left: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid #74512D;
+    background-color: #E9E7D8;
+    color: #0B0806;
+}
     /* Responsive tweaks */
     @media (max-width: 992px) {
       h2 {
@@ -167,6 +198,8 @@
         justify-content: center;
       }
     }
+
+    
 
     /* Scrollable Pagination Container */
     .pagination-container {
@@ -352,7 +385,7 @@
               <td>${row.status}</td>
               <td>
                 <a href="read.php?reading_id=${row.reading_id}" class="cta">
-                  <i class="bi bi-eye-fill"></i> <span>View</span>
+                  <i class="bi bi-eye-fill"></i> <span></span>
                 </a>
               </td>
             `;
