@@ -766,14 +766,21 @@ function fetchFeedingStatus() {
       const nextFeed = data.next_feed ? new Date(data.next_feed.replace(" ", "T")) : null;
       const timerState = (data.timer_state || "running").toLowerCase();
 
-      const stateBadge = {
-        running: "🟢 RUNNING",
-        paused:  "🟡 PAUSED",
-        stopped: "🔴 STOPPED"
-      }[timerState] || "🟢 RUNNING";
-
       // compute diff ONCE per fetch
-      const diff = nextFeed ? (nextFeed.getTime() - Date.now()) : 0;
+const diff = nextFeed ? (nextFeed.getTime() - Date.now()) : 0;
+
+// ✅ If time is already up, override the badge (even if timer_state says running)
+const isFinished = !!nextFeed && diff <= 0;
+
+const stateBadge = isFinished
+  ? "🔴 TIMER FINISHED"
+  : ({
+      running: "🟢 RUNNING",
+      paused:  "🟡 PAUSED",
+      stopped: "🔴 STOPPED"
+    }[timerState] || "🟢 RUNNING");
+
+
 
       // store frozen value when paused/stopped (so it doesn't change)
       if (timerState === "paused" || timerState === "stopped") {
@@ -784,9 +791,10 @@ function fetchFeedingStatus() {
 
       // ALWAYS include the countdown span
       const cardClass =
-        timerState === "running"
-          ? "feed-card feed-eating"
-          : "feed-card feed-hungry";
+  (timerState === "running" && !isFinished)
+    ? "feed-card feed-eating"
+    : "feed-card feed-hungry";
+
 
       const statusText =
         timerState === "stopped"
@@ -795,11 +803,12 @@ function fetchFeedingStatus() {
         : timerState === "paused"
           ? `<p class="text-warning fw-bold">🟡 Timer PAUSED by user</p>
              <p>Next feeding in: <span class="countdown"></span></p>`
-        : (diff <= 0
-            ? `<p class="text-danger fw-bold">🐝 Bees are hungry! Feed them now!</p>
-               <p>Next feeding in: <span class="countdown"></span></p>`
-            : `<p class="text-success fw-bold">🍯 Feeding schedule running</p>
-               <p>Next feeding in: <span class="countdown"></span></p>`);
+        : (isFinished
+    ? `<p class="text-danger fw-bold">⏰ Timer finished! Bees need to be fed now!</p>
+       <p>Next feeding in: <span class="countdown"></span></p>`
+    : `<p class="text-success fw-bold">🍯 Feeding schedule running</p>
+       <p>Next feeding in: <span class="countdown"></span></p>`);
+
 
       document.getElementById("feeding-status-list").innerHTML = `
         <div class="${cardClass}">
@@ -820,12 +829,13 @@ function fetchFeedingStatus() {
         return;
       }
 
-      if (timerState === "running") {
-        startCountdown(data.next_feed);
-      } else {
-        clearInterval(countdownInterval);
-        showFrozenCountdown(pausedDiff ?? diff);
-      }
+      if (timerState === "running" && !isFinished) {
+  startCountdown(data.next_feed);
+} else {
+  clearInterval(countdownInterval);
+  showFrozenCountdown(pausedDiff ?? diff);
+}
+
     })
     .catch(err => console.error("Fetch error:", err));
 }
