@@ -350,6 +350,28 @@ canvas { margin-top:20px; height:120px !important; }
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
 }
+/* 📱 MOBILE FIX — Prevent horizontal scrolling */
+@media (max-width: 768px) {
+
+  .history-table {
+    width: 100%;
+    table-layout: fixed;   /* forces columns to shrink */
+  }
+
+  .history-table th,
+  .history-table td {
+    padding: 6px 4px !important;
+    font-size: 11px;
+    white-space: normal !important; /* allow wrapping */
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+
+  .history-table th {
+    font-size: 10px;
+  }
+}
+
 </style>
 </head>
 <body>

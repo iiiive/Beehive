@@ -145,9 +145,11 @@ button:hover { background:#cdbd49; color:#000; transform:translateY(-2px); }
         min-height: 80px;
     }
 
-    button {
-        padding: 12px;
-        font-size: 14px;
+   button {
+        padding: 8px 12px;   /* smaller height */
+        font-size: 13px;     /* smaller text */
+        border-radius: 8px;
+        margin-top: 12px;
     }
 
     .eye-icon {
