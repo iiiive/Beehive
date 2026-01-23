@@ -26,20 +26,26 @@ body::before {
 }
 
 .wrapper {
-    margin: 0px auto; /* smaller top margin */
+    margin: 0 auto;
     text-align: center;
-    padding-top: 0px; /* adds small breathing room */
+    padding-top: clamp(60px, 10vw, 100px);
 }
+
 
 /* Title */
 h2 {
     font-family: 'Cursive', 'Brush Script MT', sans-serif;
-    font-size: 4.5rem;
-    margin-top: 10px;  /* reduced top space */
-    margin-bottom: 60px; /* smaller gap below */
-    color: #FEDE16; /* School Bus Yellow */
+    font-size: clamp(2.2rem, 7vw, 4.5rem);
+    margin-top: 10px;
+    margin-bottom: clamp(25px, 6vw, 60px);
+    color: #FEDE16;
     text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+    text-align: center;
+    line-height: 1.1;
+    word-break: break-word;
 }
+
+
 
 /* Cards container */
 .container-cards {
@@ -91,19 +97,23 @@ h2 {
 
 /* Back Button */
 .back-btn {
-    display: inline-block;
-    margin-top: 80px;
-    margin-left: 30px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    margin: 0;
+
     padding: 12px 25px;
     font-size: 1rem;
     font-weight: bold;
     color: #ffffffff;
-    background: #47300cff; /* Coffee */
+    background: #47300cff;
     border-radius: 25px;
     text-decoration: none;
     box-shadow: 4px 4px 10px rgba(0,0,0,0.3);
     transition: background 0.3s ease, transform 0.2s ease;
+    z-index: 1000;
 }
+
 
 .back-btn:hover {
     background: #FEDE16; /* Yellow */
@@ -112,9 +122,6 @@ h2 {
 }
         /* RESPONSIVENESS */
         @media (max-width: 992px) {
-            .wrapper {
-                margin-top: 80px;
-            }
 
             h2 {
                 font-size: 3.5rem;

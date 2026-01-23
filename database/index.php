@@ -12,163 +12,78 @@
       background-repeat: no-repeat;
       background-size: cover;
       background-attachment: fixed;
-      display: flex;
       min-height: 100vh;
       color: #74512D;
       font-family: Arial, sans-serif;
+      padding: 20px 30px;
     }
-    .wrapper { width: 95%; margin: auto; }
+
+    .wrapper { width: 100%; margin: auto; }
     h2 {
       font-family: 'Cursive', 'Brush Script MT', sans-serif;
-      font-size: 4rem; margin-bottom: 40px; 
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin: 20px 0;
       color: #FEDE16;
       text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+      text-align: center;
     }
-    .btn {
-      padding: 0.6rem 1.2rem; font-weight: 700; background: #FFF2A3;
-      color: #0B0806; border-radius: 0.5rem; border: 2px solid #74512D;
+
+    .btn, .cta {
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      background: #FFF2A3;
+      color: #0B0806;
+      border-radius: 0.5rem;
+      border: 2px solid #74512D;
       transition: all 0.3s ease;
+      text-decoration: none;
     }
-    .btn:hover { background: #fae76a; box-shadow: 0px 4px 10px rgba(0,0,0,0.3); }
-    .group { display: flex; align-items: center; position: relative; max-width: 220px; margin-right: 10px; }
+    .btn:hover, .cta:hover {
+      background: #74512D;
+      color: #fff;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .group {
+      display: flex;
+      align-items: center;
+      position: relative;
+      max-width: 220px;
+      margin-right: 10px;
+    }
     .input {
-      width: 100%; height: 45px; padding-left: 2.5rem; border-radius: 12px;
-      border: 1px solid #74512D; background-color: #E9E7D8; color: #0B0806;
+      width: 100%;
+      height: 45px;
+      padding-left: 2.5rem;
+      border-radius: 12px;
+      border: 1px solid #74512D;
+      background-color: #E9E7D8;
+      color: #0B0806;
     }
-    .search-icon { position: absolute; left: 1rem; fill: #74512D; width: 1rem; height: 1rem; }
-    .custom-table { width: 100%; margin: 20px auto; border-collapse: collapse;
-      background: #E9E7D8; border-radius: 10px; overflow: hidden;
-      box-shadow: 0px 4px 20px rgba(0,0,0,0.1); color: #0B0806;
+    .input:focus { border-color: #FEDE16; box-shadow: 0 0 5px #FEDE16; }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      fill: #74512D;
+      width: 1rem;
+      height: 1rem;
+      pointer-events: none;
+    }
+
+    .custom-table {
+      width: 100%;
+      margin: 20px 0;
+      border-collapse: collapse;
+      background: #E9E7D8;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+      color: #0B0806;
     }
     .custom-table thead { background-color: #74512D; color: #fff; }
-    .custom-table th, .custom-table td { padding: 0.9em 1em; border-bottom: 1px solid #E9E7D8; }
+    .custom-table th, .custom-table td { padding: 0.8em 1em; border-bottom: 1px solid #E9E7D8; }
     .custom-table tbody tr:hover { background-color: #fae76a; transition: 0.3s ease; }
 
-    /* Animated View Button */
-    .cta {
-        position: relative;
-        margin: auto;
-        padding: 8px 16px;
-        border: none;
-        background: #FFF2A3;
-        color: #0B0806;
-        font-weight: 700;
-        cursor: pointer;
-        border-radius: 25px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-    .cta:hover {
-        background: #74512D;
-        box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-        color: #fff;
-    }
-    .cta svg {
-        fill: #74512D;
-    }
-
-    /* Pagination styling */
-    .pagination .page-item .page-link {
-      color: #0B0806;
-      background-color: #FFF2A3;
-      border: 2px solid #74512D;
-      font-weight: 600;
-      border-radius: 8px;
-      margin: 0 3px;
-      transition: all 0.3s ease;
-    }
-
-    .pagination .page-item .page-link:hover {
-      background-color: #fae76a;
-      box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
-      color: #0B0806;
-    }
-
-    .pagination .page-item.active .page-link {
-      background-color: #74512D;
-      color: #fff;
-      border-color: #74512D;
-      box-shadow: 0px 3px 8px rgba(0,0,0,0.3);
-    }
-
-    .pagination .page-item.disabled .page-link {
-      background-color: #E9E7D8;
-      color: #999;
-      border-color: #ccc;
-    }
-
-    /* Make forms and filters wrap nicely */
-    .d-flex.flex-wrap.gap-2 {
-      gap: 10px;
-    }
-
-    /* Responsive tweaks */
-    @media (max-width: 992px) {
-      h2 {
-        font-size: 2.5rem;
-        text-align: center;
-      }
-      .btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .group {
-        max-width: 100%;
-        margin-bottom: 10px;
-      }
-      .input {
-        width: 100%;
-      }
-      .custom-table th, .custom-table td {
-        font-size: 0.85rem;
-        padding: 0.6em;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .wrapper {
-        width: 100%;
-        padding: 10px;
-      }
-      h2 {
-        font-size: 2rem;
-      }
-      .btn, .dropdown-toggle {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
-      }
-      .custom-table th, .custom-table td {
-        font-size: 0.75rem;
-      }
-    }
-    /* General button responsiveness */
-    .btn i, .cta i {
-      font-size: 1.2rem;
-    }
-
-    /* On small screens, hide button text and make buttons circular */
-    @media (max-width: 576px) {
-      .btn span, 
-      .btn:not(.dropdown-toggle)::after, 
-      .cta span {
-        display: none !important; /* hide text labels */
-      }
-
-      .btn, .cta {
-        padding: 8px;
-        border-radius: 50%;
-        width: 42px;
-        height: 42px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-
-    /* Scrollable Pagination Container */
     .pagination-container {
       display: block;
       overflow-x: auto;
@@ -176,28 +91,35 @@
       background-color: rgba(255, 242, 163, 0.9);
       border-radius: 10px;
       padding: 8px;
-      scrollbar-color: #74512D #E9E7D8;
-      scrollbar-width: thin;
     }
-
-    /* Keep pagination buttons inline */
     .pagination {
       display: inline-flex;
-      flex-wrap: nowrap;
       justify-content: flex-start;
       min-width: max-content;
     }
+    .pagination .page-item .page-link {
+      color: #0B0806 !important;
+      background-color: #FFF2A3 !important;
+      border: 2px solid #74512D !important;
+      font-weight: 600;
+      border-radius: 8px;
+      margin: 0 3px;
+      transition: all 0.3s ease;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: #74512D !important;
+      color: #fff !important;
+    }
 
-    /* Style scrollbars (for Chrome, Edge) */
-    .pagination-container::-webkit-scrollbar {
-      height: 8px;
+    @media (max-width: 768px) {
+      .group { max-width: 100%; margin-bottom: 10px; }
+      .input { width: 100%; }
+      .custom-table th, .custom-table td { font-size: 0.85rem; padding: 0.6em; }
     }
-    .pagination-container::-webkit-scrollbar-thumb {
-      background-color: #74512D;
-      border-radius: 5px;
-    }
-    .pagination-container::-webkit-scrollbar-track {
-      background-color: #E9E7D8;
+    @media (max-width: 576px) {
+      h2 { font-size: 2rem; }
+      .btn, .cta { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+      .custom-table th, .custom-table td { font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -352,7 +274,7 @@
               <td>${row.status}</td>
               <td>
                 <a href="read.php?reading_id=${row.reading_id}" class="cta">
-                  <i class="bi bi-eye-fill"></i> <span>View</span>
+                  <i class="bi bi-eye-fill"></i> <span></span>
                 </a>
               </td>
             `;

@@ -211,20 +211,70 @@ h2 {
 .table-responsive {
   overflow-x: auto;
 }
+/* ===== MOBILE CARD VIEW (NO HORIZONTAL SCROLL) ===== */
 @media (max-width: 768px) {
-  .container { padding: 15px; }
-  table { font-size: 0.9rem; }
-  h2 { font-size: 22px; }
-  .btn {
+
+  .table-responsive {
+    overflow-x: hidden;
+  }
+
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
     display: block;
     width: 100%;
-    margin: 5px 0;
   }
-  td:last-child {
+
+  thead {
+    display: none; /* hide table header */
+  }
+
+  tbody tr {
+    background: rgba(255,255,255,0.12);
+    border-radius: 15px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+  }
+
+  tbody td {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
+    padding: 8px 0;
+    border: none;
+    text-align: left;
+    font-size: 0.9rem;
   }
+
+  tbody td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #e7d25bff;
+    margin-right: 10px;
+    flex: 1;
+  }
+
+  tbody td > * {
+    flex: 2;
+    text-align: right;
+  }
+
+  /* Action buttons stack nicely */
+  tbody td:last-child {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .btn {
+    width: 100%;
+    min-width: unset;
+  }
+}
+
 }
 </style>
 </head>
@@ -260,38 +310,53 @@ h2 {
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody>
-      <?php while ($row = mysqli_fetch_assoc($result)): ?>
-        <tr>
-          <td><?= $row['user_id'] ?></td>
-          <td><?= htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) ?></td>
-          <td><?= htmlspecialchars($row['username']) ?></td>
-          <td><?= htmlspecialchars($row['email']) ?></td>
-          <td>
-            <?php if ($row['status'] == 'active'): ?>
-              <span class="badge bg-success">Active</span>
-            <?php else: ?>
-              <span class="badge bg-secondary">Inactive</span>
-            <?php endif; ?>
-          </td>
-          <td><?= $row['created_at'] ?></td>
-          <td>
-            <?php if ($row['status'] == 'active'): ?>
-              <a href="?delete_id=<?= $row['user_id'] ?>" class="btn btn-deactivate btn-sm" onclick="return confirm('Deactivate this user?');">
-                <i class="bi bi-person-dash-fill"></i> Deactivate
-              </a>
-            <?php else: ?>
-              <a href="?activate_id=<?= $row['user_id'] ?>" class="btn btn-reactivate btn-sm">
-                <i class="bi bi-person-check-fill"></i> Reactivate
-              </a>
-            <?php endif; ?>
-            <a href="?permanent_delete_id=<?= $row['user_id'] ?>" class="btn btn-delete btn-sm" onclick="return confirm('⚠️ Permanently delete this user?');">
-              <i class="bi bi-trash3-fill"></i> Delete
-            </a>
-          </td>
-        </tr>
-      <?php endwhile; ?>
-      </tbody>
+<tbody>
+<?php while ($row = mysqli_fetch_assoc($result)): ?>
+  <tr>
+    <td data-label="ID"><?= $row['user_id'] ?></td>
+
+    <td data-label="Full Name">
+      <?= htmlspecialchars($row['firstname'] . ' ' . $row['lastname']) ?>
+    </td>
+
+    <td data-label="Username"><?= htmlspecialchars($row['username']) ?></td>
+
+    <td data-label="Email"><?= htmlspecialchars($row['email']) ?></td>
+
+    <td data-label="Status">
+      <?php if ($row['status'] == 'active'): ?>
+        <span class="badge bg-success">Active</span>
+      <?php else: ?>
+        <span class="badge bg-secondary">Inactive</span>
+      <?php endif; ?>
+    </td>
+
+    <td data-label="Created At"><?= $row['created_at'] ?></td>
+
+    <td data-label="Actions">
+      <?php if ($row['status'] == 'active'): ?>
+        <a href="?delete_id=<?= $row['user_id'] ?>"
+           class="btn btn-deactivate"
+           onclick="return confirm('Deactivate this user?');">
+          <i class="bi bi-person-dash-fill"></i> Deactivate
+        </a>
+      <?php else: ?>
+        <a href="?activate_id=<?= $row['user_id'] ?>"
+           class="btn btn-reactivate">
+          <i class="bi bi-person-check-fill"></i> Reactivate
+        </a>
+      <?php endif; ?>
+
+      <a href="?permanent_delete_id=<?= $row['user_id'] ?>"
+         class="btn btn-delete"
+         onclick="return confirm('⚠️ Permanently delete this user?');">
+        <i class="bi bi-trash3-fill"></i> Delete
+      </a>
+    </td>
+  </tr>
+<?php endwhile; ?>
+</tbody>
+
     </table>
   </div>
 </div>

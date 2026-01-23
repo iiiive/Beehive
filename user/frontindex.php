@@ -542,6 +542,152 @@ input:checked +.card > .card-img{
   text-transform: capitalize;
 }
 
+/* MOBILE RESPONSIVE FIXES */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 3rem; /* smaller but still readable */
+    text-align: center;
+  }
+  header p {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .top-right-btn {
+    top: 10px;
+    right: 10px;
+  }
+  header img.logo {
+    width: 120px; /* smaller logo */
+    margin-top: 40px;
+  }
+
+  /* Info cards stack vertically */
+  .info-card-wrapper {
+    grid-template-columns: 1fr; /* single column on mobile */
+    gap: 1rem;
+  }
+  
+/* DID YOU KNOW cards - Mobile Animation Fix */
+@media (max-width: 768px) {
+  /* Wrap the cards in a relative container with proper height */
+  .cards {
+    width: 95%;
+    margin: 0 auto;
+    display: block;
+    position: relative;
+    padding: 40px 0;          /* top and bottom padding */
+    background-color: #fffbee; /* yellow background */
+    border-radius: 10px;
+    z-index: 1;
+    min-height: 500px;        /* ensures container wraps all absolute cards */
+  }
+
+  /* Each card takes full width and animates on selection */
+  .card {
+    --angle: 0deg; /* reset rotation for mobile */
+    position: absolute; /* stack cards on top of each other */
+    left: 50%;
+    transform: translateX(-50%) rotate(var(--angle));
+    width: 90%;
+    max-width: 320px;
+    transition: transform 0.5s ease, z-index 0.5s ease;
+  }
+
+  .card-img {
+    width: 100%;
+    height: 180px; /* adjust image height for mobile */
+    object-fit: cover;
+    border-radius: 0.5rem;
+  }
+
+  .card-data {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.6rem;
+  }
+
+  .card-data > h2 {
+    font-size: 1.1rem;
+  }
+
+  .card-data > p {
+    font-size: 0.9rem;
+  }
+
+  .card-data > .card-num {
+    font-size: 0.8rem;
+  }
+
+  .card-data > footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .card-data > footer label {
+    width: 28px;
+    height: 28px;
+    font-size: 1.2rem;
+  }
+
+  /* stacking order for cards */
+  .card { 
+    z-index: 1; 
+  }
+  input:checked + .card {
+    z-index: 10;
+    --data-opacity: 1;
+    --data-y: 0;
+    --data-delay: 0ms;
+    --card-events: auto;
+  }
+
+  /* image sliding animation */
+  input:checked + .card > .card-img {
+    animation: reveal-img 0.6s forwards;
+  }
+
+  @keyframes reveal-img {
+    0% { translate: -100% 0; opacity: 0; }
+    50% { translate: 10% 0; opacity: 0.5; }
+    100% { translate: 0 0; opacity: 1; }
+  }
+  
+}
+
+/* Mobile fixes for Our Team */
+@media (max-width: 768px) {
+  .our-team {
+    margin-bottom: 0px;
+    padding: 20px 10px; /* reduce top/bottom padding */
+  }
+
+  /* Push first team member below DID YOU KNOW cards */
+  .container > .row > .col-12:first-child .our-team {
+    margin-top: 80px; /* adjust based on the height of DID YOU KNOW cards */
+  }
+
+  .our-team .picture {
+    width: 100px;   /* keep it square */
+    height: 100px;  /* keep square for proper image ratio */
+    margin-bottom: 15px;
+  }
+
+  .our-team .title,
+  .our-team .name {
+    font-size: 0.9rem;
+    text-align: center;
+  }
+
+  .our-team .description {
+    font-size: 0.85rem;
+    text-align: center;
+  }
+}
+
+
+
   </style>
 </head>
 <body>
