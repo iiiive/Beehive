@@ -71,6 +71,7 @@ $total_pages = ceil($total_rows / $limit);
 <title>User Management Dashboard</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
 body {
@@ -136,6 +137,20 @@ h2 {
 .custom-table thead { background-color: #74512D; color: #fff; }
 .custom-table th, .custom-table td { padding: 0.8em 1em; border-bottom: 1px solid #E9E7D8; }
 .custom-table tbody tr:hover { background-color: #fae76a; transition: 0.3s ease; }
+.table-scroll {
+  overflow-x: auto;
+  width: 100%;
+}
+
+/* Optional: smoother mobile scrolling */
+.table-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-scroll::-webkit-scrollbar-thumb {
+  background-color: #74512D;
+  border-radius: 10px;
+}
 
 .pagination-container {
   display: block;
@@ -167,6 +182,7 @@ h2 {
   .btn, .cta { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
   .custom-table th, .custom-table td { font-size: 0.75rem; }
 }
+
 </style>
 </head>
 <body>
@@ -206,8 +222,8 @@ h2 {
     <a href="userinfoCSV.php" class="btn"><i class="bi bi-file-earmark-arrow-down-fill"></i> Get a Copy</a>
   </form>
 </div>
-
-<div class="table-responsive">
+<!-- TABLE ONLY (SCROLLS) -->
+<div class="table-scroll">
   <table class="custom-table">
     <thead>
       <tr>
@@ -248,25 +264,37 @@ h2 {
       ?>
     </tbody>
   </table>
-
-  <div class="pagination-container">
-    <ul class="pagination justify-content-center mb-0">
-      <?php if ($page > 1): ?>
-        <li class="page-item"><a class="page-link" href="?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">Previous</a></li>
-      <?php endif; ?>
-
-      <?php for ($i = 1; $i <= $total_pages; $i++): ?>
-        <li class="page-item <?php if($i==$page) echo 'active'; ?>">
-          <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>"><?php echo $i; ?></a>
-        </li>
-      <?php endfor; ?>
-
-      <?php if ($page < $total_pages): ?>
-        <li class="page-item"><a class="page-link" href="?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">Next</a></li>
-      <?php endif; ?>
-    </ul>
-  </div>
 </div>
+
+<!-- PAGINATION (DOES NOT SCROLL) -->
+<div class="pagination-container mt-3">
+  <ul class="pagination justify-content-center mb-0">
+    <?php if ($page > 1): ?>
+      <li class="page-item">
+        <a class="page-link" href="?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">
+          Previous
+        </a>
+      </li>
+    <?php endif; ?>
+
+    <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+      <li class="page-item <?php if($i==$page) echo 'active'; ?>">
+        <a class="page-link" href="?page=<?php echo $i; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">
+          <?php echo $i; ?>
+        </a>
+      </li>
+    <?php endfor; ?>
+
+    <?php if ($page < $total_pages): ?>
+      <li class="page-item">
+        <a class="page-link" href="?page=<?php echo $page+1; ?>&search=<?php echo urlencode($search); ?>&filter=<?php echo urlencode($filter); ?>">
+          Next
+        </a>
+      </li>
+    <?php endif; ?>
+  </ul>
+</div>
+
 
 </div></div></div></div>
 

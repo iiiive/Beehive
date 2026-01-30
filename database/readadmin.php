@@ -39,6 +39,8 @@ if (isset($_GET["admin_id"]) && !empty(trim($_GET["admin_id"]))) {
 <head>
     <meta charset="UTF-8">
     <title>View Admin Record</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         :root {
             --white: hsl(0, 0%, 100%);

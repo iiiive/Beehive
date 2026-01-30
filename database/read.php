@@ -48,6 +48,8 @@ $heaterLabel = ($heater_status == 1) ? 'ON' : 'OFF';
 <head>
     <meta charset="UTF-8">
     <title>View Beehive Record</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
         /* Card Colors */
         :root {
@@ -57,12 +59,19 @@ $heaterLabel = ($heater_status == 1) ? 'ON' : 'OFF';
             --line: hsl(240, 9%, 17%);
             --primary: hsla(54, 93%, 61%, 1.00);
         }
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow: hidden; /* no scroll (like your original) */
-        }
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+@media (max-height: 700px) {
+    body {
+        overflow-y: auto; /* allow scroll on small screens */
+        align-items: flex-start;
+    }
+}
+
         body {
             font-family: 'Raleway', sans-serif;
             min-height: 100vh;
@@ -80,8 +89,8 @@ $heaterLabel = ($heater_status == 1) ? 'ON' : 'OFF';
             flex-direction: column;
             gap: 1rem;
             padding: 1.5rem;
-            width: 25rem;
-
+             width: 100%;
+            max-width: 25rem;
             background-color: hsla(61, 84%, 57%, 1.00);
             background-image: 
                 radial-gradient(at 88% 40%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
@@ -128,6 +137,16 @@ $heaterLabel = ($heater_status == 1) ? 'ON' : 'OFF';
             );
             animation: rotate 2s linear infinite;
         }
+        .card__list_item {
+    gap: 10px;
+}
+
+.card__list_item span:last-child {
+    text-align: right;
+    word-break: break-word;
+    max-width: 60%;
+}
+
 
         @keyframes rotate {
             to {
@@ -195,6 +214,41 @@ $heaterLabel = ($heater_status == 1) ? 'ON' : 'OFF';
         .button:hover {
             transform: translateY(-2px) scale(1.02);
         }
+
+        @media (max-width: 480px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .card {
+        padding: 1.2rem;
+    }
+
+    .card_title__container .card_title {
+        font-size: 1.4rem;
+    }
+
+    .card_title__container .card_paragraph {
+        font-size: 0.9rem;
+    }
+
+    .card__list_item {
+        font-size: 0.9rem;
+        padding: 0.45rem 0.6rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+        padding: 0.55rem;
+    }
+}
+@media (max-width: 480px) {
+    .card .card__border::before {
+        height: 6rem;
+    }
+}
+
     </style>
 </head>
 <body>

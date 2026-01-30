@@ -5,6 +5,7 @@
   <title>Beehive Monitoring Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
     body {
@@ -175,31 +176,32 @@
             <a href="BeehiveReadingsCSV.php" class="btn"><i class="bi bi-file-earmark-arrow-down-fill"></i> Get a Copy</a>
           </form>
         </div>
+<!-- TABLE SCROLLS -->
+<div class="table-responsive">
+  <table class="custom-table">
+    <thead>
+      <tr>
+        <th>Reading ID</th>
+        <th>Timestamp</th>
+        <th>Temperature (°C)</th>
+        <th>Humidity (%)</th>
+        <th>Weight (kg)</th>
+        <th>Exhaust Fan</th>
+        <th>Mist</th>
+        <th>Heater</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
 
-        <div class="table-responsive">
-          <table class="custom-table">
-            <thead>
-              <tr>
-                <th>Reading ID</th>
-                <th>Timestamp</th>
-                <th>Temperature (°C)</th>
-                <th>Humidity (%)</th>
-                <th>Weight (kg)</th>
-                <th>Exhaust Fan</th>
-                <th>Mist</th>
-                <th>Heater</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody id="table-body">
-              <tr><td colspan="10" class="text-center">Loading...</td></tr>
-            </tbody>
-          </table>
+<!-- PAGINATION DOES NOT SCROLL -->
+<div class="pagination-container mt-3">
+  <ul id="pagination" class="pagination mb-0"></ul>
+</div>
 
-          <div class="pagination-container mt-3">
-            <ul id="pagination" class="pagination mb-0"></ul>
-          </div>
         </div>
 
       </div>

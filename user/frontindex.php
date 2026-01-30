@@ -16,21 +16,24 @@
       margin: 0;
       padding: 0;
       scroll-behavior: smooth; 
+      
     }
 
-    header {
-      position: relative;
-      background-image: url('../frontend/images/frontindex.jpg');
-      background-size: cover;
-      background-position: center;
-      height: 90vh;
-      color: white;
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
+header {
+  position: relative;
+  width: 100vw;                /* full viewport width */
+  height: 100vh;               /* full viewport height */
+  background-image: url('../frontend/images/frontindex.jpg');
+  background-size: cover;      /* cover entire area */
+  background-position: center; /* center the image */
+  background-repeat: no-repeat; /* prevent tiling */
+  color: white;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
     header::after {
       content: "";

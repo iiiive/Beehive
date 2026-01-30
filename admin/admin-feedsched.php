@@ -137,7 +137,7 @@ h2 {
   }
 
   .table tr {
-    background: rgba(255,255,255,0.9);
+    background: rgba(210, 210, 173, 0.9);
     margin-bottom: 15px;
     border-radius: 12px;
     padding: 12px;

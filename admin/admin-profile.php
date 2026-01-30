@@ -84,6 +84,8 @@ if (isset($stmt)) $stmt->close();
 <meta charset="UTF-8">
 <title>Admin Profile - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 * {
   box-sizing: border-box;

@@ -61,6 +61,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <meta charset="UTF-8">
 <title>Forgot Password - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body { height: 100vh; 
     display:flex; 

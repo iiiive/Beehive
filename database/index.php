@@ -5,6 +5,8 @@
   <title>Beehive Monitoring Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
   <style>
     body {
@@ -129,13 +131,10 @@
       <div class="row">
         <div class="col-md-12">
 
-          <div class="mt-5 mb-3 clearfix d-flex justify-content-between align-items-center">
-            <a href="../admin/database.php" class="btn">
-              <i class="bi bi-arrow-bar-left"></i> <span>Back</span>
-            </a>
-            <h2>Beehive Monitoring Records</h2>
-          </div>
-
+ <div class="d-flex justify-content-between align-items-center mt-3 mb-3 flex-wrap">
+          <a href="../admin/database.php" class="btn"><i class="bi bi-arrow-bar-left"></i> Back</a>
+          <h2>Beehive Monitoring Records</h2>
+        </div>
           <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <form method="get" class="d-flex align-items-center flex-wrap gap-2">
               <div class="group">
@@ -211,29 +210,32 @@
             </form>
           </div>
 
-          <div class="table-responsive">
-            <table class="custom-table">
-              <thead>
-                <tr>
-                  <th>Reading ID</th>
-                  <th>Timestamp</th>
-                  <th>Temperature (°C)</th>
-                  <th>Humidity (%)</th>
-                  <th>Weight (kg)</th>
-                  <th>Exhaust Fan</th>
-                  <th>Mist</th>
-                  <th>Heater</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody id="table-body"></tbody>
-            </table>
+<!-- TABLE SCROLLS -->
+<div class="table-responsive">
+  <table class="custom-table">
+    <thead>
+      <tr>
+        <th>Reading ID</th>
+        <th>Timestamp</th>
+        <th>Temperature (°C)</th>
+        <th>Humidity (%)</th>
+        <th>Weight (kg)</th>
+        <th>Exhaust Fan</th>
+        <th>Mist</th>
+        <th>Heater</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+  </table>
+</div>
 
-            <!-- Scrollable Pagination -->
-            <div class="pagination-container mt-3">
-              <ul id="pagination" class="pagination mb-0"></ul>
-            </div>
+<!-- PAGINATION DOES NOT SCROLL -->
+<div class="pagination-container mt-3">
+  <ul id="pagination" class="pagination mb-0"></ul>
+</div>
+
           </div>
 
         </div>

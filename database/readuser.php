@@ -46,7 +46,10 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
 <head>
     <meta charset="UTF-8">
     <title>View User Record</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <style>
+        /* Card Colors */
         :root {
             --white: hsl(0, 0%, 100%);
             --black: hsl(240, 15%, 9%);
@@ -54,12 +57,19 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             --line: hsl(240, 9%, 17%);
             --primary: hsla(54, 93%, 61%, 1.00);
         }
-        html, body {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            overflow-y: auto;
-        }
+html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+@media (max-height: 700px) {
+    body {
+        overflow-y: auto; /* allow scroll on small screens */
+        align-items: flex-start;
+    }
+}
+
         body {
             font-family: 'Raleway', sans-serif;
             min-height: 100vh;
@@ -76,8 +86,9 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             display: flex;
             flex-direction: column;
             gap: 1rem;
-            padding: 1.5rem 2rem;
-            width: 28rem;
+            padding: 1.5rem;
+             width: 100%;
+            max-width: 25rem;
             background-color: hsla(61, 84%, 57%, 1.00);
             background-image: 
                 radial-gradient(at 88% 40%, hsla(0, 0%, 100%, 1.00) 0px, transparent 85%),
@@ -86,6 +97,7 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
                 radial-gradient(at 0% 64%, hsla(54, 99%, 26%, 1.00) 0px, transparent 85%),
                 radial-gradient(at 41% 94%, hsla(56, 87%, 50%, 1.00) 0px, transparent 85%),
                 radial-gradient(at 100% 99%, hsla(66, 88%, 53%, 1.00) 0px, transparent 85%);
+            
             border-radius: 1rem;
             box-shadow: 0px -16px 24px 0px rgba(255, 255, 255, 0.25) inset;
         }
@@ -123,6 +135,16 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             );
             animation: rotate 2s linear infinite;
         }
+        .card__list_item {
+    gap: 10px;
+}
+
+.card__list_item span:last-child {
+    text-align: right;
+    word-break: break-word;
+    max-width: 60%;
+}
+
 
         @keyframes rotate {
             to {
@@ -158,9 +180,7 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            margin: 0;
-            padding: 0;
-            list-style: none;
+            margin-left: 0px;
         }
 
         .card__list_item {
@@ -171,6 +191,7 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             border-radius: 0.5rem;
             color: var(--black);
             font-weight: bold;
+            margin-right:25px;
         }
 
         .button {
@@ -178,20 +199,54 @@ if (isset($_GET["user_id"]) && is_numeric($_GET["user_id"])) {
             padding: 0.6rem;
             width: 100%;
             background-color: #74512D;
-            font-size: 1rem;
-            color: #fff;
+            font-size: 1.00rem;
+            color: #ffff;
             font-weight: bold;
             border: 0;
             border-radius: 9999px;
             text-decoration: none;
             text-align: center;
             display: inline-block;
-            margin-top: 15px;
         }
 
         .button:hover {
             transform: translateY(-2px) scale(1.02);
         }
+
+        @media (max-width: 480px) {
+
+    body {
+        padding: 15px;
+    }
+
+    .card {
+        padding: 1.2rem;
+    }
+
+    .card_title__container .card_title {
+        font-size: 1.4rem;
+    }
+
+    .card_title__container .card_paragraph {
+        font-size: 0.9rem;
+    }
+
+    .card__list_item {
+        font-size: 0.9rem;
+        padding: 0.45rem 0.6rem;
+    }
+
+    .button {
+        font-size: 0.9rem;
+        padding: 0.55rem;
+    }
+}
+@media (max-width: 480px) {
+    .card .card__border::before {
+        height: 6rem;
+    }
+}
+
     </style>
 </head>
 <body>

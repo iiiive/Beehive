@@ -91,6 +91,7 @@ if (isset($stmt)) $stmt->close();
 <title>User Profile - HiveCare</title>
 <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: Raleway, sans-serif; }
 body {
@@ -109,21 +110,23 @@ body::before {
   z-index: -1;
 }
 .container {
-  width: 480px;
+  width: 100%;
+  max-width: 480px;
+  margin: 20px;
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   backdrop-filter: blur(15px);
   -webkit-backdrop-filter: blur(15px);
   border: 1px solid rgba(255,255,255,0.2);
   box-shadow: 0px 0px 24px #ceae1fff;
-  padding: 30px;
-  animation: fadeIn 1s ease-in-out;
+  padding: 25px;
 }
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-30px); }
   to { opacity: 1; transform: translateY(0); }
 }
-h2 { text-align: center; color: #e7d25bff; margin-bottom: 25px; font-size: 26px; }
+h2 { text-align: center; color: #e7d25bff; margin-bottom: 25px; font-size: 20px; }
 form { display: flex; flex-direction: column; }
 .form-group { margin-bottom: 18px; position: relative; }
 form input, form textarea {
@@ -176,6 +179,12 @@ button:active { transform: scale(0.95); }
 }
 .back-btn:hover { background: #feba17; color: #333; transform: scale(1.05); }
 
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+
 #togglePassword, #toggleConfirmPassword {
   position: absolute;
   right: 12px;
@@ -186,6 +195,43 @@ button:active { transform: scale(0.95); }
   font-size: 18px;
 }
 #togglePassword:hover, #toggleConfirmPassword:hover { color: #e7d25bff; }
+@media (max-width: 600px) {
+  body {
+    padding: 10px;
+    height: auto;
+  }
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  form input,
+  form textarea {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 15px;
+    padding: 12px;
+  }
+
+  .back-btn {
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    top: 10px;
+    left: 10px;
+  }
+
+  #togglePassword,
+  #toggleConfirmPassword {
+    font-size: 16px;
+    right: 10px;
+  }
+}
+
+
 </style>
 </head>
 <body>
