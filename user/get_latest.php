@@ -14,7 +14,7 @@ $sql = "
         COALESCE(heater_status, 0) AS heater_status,
         COALESCE(mist_status, 0)   AS mist_status,
         status
-    FROM beehive_readings
+    FROM beehive_reading
     ORDER BY timestamp DESC
     LIMIT 1
 ";

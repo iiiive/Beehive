@@ -16,7 +16,7 @@ mysqli_query($link, "SET time_zone = '+08:00'");
 
 // === Hive readings (for charts + latest values) ===
 $sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status, mist_status, heater_status
-            FROM beehive_readings 
+            FROM beehive_reading
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
 
@@ -52,7 +52,7 @@ $weight_history      = $weights;
 // === Last 5 readings for history table (excluding latest) ===
 $sql_last5 = "SELECT timestamp, temperature, humidity, weight, 
                      fan_status, mist_status, heater_status, status
-              FROM beehive_readings 
+              FROM beehive_reading
               ORDER BY timestamp DESC 
               LIMIT 6";
 $result_last5 = mysqli_query($link, $sql_last5);
@@ -174,7 +174,6 @@ body::before {
   transform: translateY(-2px) scale(1.03);
 }
 
-
 /* Layout */
 .container {
   max-width:1100px;
@@ -245,48 +244,6 @@ canvas { margin-top:20px; height:120px !important; }
   transform: scale(1.01);
 }
 
-/* =========================
-   RESPONSIVE
-   ========================= */
-@media (max-width: 992px) {
-  .dashboard-header {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-  .dashboard-header .title {
-    justify-content: center;
-    margin-bottom: 8px;
-  }
-  .dashboard-header img {
-    width: 50px;
-    height: 50px;
-  }
-  .dashboard-header .title span {
-    font-size: 1.8rem;
-    text-align: center;
-  }
-  .header-actions {
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .settings-btn,
-  .logout-btn {
-    padding: 7px 12px;
-    font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .dashboard-header .title span {
-    font-size: 1.4rem;
-  }
-  .settings-btn,
-  .logout-btn {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-  }
-}
 /* Feeding Scheduler Custom Design */
 .feeding-card {
   background: linear-gradient(145deg, #FFF8DC, #f7d36c);
@@ -296,24 +253,6 @@ canvas { margin-top:20px; height:120px !important; }
   box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   position: relative;
   overflow: hidden;
-}
-.feeding-card::before {
-  content: "";
-  position: absolute;
-  top: -20px;
-  left: 0;
-  width: 100%;
-  height: 40px;
-  background: radial-gradient(circle at 10% 30%, #ffd93d, transparent 50%),
-              radial-gradient(circle at 30% 10%, #ffcc00, transparent 50%),
-              radial-gradient(circle at 60% 30%, #ffb703, transparent 50%),
-              radial-gradient(circle at 90% 20%, #fcbf49, transparent 50%);
-  opacity: 0.7;
-  animation: honeyMove 5s infinite linear;
-}
-@keyframes honeyMove {
-  from { background-position: 0 0, 20px 0, 40px 0, 60px 0; }
-  to   { background-position: 60px 0, 80px 0, 100px 0, 120px 0; }
 }
 .countdown-container { margin-top: 10px; }
 .countdown-text {
@@ -350,28 +289,25 @@ canvas { margin-top:20px; height:120px !important; }
   box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   transition: all 0.3s ease;
 }
+
 /* 📱 MOBILE FIX — Prevent horizontal scrolling */
 @media (max-width: 768px) {
-
   .history-table {
     width: 100%;
-    table-layout: fixed;   /* forces columns to shrink */
+    table-layout: fixed;
   }
-
   .history-table th,
   .history-table td {
     padding: 6px 4px !important;
     font-size: 11px;
-    white-space: normal !important; /* allow wrapping */
+    white-space: normal !important;
     word-wrap: break-word;
     word-break: break-word;
   }
-
   .history-table th {
     font-size: 10px;
   }
 }
-
 </style>
 </head>
 <body>
@@ -400,7 +336,6 @@ canvas { margin-top:20px; height:120px !important; }
     </a>
   </div>
 </div>
-
 
 <div class="container">
   <!-- Temperature -->
@@ -481,18 +416,18 @@ canvas { margin-top:20px; height:120px !important; }
         <i class="bi bi-check-circle"></i> Feed Done
       </button>
       <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
-  <button id="pause-btn" class="feed-btn" type="button" style="display:none;">
-    <i class="bi bi-pause-circle"></i> Pause
-  </button>
+        <button id="pause-btn" class="feed-btn" type="button" style="display:none;">
+          <i class="bi bi-pause-circle"></i> Pause
+        </button>
 
-  <button id="resume-btn" class="feed-btn" type="button" style="display:none;">
-    <i class="bi bi-play-circle"></i> Resume
-  </button>
+        <button id="resume-btn" class="feed-btn" type="button" style="display:none;">
+          <i class="bi bi-play-circle"></i> Resume
+        </button>
 
-  <button id="stop-btn" class="feed-btn" type="button" style="display:none;">
-    <i class="bi bi-stop-circle"></i> Stop
-  </button>
-</div>
+        <button id="stop-btn" class="feed-btn" type="button" style="display:none;">
+          <i class="bi bi-stop-circle"></i> Stop
+        </button>
+      </div>
 
     </div>
   </div>
@@ -534,6 +469,7 @@ canvas { margin-top:20px; height:120px !important; }
 </div>
 
 <script>
+/* ==================== CHARTS ==================== */
 const tempData   = <?php echo json_encode($temperature_history); ?>;
 const humData    = <?php echo json_encode($humidity_history); ?>;
 const weightData = <?php echo json_encode($weight_history); ?>;
@@ -566,11 +502,11 @@ function create3DChart(id, data, color) {
     }
   });
 }
-
 create3DChart('tempChart',   tempData,   '#D2691E');
 create3DChart('humChart',    humData,    '#4B2E1E');
 create3DChart('weightChart', weightData, '#4B2E1E');
 
+/* ==================== LIVE VALUES ==================== */
 function updateStatus(id, obj) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -583,7 +519,6 @@ async function reloadValues() {
     const response = await fetch("get_latest.php"); 
     const data = await response.json();
 
-    // numeric values
     if (document.getElementById("temp-value") && data.temperature !== undefined)
       document.getElementById("temp-value").innerText   = data.temperature + " °C";
     if (document.getElementById("hum-value") && data.humidity !== undefined)
@@ -593,7 +528,6 @@ async function reloadValues() {
     if (document.getElementById("fan-value") && data.fan_status !== undefined)
       document.getElementById("fan-value").innerText    = (data.fan_status == 1 ? "ON" : "OFF");
 
-    // Temperature status
     if (data.temperature !== undefined) {
       updateStatus("temp-status",
         (data.temperature >= 22.30 && data.temperature <= 25.90)
@@ -602,7 +536,6 @@ async function reloadValues() {
       );
     }
 
-    // Humidity status
     if (data.humidity !== undefined) {
       updateStatus("hum-status",
         (data.humidity >=79.20 && data.humidity <= 86.40)
@@ -611,7 +544,6 @@ async function reloadValues() {
       );
     }
 
-    // Weight status
     if (data.weight !== undefined) {
       updateStatus("weight-status",
         (data.weight >= 5)
@@ -620,7 +552,6 @@ async function reloadValues() {
       );
     }
 
-    // Exhaust Fan status
     if (data.fan_status !== undefined) {
       updateStatus("fan-status",
         (data.fan_status == 1)
@@ -629,7 +560,6 @@ async function reloadValues() {
       );
     }
 
-    // Heater status
     if (data.heater_status !== undefined) {
       if (document.getElementById("heater-value")) {
         document.getElementById("heater-value").innerText =
@@ -642,7 +572,6 @@ async function reloadValues() {
       );
     }
 
-    // Mist status
     if (data.mist_status !== undefined) {
       if (document.getElementById("mist-value")) {
         document.getElementById("mist-value").innerText =
@@ -659,18 +588,17 @@ async function reloadValues() {
     console.error("Error fetching latest data:", err);
   }
 }
-
-// Run immediately + every 5 seconds
 reloadValues();
 setInterval(reloadValues, 5000);
 
+/* ==================== HISTORY ==================== */
 async function reloadHistory() {
   try {
     const res = await fetch("get_history.php");
     const data = await res.json();
 
     const tbody = document.getElementById("history-body");
-    tbody.innerHTML = ""; // clear old rows
+    tbody.innerHTML = "";
 
     data.forEach(row => {
       const tr = document.createElement("tr");
@@ -690,12 +618,10 @@ async function reloadHistory() {
     console.error("History fetch error:", err);
   }
 }
-
 reloadHistory();
 setInterval(reloadHistory, 5000);
 
-/* ==================== FEEDING SCHEDULER ==================== */
-
+/* ==================== FEEDING SCHEDULER (FIXED) ==================== */
 const feedingStatusEl = document.getElementById("feeding-status");
 const countdownEl     = document.getElementById("countdown");
 const feedDoneBtn     = document.getElementById("feed-done-btn");
@@ -705,15 +631,11 @@ const resumeBtn = document.getElementById("resume-btn");
 const stopBtn   = document.getElementById("stop-btn");
 
 let hungerAlertInterval = null;
+let feedingLoaded = false; // ✅ prevents refresh from wiping hunger key before first fetch
 
 // ---- Persistent keys ----
 const FEED_KEY = "hivecare_feed_state_v1"; 
-// stored shape:
-// {
-//   mode: "running" | "paused" | "stopped",
-//   pausedRemainingMs: number|null,
-//   stoppedForNextFeed: string|null,  // the next_feed string we stopped on
-// }
+const HUNGER_ALERT_KEY = "hivecare_hunger_alerted_for_next_feed_v1";
 
 function loadState() {
   try {
@@ -728,40 +650,58 @@ function loadState() {
     return { mode: "running", pausedRemainingMs: null, stoppedForNextFeed: null };
   }
 }
-
 function saveState(obj) {
   localStorage.setItem(FEED_KEY, JSON.stringify(obj));
 }
-
 let state = loadState();
 
 // ---- Timer runtime ----
-let targetTs = null;           // ms timestamp end time (when running)
+let targetTs = null;
 let pausedRemainingMs = state.pausedRemainingMs ?? 0;
 
-let latestNextFeedStr = null;  // raw string from API
-let lastShownSec = null;       // used to update UI only when second changes
+let latestNextFeedStr = null;
+let lastShownSec = null;
 
 function safeParseTimestamp(str) {
   if (!str) return NaN;
-  // MySQL "YYYY-MM-DD HH:MM:SS" -> safer ISO-like
   const normalized = str.replace(" ", "T");
   const ts = Date.parse(normalized);
   return isNaN(ts) ? NaN : ts;
 }
 
-// 🔔 Single hungry notification (alert + Discord)
+// ✅ stable hungry key (minute bucket) — survives refresh/format differences
+function getHungryKey() {
+  const ts = safeParseTimestamp(latestNextFeedStr);
+  if (isNaN(ts)) return latestNextFeedStr || "";
+  return String(Math.floor(ts / 60000));
+}
+function clearHungryAlertMemory() {
+  localStorage.removeItem(HUNGER_ALERT_KEY);
+}
+
+// 🔔 hungry notification (alert + backend ping)
 function notifyHungryOnce() {
   alert("The bees are hungry! Time to feed them 🍯");
   fetch("check_feeding_status.php").catch(() => {});
 }
 
+// ✅ Alert only once per schedule, even after refresh
 function startHungerAlerts() {
   if (hungerAlertInterval) return;
-  notifyHungryOnce();
+
+  const currentKey = getHungryKey();
+  const alreadyAlertedFor = localStorage.getItem(HUNGER_ALERT_KEY);
+
+  // show immediate alert ONCE per cycle
+  if (currentKey && alreadyAlertedFor !== currentKey) {
+    localStorage.setItem(HUNGER_ALERT_KEY, currentKey);
+    notifyHungryOnce();
+  }
+
+  // repeat every 10 minutes while page open
   hungerAlertInterval = setInterval(() => {
     notifyHungryOnce();
-  }, 600000); // 10 minutes
+  }, 600000);
 }
 
 function stopHungerAlerts() {
@@ -789,28 +729,23 @@ function renderSeconds(diffMs) {
   countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
-// -------------------- UI Modes --------------------
-
+/* ---- UI Modes ---- */
 function setNoScheduleUI() {
   feedingStatusEl.innerText = "⚠ No feeding schedule set.";
   feedingStatusEl.className = "status-bad";
   countdownEl.innerText = "";
   showControls({ pause:false, resume:false, stop:false, feedDone:false });
   stopHungerAlerts();
+  // ✅ IMPORTANT: do NOT clearHungryAlertMemory() here (prevents refresh re-alert bug)
 }
 
 function setStoppedUI() {
   feedingStatusEl.innerText = "🐝 Timer stopped. Click Feed Done after feeding.";
   feedingStatusEl.className = "status-bad";
   countdownEl.innerText = "";
-
-  // ONLY Feed Done (no Stop / Pause / Resume)
   showControls({ pause:false, resume:false, stop:false, feedDone:true });
-
   stopHungerAlerts();
 }
-
-
 
 function setPausedUI() {
   feedingStatusEl.innerText = "⏸ Feeding timer paused";
@@ -823,31 +758,31 @@ function setPausedUI() {
 function setRunningUI(diffMs) {
   feedingStatusEl.innerText = "🍯 Bees are eating";
   feedingStatusEl.className = "status-good";
-
-  // Stop only visible while running
   showControls({ pause:true, resume:false, stop:true, feedDone:false });
-
   renderSeconds(diffMs);
   stopHungerAlerts();
 }
-
 
 function setHungryUI() {
   feedingStatusEl.innerText = "🐝 Bees are hungry! Feed them now.";
   feedingStatusEl.className = "status-bad";
   countdownEl.innerText = "";
-
-  // Only Feed Done when hungry
   showControls({ pause:false, resume:false, stop:false, feedDone:true });
-
   startHungerAlerts();
 }
 
-
-// -------------------- Stable Ticker (NO restarting intervals) --------------------
-// This runs continuously and updates the UI only when the displayed SECOND changes.
+/* ---- Stable Ticker ---- */
 function tick() {
-  // STOP mode: do nothing unless DB schedule changes (handled in fetch sync)
+  // ✅ Wait for first fetchFeedingData() to finish
+  if (!feedingLoaded) {
+    feedingStatusEl.innerText = "Loading feeding schedule...";
+    feedingStatusEl.className = "status-good";
+    countdownEl.innerText = "";
+    showControls({ pause:false, resume:false, stop:false, feedDone:false });
+    requestAnimationFrame(tick);
+    return;
+  }
+
   if (state.mode === "stopped") {
     setStoppedUI();
     requestAnimationFrame(tick);
@@ -855,19 +790,17 @@ function tick() {
   }
 
   if (state.mode === "hungry") {
-  setHungryUI();
-  requestAnimationFrame(tick);
-  return;
-}
+    setHungryUI();
+    requestAnimationFrame(tick);
+    return;
+  }
 
-  // no schedule
   if (!latestNextFeedStr) {
     setNoScheduleUI();
     requestAnimationFrame(tick);
     return;
   }
 
-  // if paused
   if (state.mode === "paused") {
     const showSec = Math.floor(pausedRemainingMs / 1000);
     if (showSec !== lastShownSec) {
@@ -878,9 +811,7 @@ function tick() {
     return;
   }
 
-  // running
   if (!targetTs) {
-    // if we have next feed but no targetTs yet
     const parsed = safeParseTimestamp(latestNextFeedStr);
     if (!isNaN(parsed)) targetTs = parsed;
   }
@@ -897,6 +828,7 @@ function tick() {
   if (diffMs <= 0) {
     if (lastShownSec !== 0) {
       lastShownSec = 0;
+      state.mode = "hungry";
       setHungryUI();
     }
     requestAnimationFrame(tick);
@@ -911,26 +843,34 @@ function tick() {
   requestAnimationFrame(tick);
 }
 
-// -------------------- Fetch Sync --------------------
-// IMPORTANT: Poll less often. 1s polling causes jitter + unnecessary load.
-// 5s is enough. Your countdown stays smooth because tick() runs locally.
+/* ---- Fetch Sync ---- */
 async function fetchFeedingData() {
   const res = await fetch("get_next_feed.php");
   const data = await res.json();
 
+  feedingLoaded = true; // ✅ unlock tick()
+
   if (!data.has_schedule) {
     latestNextFeedStr = null;
     targetTs = null;
+    clearHungryAlertMemory(); // ✅ only when truly no schedule
     setNoScheduleUI();
     return;
   }
 
   latestNextFeedStr = data.next_feed;
 
+  const nfTs = safeParseTimestamp(data.next_feed);
+
+  // ✅ Only clear hungry memory when schedule moved to FUTURE (new cycle)
+  if (data.timer_state !== "hungry" && !isNaN(nfTs) && nfTs > Date.now()) {
+    clearHungryAlertMemory();
+  }
+
   if (data.timer_state === "paused" || data.timer_state === "stopped") {
     pausedRemainingMs = (data.remaining_seconds || 0) * 1000;
-    state.mode = data.timer_state; // paused/stopped
-    targetTs = null;               // IMPORTANT: don't rebuild from next_feed
+    state.mode = data.timer_state;
+    targetTs = null;
     return;
   }
 
@@ -940,13 +880,11 @@ async function fetchFeedingData() {
     return;
   }
 
-  // running
   state.mode = "running";
   targetTs = safeParseTimestamp(data.next_feed);
 }
 
-
-
+/* ---- Discord + Backend helpers ---- */
 async function notifyDiscord(msg) {
   try {
     await fetch("discord_alertfeed.php", {
@@ -959,23 +897,18 @@ async function notifyDiscord(msg) {
   }
 }
 
-async function updateTimerState(state, remainingSeconds = 0) {
+async function updateTimerState(stateVal, remainingSeconds = 0) {
   await fetch("update_timer.php", {
     method: "POST",
     headers: {"Content-Type":"application/x-www-form-urlencoded"},
     body: new URLSearchParams({
-      state,
+      state: stateVal,
       remaining_seconds: remainingSeconds
     })
   });
 }
 
-
-
-
-
-// -------------------- Buttons --------------------
-
+/* ---- Buttons ---- */
 pauseBtn.addEventListener("click", async () => {
   if (state.mode !== "running" || !targetTs) return;
 
@@ -989,8 +922,6 @@ pauseBtn.addEventListener("click", async () => {
   await notifyDiscord("⏸ Feeding timer was PAUSED by the user.");
 });
 
-
-
 resumeBtn.addEventListener("click", async () => {
   if (state.mode !== "paused") return;
 
@@ -1003,10 +934,6 @@ resumeBtn.addEventListener("click", async () => {
   alert("▶ Feeding timer resumed.");
   await notifyDiscord("▶ Feeding timer was RESUMED by the user.");
 });
-
-
-
-
 
 stopBtn.addEventListener("click", async () => {
   let remainingSeconds = 0;
@@ -1026,12 +953,7 @@ stopBtn.addEventListener("click", async () => {
   await notifyDiscord("⏹ Feeding timer was STOPPED by the user.");
 });
 
-
-
-
-
-
-// Feed Done button → stop alerts + trigger backend update
+// Feed Done button
 feedDoneBtn.addEventListener("click", async () => {
   try {
     feedDoneBtn.disabled = true;
@@ -1041,9 +963,10 @@ feedDoneBtn.addEventListener("click", async () => {
     if (!out.ok) throw new Error(out.error || "Feed done failed");
 
     stopHungerAlerts();
+    clearHungryAlertMemory(); // ✅ allow next cycle to alert again
     await notifyDiscord("✅ Feeding marked as DONE.");
 
-    await fetchFeedingData(); // re-sync from DB
+    await fetchFeedingData();
     lastShownSec = null;
 
   } catch (e) {
@@ -1054,18 +977,11 @@ feedDoneBtn.addEventListener("click", async () => {
   }
 });
 
-
-
-
-// ---- Start ----
+/* ---- Start ---- */
 fetchFeedingData();
-setInterval(fetchFeedingData, 5000); // ✅ less jitter, less load
+setInterval(fetchFeedingData, 5000);
 requestAnimationFrame(tick);
-
-
-
 </script>
-
 
 </body>
 </html>

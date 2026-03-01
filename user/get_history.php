@@ -2,7 +2,7 @@
 require_once "../config.php";
 
 $sql = "SELECT timestamp, temperature, humidity, weight, fan_status, status
-        FROM beehive_readings
+        FROM beehive_reading
         ORDER BY timestamp DESC
         LIMIT 5";
 $result = mysqli_query($link, $sql);

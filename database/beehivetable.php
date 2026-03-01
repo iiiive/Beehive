@@ -11,7 +11,7 @@ $offset = ($page - 1) * $limit;
 // Base SELECT with new columns included
 $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                fan_status, heater_status, mist_status, status
-        FROM beehive_readings
+        FROM beehive_reading
         ORDER BY timestamp DESC";
 
 // === FILTERING ===
@@ -19,96 +19,115 @@ if (!empty($filter) && empty($search)) {
     if ($filter == "statusGood") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE status = 'Good'
                 ORDER BY timestamp DESC";
     } elseif ($filter == "statusBad") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
+
                 WHERE status = 'Bad'
                 ORDER BY timestamp DESC";
-    } elseif ($filter == "highTemp") {
+    }
+
+        // ================= TEMPERATURE FILTERS =================
+
+     elseif ($filter == "highTemp") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
-                WHERE temperature > 32
+                FROM beehive_reading
+                WHERE temperature > 35
                 ORDER BY timestamp DESC";
+
     } elseif ($filter == "normalTemp") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
-                WHERE temperature BETWEEN 28 AND 32
+                FROM beehive_reading
+                WHERE temperature BETWEEN 25 AND 35
                 ORDER BY timestamp DESC";
-    } elseif ($filter == "lowHumidity") {
+
+    } elseif ($filter == "lowTemp") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
-                WHERE humidity < 65
+                FROM beehive_reading
+                WHERE temperature < 25
                 ORDER BY timestamp DESC";
+
+
+    // ================= HUMIDITY FILTERS =================
+
+    } elseif ($filter == "highHumidity") {
+        $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
+                       fan_status, heater_status, mist_status, status
+                FROM beehive_reading
+                WHERE humidity > 90
+                ORDER BY timestamp DESC";
+
     } elseif ($filter == "normalHumidity") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
-                WHERE humidity BETWEEN 65 AND 85
+                FROM beehive_reading
+                WHERE humidity BETWEEN 70 AND 90
                 ORDER BY timestamp DESC";
-    } elseif ($filter == "HighWeight") {
+
+    } elseif ($filter == "lowHumidity") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
-                WHERE weight >= 5
+                FROM beehive_reading
+                WHERE humidity < 70
                 ORDER BY timestamp DESC";
     } elseif ($filter == "LowWeight") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE weight <= 2
                 ORDER BY timestamp DESC";
     } elseif ($filter == "fanOn") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE fan_status = 1
                 ORDER BY timestamp DESC";
     } elseif ($filter == "fanOff") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE fan_status = 0
                 ORDER BY timestamp DESC";
     } elseif ($filter == "heaterOn") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE heater_status = 1
                 ORDER BY timestamp DESC";
     } elseif ($filter == "heaterOff") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE heater_status = 0
                 ORDER BY timestamp DESC";
     } elseif ($filter == "mistOn") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE mist_status = 1
                 ORDER BY timestamp DESC";
     } elseif ($filter == "mistOff") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 WHERE mist_status = 0
                 ORDER BY timestamp DESC";
     } elseif ($filter == "orderAsc") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 ORDER BY timestamp ASC";
     } elseif ($filter == "orderDesc") {
         $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                        fan_status, heater_status, mist_status, status
-                FROM beehive_readings
+                FROM beehive_reading
                 ORDER BY timestamp DESC";
     }
 }
@@ -118,7 +137,8 @@ elseif (!empty($search)) {
 
     $sql = "SELECT reading_id, timestamp, temperature, humidity, weight,
                    fan_status, heater_status, mist_status, status
-            FROM beehive_readings
+            FROM beehive_reading
+
             WHERE reading_id    LIKE ?
                OR timestamp     LIKE ?
                OR temperature   LIKE ?
@@ -162,7 +182,7 @@ if (strpos($sql, '?') !== false) {
 $data = [];
 if ($result) {
     while ($row = mysqli_fetch_assoc($result)) {
-        $data[] = $row; // this now includes heater_status & mist_status
+        $data[] = $row; // includes heater_status & mist_status
     }
 }
 

@@ -176,10 +176,13 @@
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="?filter=highTemp">High Temperature</a></li>
                   <li><a class="dropdown-item" href="?filter=normalTemp">Normal Temperature</a></li>
+                  <li><a class="dropdown-item" href="?filter=lowTemp">Low Temperature</a></li>
+
 
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="?filter=lowHumidity">Low Humidity</a></li>
                   <li><a class="dropdown-item" href="?filter=normalHumidity">Normal Humidity</a></li>
+                  <li><a class="dropdown-item" href="?filter=highHumidity">High Humidity</a></li>
 
                   <li><hr class="dropdown-divider"></li>
                   <li><a class="dropdown-item" href="?filter=HighWeight">Heavy Weight</a></li>

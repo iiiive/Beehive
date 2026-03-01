@@ -11,7 +11,7 @@ require_once "../config.php";
 
 // Query 1: Get ALL readings for charts and latest values
 $sql_all = "SELECT timestamp, temperature, humidity, weight, fan_status, heater_status, mist_status, status
-            FROM beehive_readings 
+            FROM beehive_reading
             ORDER BY timestamp ASC";
 $result_all = mysqli_query($link, $sql_all);
 
@@ -49,7 +49,7 @@ $weight_history      = $weights;
 
 // Query 2: Get ONLY the last 5 previous readings (excluding the very latest one)
 $sql_last5 = "SELECT timestamp, temperature, humidity, weight, fan_status, mist_status, heater_status, status 
-              FROM beehive_readings 
+              FROM beehive_reading
               ORDER BY timestamp DESC 
               LIMIT 6";
 $result_last5 = mysqli_query($link, $sql_last5);
@@ -678,14 +678,18 @@ async function reloadValues() {
   }
 }
 
-// 🔁 Auto-refresh history log
+// 🔁 Auto-refresh history log every 5 seconds (FORCED LIVE REFRESH)
 async function reloadHistory() {
   try {
-    const res = await fetch("get_history.php");
+    const res = await fetch("get_history.php?ts=" + new Date().getTime(), {
+      cache: "no-store"
+    });
+
     const data = await res.json();
 
     const tbody = document.getElementById("history-body");
     if (!tbody) return;
+
     tbody.innerHTML = "";
 
     data.forEach(row => {
@@ -702,6 +706,7 @@ async function reloadHistory() {
       `;
       tbody.appendChild(tr);
     });
+
   } catch (err) {
     console.error("History fetch error:", err);
   }
