@@ -120,12 +120,54 @@ if ($prev_result && mysqli_num_rows($prev_result) > 0) {
 }
 
 // -------------------------
+// 4.5) Baseline weight (+20% increase alert)
+//    Table needed (run once):
+//    CREATE TABLE IF NOT EXISTS beehive_weight_baseline (
+//      id TINYINT NOT NULL PRIMARY KEY,
+//      baseline_weight DOUBLE NOT NULL,
+//      baseline_reading_id INT NULL,
+//      updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+//    );
+//    INSERT IGNORE INTO beehive_weight_baseline (id, baseline_weight, baseline_reading_id)
+//    VALUES (1, 0, NULL);
+// -------------------------
+$baseline_weight = null;
+
+// Fetch baseline row (single hive: id=1)
+$base_stmt = mysqli_prepare($link, "SELECT baseline_weight FROM beehive_weight_baseline WHERE id = 1 LIMIT 1");
+if ($base_stmt) {
+  mysqli_stmt_execute($base_stmt);
+  $base_res = mysqli_stmt_get_result($base_stmt);
+  if ($base_res && mysqli_num_rows($base_res) > 0) {
+    $baseline_weight = (float)mysqli_fetch_assoc($base_res)['baseline_weight'];
+  }
+  mysqli_stmt_close($base_stmt);
+}
+
+// If no baseline yet (or 0), set it to current weight (first valid reading)
+if ($baseline_weight === null || $baseline_weight <= 0) {
+  $set_stmt = mysqli_prepare($link, "INSERT INTO beehive_weight_baseline (id, baseline_weight, baseline_reading_id)
+                                    VALUES (1, ?, ?)
+                                    ON DUPLICATE KEY UPDATE baseline_weight = VALUES(baseline_weight),
+                                                            baseline_reading_id = VALUES(baseline_reading_id)");
+  if ($set_stmt) {
+    mysqli_stmt_bind_param($set_stmt, "di", $weightDB, $insert_id);
+    mysqli_stmt_execute($set_stmt);
+    mysqli_stmt_close($set_stmt);
+  }
+  $baseline_weight = $weightDB; // for runtime consistency
+}
+
+// -------------------------
 // 5) Alert Rules (UPDATED thresholds)
 // -------------------------
 $TEMP_MIN = 25.0; $TEMP_MAX = 35.0;
 $HUM_MIN  = 70.0; $HUM_MAX  = 90.0;
 $W_MIN    = 5.0;  $W_MAX    = 8.0;
 $SUDDEN_DROP_KG = 2.0;
+
+// +20% baseline increase config
+$GAIN_PERCENT = 0.20;
 
 $alerts = [];
 
@@ -146,7 +188,7 @@ if (out_of_range($humidityDB, $HUM_MIN, $HUM_MAX)) {
   $alerts[] = "💧 **HUMIDITY {$side} (OUT OF RANGE)** | {$humidityDB}% | {$timestamp}\nFan: {$fanText} | Mist: {$mistText} | Heater: {$heaterText}";
 }
 
-// Weight
+// Weight range
 if (out_of_range($weightDB, $W_MIN, $W_MAX)) {
   $side = ($weightDB > $W_MAX) ? "HIGH" : "LOW";
   $alerts[] = "⚖️ **WEIGHT {$side} (OUT OF RANGE)** | {$weightDB}kg | {$timestamp}\nFan: {$fanText} | Mist: {$mistText} | Heater: {$heaterText}";
@@ -155,7 +197,32 @@ if (out_of_range($weightDB, $W_MIN, $W_MAX)) {
 // Sudden drop
 if ($prev_weight !== null && ($prev_weight - $weightDB) > $SUDDEN_DROP_KG) {
   $drop = $prev_weight - $weightDB;
-  $alerts[] = "⚠️ **SUDDEN WEIGHT DROP** | -{$drop}kg | Prev: {$prev_weight}kg → Now: {$weightDB}kg | {$timestamp}";
+  $alerts[] = "⚠️ **SUDDEN WEIGHT DROP** | -" . number_format($drop, 2) . "kg | Prev: " . number_format($prev_weight, 2) . "kg → Now: " . number_format($weightDB, 2) . "kg | {$timestamp}";
+}
+
+// +20% increase from baseline
+if ($baseline_weight > 0) {
+  $target = $baseline_weight * (1.0 + $GAIN_PERCENT);
+
+  if ($weightDB >= $target) {
+    $gain = $weightDB - $baseline_weight;
+    $gainPct = ($gain / $baseline_weight) * 100.0;
+
+    $alerts[] = "📈 **WEIGHT INCREASE +20% (BASELINE TRIGGERED)** | +"
+      . number_format($gain, 2) . "kg (" . number_format($gainPct, 1) . "%) | "
+      . "Base: " . number_format($baseline_weight, 2) . "kg → Now: " . number_format($weightDB, 2) . "kg | {$timestamp}\n"
+      . "Fan: {$fanText} | Mist: {$mistText} | Heater: {$heaterText}";
+
+    // Update baseline to current weight to prevent repeated spam
+    $upd_stmt = mysqli_prepare($link, "UPDATE beehive_weight_baseline
+                                      SET baseline_weight = ?, baseline_reading_id = ?
+                                      WHERE id = 1");
+    if ($upd_stmt) {
+      mysqli_stmt_bind_param($upd_stmt, "di", $weightDB, $insert_id);
+      mysqli_stmt_execute($upd_stmt);
+      mysqli_stmt_close($upd_stmt);
+    }
+  }
 }
 
 // -------------------------

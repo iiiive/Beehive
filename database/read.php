@@ -2,7 +2,7 @@
 if (isset($_GET["reading_id"]) && !empty(trim($_GET["reading_id"]))) {
     require_once "config.php";
     
-    $sql = "SELECT * FROM beehive_readings WHERE reading_id = ?";
+    $sql = "SELECT * FROM beehive_reading WHERE reading_id = ?";
     if ($stmt = mysqli_prepare($link, $sql)) {
         mysqli_stmt_bind_param($stmt, "i", $param_reading_id);
         $param_reading_id = trim($_GET["reading_id"]);

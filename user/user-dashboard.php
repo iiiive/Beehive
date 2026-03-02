@@ -73,6 +73,19 @@ $next_feed   = $feeding ? new DateTime($feeding['next_feed']) : null;
 $time_diff   = $next_feed ? $next_feed->getTimestamp() - $now->getTimestamp() : null;
 $needs_feeding = ($time_diff !== null && $time_diff <= 0);
 
+/* ✅ ADD: Baseline Weight (+20%) for user dashboard */
+$baseline_weight = 0;
+$baseRes = mysqli_query($link, "SELECT baseline_weight FROM beehive_weight_baseline WHERE id = 1 LIMIT 1");
+if ($baseRes && mysqli_num_rows($baseRes) > 0) {
+  $baseline_weight = (float)mysqli_fetch_assoc($baseRes)['baseline_weight'];
+}
+if ($baseline_weight <= 0) $baseline_weight = (float)$latestWeight;
+
+$target_weight = $baseline_weight * 1.20;
+$gain_kg = (float)$latestWeight - $baseline_weight;
+$gain_pct = ($baseline_weight > 0) ? (($gain_kg / $baseline_weight) * 100.0) : 0;
+$triggered20 = ((float)$latestWeight >= $target_weight);
+
 mysqli_close($link);
 ?>
 
@@ -342,8 +355,8 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
-    <div id="temp-status" class="<?php echo ($latestTemp>25.90||$latestTemp<22.30)?'status-bad':'status-good';?>">
-      <?php echo ($latestTemp>25.90||$latestTemp<22.30)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
+    <div id="temp-status" class="<?php echo ($latestTemp>35||$latestTemp<25)?'status-bad':'status-good';?>">
+      <?php echo ($latestTemp>35||$latestTemp<25)?'Temperature is Bad ✖':'Temperature is Good ✔';?>
     </div>
     <canvas id="tempChart"></canvas>
   </div>
@@ -352,19 +365,28 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
-    <div id="hum-status" class="<?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'status-good':'status-bad';?>">
-      <?php echo ($latestHum>=79.20&&$latestHum<=86.40)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
+    <div id="hum-status" class="<?php echo ($latestHum>=70&&$latestHum<=90)?'status-good':'status-bad';?>">
+      <?php echo ($latestHum>=70&&$latestHum<=90)?'Humidity is Good ✔':'Humidity is Bad ✖';?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
 
-  <!-- Weight -->
+  <!-- ✅ Weight (+20% baseline logic) -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
     <div id="weight-value" class="value"><?php echo $latestWeight; ?> kg</div>
-    <div id="weight-status" class="<?php echo ($latestWeight>=5)?'status-good':'status-bad';?>">
-      <?php echo ($latestWeight>=5)?'The Hive is Heavy!':'The Hive is still Light';?>
+
+    <div id="weight-status" class="<?php echo $triggered20 ? 'status-good' : 'status-bad';?>">
+      <?php echo $triggered20 ? '✅ Weight +20% (Baseline Triggered)' : '⚠️ Not yet +20% from baseline';?>
     </div>
+
+    <small style="display:block; margin-top:10px; font-weight:700; color:#4B2E1E;">
+      Baseline: <span id="weight-base"><?php echo number_format($baseline_weight, 2); ?></span> kg |
+      Target (+20%): <span id="weight-target"><?php echo number_format($target_weight, 2); ?></span> kg<br>
+      Gain: <span id="weight-gain"><?php echo number_format($gain_kg, 2); ?></span> kg
+      (<span id="weight-gainpct"><?php echo number_format($gain_pct, 1); ?></span>%)
+    </small>
+
     <canvas id="weightChart"></canvas>
   </div>
 
@@ -516,7 +538,7 @@ function updateStatus(id, obj) {
 
 async function reloadValues() {
   try {
-    const response = await fetch("get_latest.php"); 
+    const response = await fetch("get_latest.php", { cache: "no-store" }); 
     const data = await response.json();
 
     if (document.getElementById("temp-value") && data.temperature !== undefined)
@@ -530,7 +552,7 @@ async function reloadValues() {
 
     if (data.temperature !== undefined) {
       updateStatus("temp-status",
-        (data.temperature >= 22.30 && data.temperature <= 25.90)
+        (data.temperature >= 25 && data.temperature <= 35)
           ? {text:"Temperature is Good ✔", cls:"status-good"}
           : {text:"Temperature is Bad ✖",  cls:"status-bad"}
       );
@@ -538,18 +560,33 @@ async function reloadValues() {
 
     if (data.humidity !== undefined) {
       updateStatus("hum-status",
-        (data.humidity >=79.20 && data.humidity <= 86.40)
+        (data.humidity >=70 && data.humidity <= 90)
           ? {text:"Humidity is Good ✔", cls:"status-good"}
           : {text:"Humidity is Bad ✖",  cls:"status-bad"}
       );
     }
 
+    /* ✅ Weight (+20% baseline) */
     if (data.weight !== undefined) {
+      const triggered = (data.triggered_20 == 1);
+
       updateStatus("weight-status",
-        (data.weight >= 5)
-          ? {text:"The Hive is Heavy!", cls:"status-good"}
-          : {text:"The Hive is still Light", cls:"status-bad"}
+        triggered
+          ? {text:"✅ Weight +20% (Baseline Triggered)", cls:"status-good"}
+          : {text:"⚠️ Not yet +20% from baseline", cls:"status-bad"}
       );
+
+      if (data.baseline_weight !== undefined && document.getElementById("weight-base"))
+        document.getElementById("weight-base").innerText = Number(data.baseline_weight).toFixed(2);
+
+      if (data.target_weight !== undefined && document.getElementById("weight-target"))
+        document.getElementById("weight-target").innerText = Number(data.target_weight).toFixed(2);
+
+      if (data.gain_kg !== undefined && document.getElementById("weight-gain"))
+        document.getElementById("weight-gain").innerText = Number(data.gain_kg).toFixed(2);
+
+      if (data.gain_pct !== undefined && document.getElementById("weight-gainpct"))
+        document.getElementById("weight-gainpct").innerText = Number(data.gain_pct).toFixed(1);
     }
 
     if (data.fan_status !== undefined) {
@@ -621,7 +658,8 @@ async function reloadHistory() {
 reloadHistory();
 setInterval(reloadHistory, 5000);
 
-/* ==================== FEEDING SCHEDULER (FIXED) ==================== */
+/* ==================== FEEDING SCHEDULER (YOUR ORIGINAL) ==================== */
+/* (UNCHANGED BELOW) */
 const feedingStatusEl = document.getElementById("feeding-status");
 const countdownEl     = document.getElementById("countdown");
 const feedDoneBtn     = document.getElementById("feed-done-btn");
@@ -631,9 +669,8 @@ const resumeBtn = document.getElementById("resume-btn");
 const stopBtn   = document.getElementById("stop-btn");
 
 let hungerAlertInterval = null;
-let feedingLoaded = false; // ✅ prevents refresh from wiping hunger key before first fetch
+let feedingLoaded = false;
 
-// ---- Persistent keys ----
 const FEED_KEY = "hivecare_feed_state_v1"; 
 const HUNGER_ALERT_KEY = "hivecare_hunger_alerted_for_next_feed_v1";
 
@@ -655,7 +692,6 @@ function saveState(obj) {
 }
 let state = loadState();
 
-// ---- Timer runtime ----
 let targetTs = null;
 let pausedRemainingMs = state.pausedRemainingMs ?? 0;
 
@@ -669,7 +705,6 @@ function safeParseTimestamp(str) {
   return isNaN(ts) ? NaN : ts;
 }
 
-// ✅ stable hungry key (minute bucket) — survives refresh/format differences
 function getHungryKey() {
   const ts = safeParseTimestamp(latestNextFeedStr);
   if (isNaN(ts)) return latestNextFeedStr || "";
@@ -679,26 +714,22 @@ function clearHungryAlertMemory() {
   localStorage.removeItem(HUNGER_ALERT_KEY);
 }
 
-// 🔔 hungry notification (alert + backend ping)
 function notifyHungryOnce() {
   alert("The bees are hungry! Time to feed them 🍯");
   fetch("check_feeding_status.php").catch(() => {});
 }
 
-// ✅ Alert only once per schedule, even after refresh
 function startHungerAlerts() {
   if (hungerAlertInterval) return;
 
   const currentKey = getHungryKey();
   const alreadyAlertedFor = localStorage.getItem(HUNGER_ALERT_KEY);
 
-  // show immediate alert ONCE per cycle
   if (currentKey && alreadyAlertedFor !== currentKey) {
     localStorage.setItem(HUNGER_ALERT_KEY, currentKey);
     notifyHungryOnce();
   }
 
-  // repeat every 10 minutes while page open
   hungerAlertInterval = setInterval(() => {
     notifyHungryOnce();
   }, 600000);
@@ -729,14 +760,12 @@ function renderSeconds(diffMs) {
   countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
 }
 
-/* ---- UI Modes ---- */
 function setNoScheduleUI() {
   feedingStatusEl.innerText = "⚠ No feeding schedule set.";
   feedingStatusEl.className = "status-bad";
   countdownEl.innerText = "";
   showControls({ pause:false, resume:false, stop:false, feedDone:false });
   stopHungerAlerts();
-  // ✅ IMPORTANT: do NOT clearHungryAlertMemory() here (prevents refresh re-alert bug)
 }
 
 function setStoppedUI() {
@@ -771,9 +800,7 @@ function setHungryUI() {
   startHungerAlerts();
 }
 
-/* ---- Stable Ticker ---- */
 function tick() {
-  // ✅ Wait for first fetchFeedingData() to finish
   if (!feedingLoaded) {
     feedingStatusEl.innerText = "Loading feeding schedule...";
     feedingStatusEl.className = "status-good";
@@ -843,17 +870,16 @@ function tick() {
   requestAnimationFrame(tick);
 }
 
-/* ---- Fetch Sync ---- */
 async function fetchFeedingData() {
   const res = await fetch("get_next_feed.php");
   const data = await res.json();
 
-  feedingLoaded = true; // ✅ unlock tick()
+  feedingLoaded = true;
 
   if (!data.has_schedule) {
     latestNextFeedStr = null;
     targetTs = null;
-    clearHungryAlertMemory(); // ✅ only when truly no schedule
+    clearHungryAlertMemory();
     setNoScheduleUI();
     return;
   }
@@ -862,7 +888,6 @@ async function fetchFeedingData() {
 
   const nfTs = safeParseTimestamp(data.next_feed);
 
-  // ✅ Only clear hungry memory when schedule moved to FUTURE (new cycle)
   if (data.timer_state !== "hungry" && !isNaN(nfTs) && nfTs > Date.now()) {
     clearHungryAlertMemory();
   }
@@ -884,7 +909,6 @@ async function fetchFeedingData() {
   targetTs = safeParseTimestamp(data.next_feed);
 }
 
-/* ---- Discord + Backend helpers ---- */
 async function notifyDiscord(msg) {
   try {
     await fetch("discord_alertfeed.php", {
@@ -908,7 +932,6 @@ async function updateTimerState(stateVal, remainingSeconds = 0) {
   });
 }
 
-/* ---- Buttons ---- */
 pauseBtn.addEventListener("click", async () => {
   if (state.mode !== "running" || !targetTs) return;
 
@@ -953,7 +976,6 @@ stopBtn.addEventListener("click", async () => {
   await notifyDiscord("⏹ Feeding timer was STOPPED by the user.");
 });
 
-// Feed Done button
 feedDoneBtn.addEventListener("click", async () => {
   try {
     feedDoneBtn.disabled = true;
@@ -963,7 +985,7 @@ feedDoneBtn.addEventListener("click", async () => {
     if (!out.ok) throw new Error(out.error || "Feed done failed");
 
     stopHungerAlerts();
-    clearHungryAlertMemory(); // ✅ allow next cycle to alert again
+    clearHungryAlertMemory();
     await notifyDiscord("✅ Feeding marked as DONE.");
 
     await fetchFeedingData();
@@ -977,7 +999,6 @@ feedDoneBtn.addEventListener("click", async () => {
   }
 });
 
-/* ---- Start ---- */
 fetchFeedingData();
 setInterval(fetchFeedingData, 5000);
 requestAnimationFrame(tick);

@@ -22,7 +22,6 @@ fputcsv($output, [
     'Fed By User ID',
     'Fed At',
     'Created At',
-    'Updated At'
 ]);
 
 // Write each row safely
@@ -37,7 +36,6 @@ if ($result && mysqli_num_rows($result) > 0) {
             $row['fed_by_user_id'] ?? '',
             $row['fed_at'] ?? '',
             $row['created_at'] ?? '',
-            $row['updated_at'] ?? ''
         ]);
     }
 } else {

@@ -8,7 +8,7 @@ $messageClass = "";
 
 // Discord webhook & base URL
 $discordWebhook = "https://discord.com/api/webhooks/1420701412224139335/GiB-6EseDZMOO0aREmXCsZC37Koa0Vz5dxCV4TTxeMnJDlPqQsyZtizmhuFgfu6UM8ut";
-$baseUrl = "http://localhost/Beehive/Beehive/admin";
+$baseUrl = "http://localhost/thesis/Beehive/admin";
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = trim($_POST['username']);

@@ -9,7 +9,7 @@ $messageClass = "";
 
 // ==== CONFIG ====
 $discordWebhook = "https://discord.com/api/webhooks/1420685985032831179/ew3Y7QIpekBBDnCjPe4VFBETbl0X03RXCePmSQmvjARI5AFjyBwBqYOnfmmRA76uILta"; 
-$baseUrl = "http://localhost/thesis/Beehive/frontend"; 
+$baseUrl = "http://localhost/thesis/Beehive/user"; 
 // =================
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {

@@ -225,7 +225,7 @@ if (isset($_GET["id"]) && !empty(trim($_GET["id"]))) {
             <li class="card__list_item"><span>Created At:</span><span><?= htmlspecialchars($created_at) ?></span></li>
         </ul>
 
-        <a href="feedindex.php" class="button">Back</a>
+        <a href="feeding_records.php" class="button">Back</a>
     </div>
 </body>
 </html>

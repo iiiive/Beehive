@@ -1,0 +1,287 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['admin_logged_in'])) {
+  header("Location: admin-login.php");
+  exit;
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bee Feeding Schedule Records</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      background-image: url("https://beeswiki.com/wp-content/uploads/2023/03/Are-there-stingless-bees-1024x683.png");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-attachment: fixed;
+      min-height: 100vh;
+      color: #74512D;
+      font-family: Arial, sans-serif;
+      padding: 20px 30px;
+    }
+
+    .wrapper { width: 100%; margin: auto; }
+    h2 {
+      font-family: 'Cursive', 'Brush Script MT', sans-serif;
+      font-size: clamp(2rem, 5vw, 4rem);
+      margin: 20px 0;
+      color: #FEDE16;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.6);
+      text-align: center;
+    }
+
+    .btn, .cta {
+      padding: 0.6rem 1.2rem;
+      font-weight: 700;
+      background: #FFF2A3;
+      color: #0B0806;
+      border-radius: 0.5rem;
+      border: 2px solid #74512D;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+    .btn:hover, .cta:hover {
+      background: #74512D;
+      color: #fff;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .group {
+      display: flex;
+      align-items: center;
+      position: relative;
+      max-width: 260px;
+      margin-right: 10px;
+    }
+    .input {
+      width: 100%;
+      height: 45px;
+      padding-left: 2.5rem;
+      border-radius: 12px;
+      border: 1px solid #74512D;
+      background-color: #E9E7D8;
+      color: #0B0806;
+    }
+    .input:focus { border-color: #FEDE16; box-shadow: 0 0 5px #FEDE16; }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      fill: #74512D;
+      width: 1rem;
+      height: 1rem;
+      pointer-events: none;
+    }
+
+    .custom-table {
+      width: 100%;
+      margin: 20px 0;
+      border-collapse: collapse;
+      background: #E9E7D8;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0px 4px 20px rgba(0,0,0,0.1);
+      color: #0B0806;
+    }
+    .custom-table thead { background-color: #74512D; color: #fff; }
+    .custom-table th, .custom-table td { padding: 0.8em 1em; border-bottom: 1px solid #E9E7D8; }
+    .custom-table tbody tr:hover { background-color: #fae76a; transition: 0.3s ease; }
+
+    .pagination-container {
+      display: block;
+      overflow-x: auto;
+      white-space: nowrap;
+      background-color: rgba(255, 242, 163, 0.9);
+      border-radius: 10px;
+      padding: 8px;
+    }
+    .pagination {
+      display: inline-flex;
+      justify-content: flex-start;
+      min-width: max-content;
+    }
+    .pagination .page-item .page-link {
+      color: #0B0806 !important;
+      background-color: #FFF2A3 !important;
+      border: 2px solid #74512D !important;
+      font-weight: 600;
+      border-radius: 8px;
+      margin: 0 3px;
+      transition: all 0.3s ease;
+    }
+    .pagination .page-item.active .page-link {
+      background-color: #74512D !important;
+      color: #fff !important;
+    }
+
+    @media (max-width: 768px) {
+      .group { max-width: 100%; margin-bottom: 10px; }
+      .input { width: 100%; }
+      .custom-table th, .custom-table td { font-size: 0.85rem; padding: 0.6em; }
+    }
+    @media (max-width: 576px) {
+      h2 { font-size: 2rem; }
+      .btn, .cta { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
+      .custom-table th, .custom-table td { font-size: 0.75rem; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+
+        <div class="d-flex justify-content-between align-items-center mt-3 mb-3 flex-wrap">
+          <a href="../admin/database.php" class="btn"><i class="bi bi-arrow-bar-left"></i> Back</a>
+          <h2>Bee Feeding Schedule Records</h2>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+          <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+            <div class="group">
+              <svg viewBox="0 0 24 24" class="search-icon">
+                <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.295-.293.295-.767.002-1.06z"></path>
+              </svg>
+              <input class="input" type="search" placeholder="Search ID/User/Fed By/State..."
+                     name="search" id="query" value="<?= htmlspecialchars($_GET['search'] ?? '') ?>"/>
+            </div>
+
+            <button type="submit" class="btn"><i class="bi bi-search"></i> Search</button>
+            <a href="feeding_records.php" class="btn"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+
+            <div class="dropdown">
+              <button class="btn dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-funnel"></i> Filters
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                <li><a class="dropdown-item" href="?filter=this_week_next">Next Feed: This Week</a></li>
+<li><a class="dropdown-item" href="?filter=next_week_next">Next Feed: Next Week</a></li>
+<li><a class="dropdown-item" href="?filter=next_7_days">Next Feed: Next 7 Days</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item" href="?filter=last_week_last">Last Fed: Last Week</a></li>
+<li><a class="dropdown-item" href="?filter=last_7_days">Last Fed: Last 7 Days</a></li>
+              </ul>
+            </div>
+
+            <a href="FeedingCSV.php" class="btn">
+              <i class="bi bi-file-earmark-arrow-down-fill"></i> Get a Copy
+            </a>
+          </form>
+        </div>
+
+        <div class="table-responsive">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Interval (min)</th>
+                <th>Next Feed</th>
+                <th>Last Fed</th>
+                <th>Fed By</th>
+                <th>Fed At</th>
+                <th>Created</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination-container mt-3">
+          <ul id="pagination" class="pagination mb-0"></ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+let currentPage = 1;
+
+async function reloadTable(page = 1) {
+  try {
+    currentPage = page;
+    const params = new URLSearchParams(window.location.search);
+    params.set("page", page);
+
+    const res = await fetch("beefeedingtable.php?" + params.toString(), { cache: "no-store" });
+    const json = await res.json();
+
+    const tbody = document.getElementById("table-body");
+    tbody.innerHTML = "";
+
+    // ✅ show real errors instead of fake "No records"
+    if (json.error) {
+      tbody.innerHTML = `<tr><td colspan="12" class="text-center text-danger fw-bold">${json.error}</td></tr>`;
+      return;
+    }
+
+    if (!json.data || json.data.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="12" class="text-center">No records found</td></tr>`;
+    } else {
+      json.data.forEach(row => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${row.id}</td>
+            <td>${row.user_id ?? ""}</td>
+            <td>${row.interval_minutes ?? ""}</td>
+            <td>${row.next_feed ?? ""}</td>
+            <td>${row.last_fed ?? ""}</td>
+            <td>${row.fed_by_user_id ?? ""}</td>
+            <td>${row.fed_at ?? ""}</td>
+            <td>${row.created_at ?? ""}</td>
+            <td><a href="viewfeed.php?id=${row.id}" class="cta"><i class="bi bi-eye-fill"></i></a></td>
+          </tr>
+        `;
+      });
+    }
+
+    const pagination = document.getElementById("pagination");
+    pagination.innerHTML = "";
+
+    const current = json.current_page || 1;
+    const total = json.total_pages || 1;
+
+    if (total > 1) {
+      const prevLi = document.createElement("li");
+      prevLi.className = "page-item" + (current === 1 ? " disabled" : "");
+      prevLi.innerHTML = `<a class="page-link" href="#">Previous</a>`;
+      prevLi.onclick = e => { e.preventDefault(); if (current > 1) reloadTable(current - 1); };
+      pagination.appendChild(prevLi);
+
+      for (let i = 1; i <= total; i++) {
+        const li = document.createElement("li");
+        li.className = "page-item" + (i === current ? " active" : "");
+        li.innerHTML = `<a class="page-link" href="#">${i}</a>`;
+        li.onclick = e => { e.preventDefault(); reloadTable(i); };
+        pagination.appendChild(li);
+      }
+
+      const nextLi = document.createElement("li");
+      nextLi.className = "page-item" + (current === total ? " disabled" : "");
+      nextLi.innerHTML = `<a class="page-link" href="#">Next</a>`;
+      nextLi.onclick = e => { e.preventDefault(); if (current < total) reloadTable(current + 1); };
+      pagination.appendChild(nextLi);
+    }
+
+  } catch (err) {
+    console.error("Table fetch error:", err);
+  }
+}
+
+reloadTable();
+setInterval(() => reloadTable(currentPage), 5000);
+</script>
+</body>
+</html>

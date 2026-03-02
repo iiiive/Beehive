@@ -190,9 +190,9 @@ h2 {
                 <div class="label">Beehive Readings</div>
             </a>
 
-            <a href="../database/feedindex.php" class="card-link">
+            <a href="../database/feeding_records.php" class="card-link">
                 <img src="../frontend/images/info.png" alt="Feeding Icon">
-                <div class="label">Bee Feeding Information</div>
+                <div class="label">Bee Feeding Schedule Records</div>
             </a>
 
             <a href="../database/userindex.php" class="card-link">

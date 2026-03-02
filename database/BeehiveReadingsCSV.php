@@ -4,7 +4,7 @@ require_once "config.php";
 // Fetch all readings including new columns
 $sql = "SELECT reading_id, timestamp, temperature, humidity, weight, 
                fan_status, heater_status, mist_status, status
-        FROM beehive_readings";
+        FROM beehive_reading";
 $result = mysqli_query($link, $sql);
 
 // CSV Headers

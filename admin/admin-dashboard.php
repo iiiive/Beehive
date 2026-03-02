@@ -78,6 +78,19 @@ if ($row = mysqli_fetch_assoc($result)) {
     $data = $row;
 }
 
+/* ✅ ADD: Fetch baseline weight for +20% dashboard display */
+$baseline_weight = 0;
+$baseRes = mysqli_query($link, "SELECT baseline_weight FROM beehive_weight_baseline WHERE id = 1 LIMIT 1");
+if ($baseRes && mysqli_num_rows($baseRes) > 0) {
+  $baseline_weight = (float)mysqli_fetch_assoc($baseRes)['baseline_weight'];
+}
+if ($baseline_weight <= 0) $baseline_weight = (float)$latestWeight;
+
+$target_weight = $baseline_weight * 1.20;
+$gain_kg = (float)$latestWeight - $baseline_weight;
+$gain_pct = ($baseline_weight > 0) ? (($gain_kg / $baseline_weight) * 100.0) : 0;
+$triggered20 = ((float)$latestWeight >= $target_weight);
+
 mysqli_close($link);
 ?>
 
@@ -98,7 +111,7 @@ body {
   min-height: 100vh;
   background: url('https://a-z-animals.com/media/2025/08/shutterstock-2374833763-huge-licensed-scaled.jpg') no-repeat center center/cover;
   position: relative;
-  margin: 0; 
+  margin: 0;
   padding: 0;
   color: #212121;
 }
@@ -108,15 +121,14 @@ body::before {
   background-color: rgba(0,0,0,0.4);
   z-index: 0;
 }
-.container, .dashboard-header, .card{ 
-  position: relative; 
-  z-index: 1; 
+.container, .dashboard-header, .card{
+  position: relative;
+  z-index: 1;
 }
 
 /* =========================
    DASHBOARD HEADER (FIXED)
    ========================= */
-
 .dashboard-header {
   width: 100%;
   padding: 12px 20px;
@@ -130,7 +142,6 @@ body::before {
   border-radius: 0 0 20px 20px;
   box-shadow: 6px 6px 20px rgba(0,0,0,0.35);
 }
-
 .dashboard-header .title {
   display: flex;
   align-items: center;
@@ -138,13 +149,11 @@ body::before {
   flex: 1 1 auto;
   min-width: 0;
 }
-
 .dashboard-header img {
   width: 60px;
   height: 60px;
   flex-shrink: 0;
 }
-
 .dashboard-header .title span {
   font-family: 'Brush Script MT', cursive, sans-serif;
   font-size: 2.2rem;
@@ -154,7 +163,6 @@ body::before {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 /* Action buttons */
 .dashboard-header .actions {
   display: flex;
@@ -162,7 +170,6 @@ body::before {
   gap: 8px;
   justify-content: flex-end;
 }
-
 .settings-btn,
 .logout-btn {
   padding: 8px 16px;
@@ -177,13 +184,11 @@ body::before {
   box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   transition: 0.3s;
 }
-
 .settings-btn:hover,
 .logout-btn:hover {
   background: #6B4226;
   transform: translateY(-2px) scale(1.03);
 }
-
 
 /* Layout */
 .container {
@@ -195,17 +200,16 @@ body::before {
 
 /* Metric Cards */
 .card {
-  flex:1 1 300px; 
+  flex:1 1 300px;
   min-width:280px;
   background: linear-gradient(145deg, #FFF8DC, #9b8c51ff);
-  border-radius:25px; 
+  border-radius:25px;
   border:none;
-  padding:25px; 
+  padding:25px;
   text-align:center;
   box-shadow: 8px 8px 20px rgba(0,0,0,0.3), -5px -5px 15px rgba(255,255,255,0.5);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .card-title {
   font-weight:700; font-size:1.5rem; margin-bottom:15px;
   display:flex; justify-content:center; align-items:center; gap:10px;
@@ -245,7 +249,7 @@ canvas { margin-top:20px; height:120px !important; }
   padding: 14px 12px !important;
   text-align: center;
   font-weight: bold;
-  border-right: 2px solid #4B2E1E; 
+  border-right: 2px solid #4B2E1E;
 }
 .history-table tbody tr:nth-child(even) {
   background: #FFF2A3 !important;
@@ -257,37 +261,30 @@ canvas { margin-top:20px; height:120px !important; }
 /* =========================
    HEADER MOBILE FIX
    ========================= */
-
 @media (max-width: 768px) {
   .dashboard-header {
     flex-direction: column;
     align-items: stretch;
   }
-
   .dashboard-header .title {
     justify-content: center;
   }
-
   .dashboard-header .title span {
     font-size: 1.7rem;
     text-align: center;
   }
-
   .dashboard-header img {
     width: 50px;
     height: 50px;
   }
-
   .dashboard-header .actions {
     justify-content: center;
   }
 }
-
 @media (max-width: 480px) {
   .dashboard-header .title span {
     font-size: 1.4rem;
   }
-
   .settings-btn,
   .logout-btn {
     font-size: 0.8rem;
@@ -373,38 +370,34 @@ canvas { margin-top:20px; height:120px !important; }
 }
 /* 📱 MOBILE FIX — Prevent horizontal scrolling */
 @media (max-width: 768px) {
-
   .history-table {
     width: 100%;
-    table-layout: fixed;   /* forces columns to shrink */
+    table-layout: fixed;
   }
-
   .history-table th,
   .history-table td {
     padding: 6px 4px !important;
     font-size: 11px;
-    white-space: normal !important; /* allow wrapping */
+    white-space: normal !important;
     word-wrap: break-word;
     word-break: break-word;
   }
-
   .history-table th {
     font-size: 10px;
   }
 }
-
 </style>
 </head>
+
 <body>
 
 <div class="dashboard-header">
   <div class="title">
-    <img src="../frontend/images/bee.png" alt="HiveCare Logo"> 
+    <img src="../frontend/images/bee.png" alt="HiveCare Logo">
     <span>HiveCare – Admin Dashboard</span>
   </div>
 
   <div class="actions">
-
     <a href="admin-feedsched.php" class="settings-btn">
       <i class="bi bi-calendar-event"></i> Feeding History
     </a>
@@ -424,12 +417,13 @@ canvas { margin-top:20px; height:120px !important; }
 </div>
 
 <div class="container">
+
   <!-- Temperature -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-thermometer-half" style="color:#D2691E;"></i> Temperature</h5>
     <div id="temp-value" class="value"><?php echo $latestTemp; ?> °C</div>
-    <div id="temp-status" class="<?php echo ($latestTemp >= 22.30 && $latestTemp <= 25.90) ? 'status-good' : 'status-bad'; ?>">
-      <?php echo ($latestTemp >= 22.30 && $latestTemp <= 25.90) ? 'Temperature is Good ✔' : 'Temperature is Bad ✖'; ?>
+    <div id="temp-status" class="<?php echo ($latestTemp >= 25 && $latestTemp <= 35) ? 'status-good' : 'status-bad'; ?>">
+      <?php echo ($latestTemp >= 25 && $latestTemp <= 35) ? 'Temperature is Good ✔' : 'Temperature is Bad ✖'; ?>
     </div>
     <canvas id="tempChart"></canvas>
   </div>
@@ -438,19 +432,28 @@ canvas { margin-top:20px; height:120px !important; }
   <div class="card">
     <h5 class="card-title"><i class="bi bi-droplet" style="color:#4B2E1E;"></i> Humidity</h5>
     <div id="hum-value" class="value"><?php echo $latestHum; ?> %</div>
-    <div id="hum-status" class="<?php echo ($latestHum >= 79.20 && $latestHum <= 86.40) ? 'status-good' : 'status-bad'; ?>">
-      <?php echo ($latestHum >= 79.20 && $latestHum <= 86.40) ? 'Humidity is Good ✔' : 'Humidity is Bad ✖'; ?>
+    <div id="hum-status" class="<?php echo ($latestHum >= 70 && $latestHum <= 90) ? 'status-good' : 'status-bad'; ?>">
+      <?php echo ($latestHum >= 70 && $latestHum <= 90) ? 'Humidity is Good ✔' : 'Humidity is Bad ✖'; ?>
     </div>
     <canvas id="humChart"></canvas>
   </div>
 
-  <!-- Weight -->
+  <!-- ✅ Weight (+20% baseline logic, preserved chart) -->
   <div class="card">
     <h5 class="card-title"><i class="bi bi-box-seam" style="color:#FFD93D;"></i> Weight</h5>
     <div id="weight-value" class="value"><?php echo $latestWeight; ?> kg</div>
-    <div id="weight-status" class="<?php echo ($latestWeight >= 5) ? 'status-good' : 'status-bad'; ?>">
-      <?php echo ($latestWeight >= 5) ? 'The Hive is Heavy!' : 'The Hive is still Light'; ?>
+
+    <div id="weight-status" class="<?php echo $triggered20 ? 'status-good' : 'status-bad'; ?>">
+      <?php echo $triggered20 ? '✅ Weight +20% (Baseline Triggered)' : '⚠️ Not yet +20% from baseline'; ?>
     </div>
+
+    <small style="display:block; margin-top:10px; font-weight:700; color:#4B2E1E;">
+      Baseline: <span id="weight-base"><?php echo number_format($baseline_weight, 2); ?></span> kg |
+      Target (+20%): <span id="weight-target"><?php echo number_format($target_weight, 2); ?></span> kg<br>
+      Gain: <span id="weight-gain"><?php echo number_format($gain_kg, 2); ?></span> kg
+      (<span id="weight-gainpct"><?php echo number_format($gain_pct, 1); ?></span>%)
+    </small>
+
     <canvas id="weightChart"></canvas>
   </div>
 
@@ -576,8 +579,7 @@ function setStatusById(id, isGood, goodText, badText) {
 // 🔁 Auto-refresh metrics + devices
 async function reloadValues() {
   try {
-    // reuse user API
-    const response = await fetch("../user/get_latest.php");
+    const response = await fetch("../user/get_latest.php", { cache: "no-store" });
     const data = await response.json();
 
     // Temperature
@@ -585,7 +587,7 @@ async function reloadValues() {
       document.getElementById("temp-value").innerText = data.temperature + " °C";
       setStatusById(
         "temp-status",
-        (data.temperature >= 22.30 && data.temperature <= 25.90),
+        (data.temperature >= 25 && data.temperature <= 35),
         "Temperature is Good ✔",
         "Temperature is Bad ✖"
       );
@@ -596,21 +598,36 @@ async function reloadValues() {
       document.getElementById("hum-value").innerText = data.humidity + " %";
       setStatusById(
         "hum-status",
-        (data.humidity >= 79.20 && data.humidity <= 86.40),
+        (data.humidity >= 70 && data.humidity <= 90),
         "Humidity is Good ✔",
         "Humidity is Bad ✖"
       );
     }
 
-    // Weight
+    // ✅ Weight (+20% baseline)
     if (data.weight !== undefined) {
       document.getElementById("weight-value").innerText = data.weight + " kg";
-      setStatusById(
-        "weight-status",
-        (data.weight >= 5),
-        "The Hive is Heavy!",
-        "The Hive is still Light"
-      );
+
+      const triggered = (data.triggered_20 == 1);
+      const label = triggered
+        ? "✅ Weight +20% (Baseline Triggered)"
+        : "⚠️ Not yet +20% from baseline";
+
+      setStatusById("weight-status", triggered, label, label);
+
+      // Update baseline details if present
+      if (data.baseline_weight !== undefined && document.getElementById("weight-base")) {
+        document.getElementById("weight-base").innerText = Number(data.baseline_weight).toFixed(2);
+      }
+      if (data.target_weight !== undefined && document.getElementById("weight-target")) {
+        document.getElementById("weight-target").innerText = Number(data.target_weight).toFixed(2);
+      }
+      if (data.gain_kg !== undefined && document.getElementById("weight-gain")) {
+        document.getElementById("weight-gain").innerText = Number(data.gain_kg).toFixed(2);
+      }
+      if (data.gain_pct !== undefined && document.getElementById("weight-gainpct")) {
+        document.getElementById("weight-gainpct").innerText = Number(data.gain_pct).toFixed(1);
+      }
     }
 
     // Exhaust Fan
@@ -618,9 +635,7 @@ async function reloadValues() {
       const fanVal = document.getElementById("fan-value");
       const fanStatusDiv = document.getElementById("fan-status");
 
-      if (fanVal) {
-        fanVal.innerText = (data.fan_status == 1 ? "ON" : "OFF");
-      }
+      if (fanVal) fanVal.innerText = (data.fan_status == 1 ? "ON" : "OFF");
 
       if (fanStatusDiv) {
         if (data.fan_status == 1) {
@@ -638,9 +653,7 @@ async function reloadValues() {
       const heaterVal = document.getElementById("heater-value");
       const heaterStatus = document.getElementById("heater-status");
 
-      if (heaterVal) {
-        heaterVal.innerText = (data.heater_status == 1 ? "ON" : "OFF");
-      }
+      if (heaterVal) heaterVal.innerText = (data.heater_status == 1 ? "ON" : "OFF");
 
       if (heaterStatus) {
         if (data.heater_status == 1) {
@@ -658,9 +671,7 @@ async function reloadValues() {
       const mistVal = document.getElementById("mist-value");
       const mistStatus = document.getElementById("mist-status");
 
-      if (mistVal) {
-        mistVal.innerText = (data.mist_status == 1 ? "ON" : "OFF");
-      }
+      if (mistVal) mistVal.innerText = (data.mist_status == 1 ? "ON" : "OFF");
 
       if (mistStatus) {
         if (data.mist_status == 1) {
@@ -711,6 +722,7 @@ async function reloadHistory() {
     console.error("History fetch error:", err);
   }
 }
+
 let countdownInterval;
 let pausedDiff = null; // stores remaining ms when paused/stopped
 
@@ -759,35 +771,27 @@ function fetchFeedingStatus() {
       const nextFeed = data.next_feed ? new Date(data.next_feed.replace(" ", "T")) : null;
       const timerState = (data.timer_state || "running").toLowerCase();
 
-      // compute diff ONCE per fetch
-const diff = nextFeed ? (nextFeed.getTime() - Date.now()) : 0;
+      const diff = nextFeed ? (nextFeed.getTime() - Date.now()) : 0;
+      const isFinished = !!nextFeed && diff <= 0;
 
-// ✅ If time is already up, override the badge (even if timer_state says running)
-const isFinished = !!nextFeed && diff <= 0;
+      const stateBadge = isFinished
+        ? "🔴 TIMER FINISHED"
+        : ({
+            running: "🟢 RUNNING",
+            paused:  "🟡 PAUSED",
+            stopped: "🔴 STOPPED"
+          }[timerState] || "🟢 RUNNING");
 
-const stateBadge = isFinished
-  ? "🔴 TIMER FINISHED"
-  : ({
-      running: "🟢 RUNNING",
-      paused:  "🟡 PAUSED",
-      stopped: "🔴 STOPPED"
-    }[timerState] || "🟢 RUNNING");
-
-
-
-      // store frozen value when paused/stopped (so it doesn't change)
       if (timerState === "paused" || timerState === "stopped") {
-        if (pausedDiff === null) pausedDiff = diff; // capture only once
+        if (pausedDiff === null) pausedDiff = diff;
       } else {
-        pausedDiff = null; // running = reset frozen storage
+        pausedDiff = null;
       }
 
-      // ALWAYS include the countdown span
       const cardClass =
-  (timerState === "running" && !isFinished)
-    ? "feed-card feed-eating"
-    : "feed-card feed-hungry";
-
+        (timerState === "running" && !isFinished)
+          ? "feed-card feed-eating"
+          : "feed-card feed-hungry";
 
       const statusText =
         timerState === "stopped"
@@ -797,11 +801,10 @@ const stateBadge = isFinished
           ? `<p class="text-warning fw-bold">🟡 Timer PAUSED by user</p>
              <p>Next feeding in: <span class="countdown"></span></p>`
         : (isFinished
-    ? `<p class="text-danger fw-bold">⏰ Timer finished! Bees need to be fed now!</p>
-       <p>Next feeding in: <span class="countdown"></span></p>`
-    : `<p class="text-success fw-bold">🍯 Feeding schedule running</p>
-       <p>Next feeding in: <span class="countdown"></span></p>`);
-
+            ? `<p class="text-danger fw-bold">⏰ Timer finished! Bees need to be fed now!</p>
+               <p>Next feeding in: <span class="countdown"></span></p>`
+            : `<p class="text-success fw-bold">🍯 Feeding schedule running</p>
+               <p>Next feeding in: <span class="countdown"></span></p>`);
 
       document.getElementById("feeding-status-list").innerHTML = `
         <div class="${cardClass}">
@@ -815,7 +818,6 @@ const stateBadge = isFinished
         </div>
       `;
 
-      // Control the countdown behavior
       if (!data.next_feed) {
         clearInterval(countdownInterval);
         showFrozenCountdown(0);
@@ -823,17 +825,14 @@ const stateBadge = isFinished
       }
 
       if (timerState === "running" && !isFinished) {
-  startCountdown(data.next_feed);
-} else {
-  clearInterval(countdownInterval);
-  showFrozenCountdown(pausedDiff ?? diff);
-}
-
+        startCountdown(data.next_feed);
+      } else {
+        clearInterval(countdownInterval);
+        showFrozenCountdown(pausedDiff ?? diff);
+      }
     })
     .catch(err => console.error("Fetch error:", err));
 }
-
-
 
 // Run everything
 reloadValues();
